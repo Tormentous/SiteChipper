@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sign Up or Log In</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; text-align: center; }
+    input, button { padding: 12px; margin: 8px; font-size: 16px; width: 280px; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Welcome</h1>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <br>
+  <button onclick="signup()">Sign Up</button>
+  <button onclick="login()">Log In</button>
+  <p id="result"></p>
+
+  <script>
+    function signup() {
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value;
+      if (!user || !pass) return alert("Fill both fields");
+
+      let nextId = parseInt(localStorage.getItem('nextUserId') || '0');
+      localStorage.setItem(`user_${nextId}`, JSON.stringify({username: user, password: pass}));
+      localStorage.setItem('nextUserId', nextId + 1);
+      localStorage.setItem('currentUserId', nextId);
+      localStorage.setItem('loggedIn', 'true');
+
+      document.getElementById('result').innerHTML = 
+        `Signed up!<br>Welcome <strong>${user}</strong><br>Your ID: <strong>${nextId}</strong>`;
+
+      setTimeout(() => window.location.href = '/index.html', 800);
+    }
+
+    function login() {
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value;
+      let found = false;
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('user_')) {
+          const data = JSON.parse(localStorage.getItem(key));
+          if (data.username === user && data.password === pass) {
+            const id = key.split('_')[1];
+            localStorage.setItem('currentUserId', id);
+            localStorage.setItem('loggedIn', 'true');
+
+            document.getElementById('result').innerHTML = 
+              `Logged in!<br>Welcome back <strong>${user}</strong> (ID: ${id})`;
+            found = true;
+            setTimeout(() => window.location.href = '/index.html', 800);
+            break;
+          }
+        }
+      }
+      if (!found) alert("Wrong username or password");
+    }
+  </script>
+</body>
+</html>

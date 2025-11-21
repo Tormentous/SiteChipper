@@ -27,7 +27,27 @@ html, body {
   border-bottom: 1px solid #ddd;
 }
 
+.user-avatar img {
+  max-height: 100%;
+  width: 40px;
+  height: 100%;
+  object-fit: contain;
+}
 
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.username {
+  font-family: cantarell, cursive;
+  order: 1;
+}
+
+.user-avatar {
+  order: 2;
+}
 
 .main-nav {
   display: flex;
