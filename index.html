@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<!--#include virtual="/SiteChipper/shared/header.html" -->
+    <div id="shared-header"></div>
 <div class="banner">
     <button class="downloadbutton">
         <a href="https://github.com/SillyBilly10/game" target="_blank">Buy Chipper on Steam!</a>
@@ -24,5 +24,16 @@
         <p>you can't atm</p>
     </div>
 </footer>
+	    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // relative path from games/ to shared/
+            fetch("../shared/header.html")
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("shared-header").innerHTML = data;
+                })
+                .catch(err => console.error("Header failed to load:", err));
+        });
+    </script>
 </body>
 </html>
