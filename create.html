@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Post - Coolbrador Boards</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; text-align: center; }
+    textarea, input { width: 500px; max-width: 90%; padding: 14px; margin: 10px; font-size: inherit; }
+    button { padding: 14px 30px; font-size: 18px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Create Post</h1>
+  <input type="text" id="boardName" placeholder="Board name (e.g. testboard)" value="testboard">
+  <br>
+  <textarea id="postText" rows="6" placeholder="What's on your mind?"></textarea>
+  <br>
+  <button onclick="createPost()">Post to /b/</button>
+  <p><a href="/index.html">← Back</a></p>
+
+  <script>
+    function createPost() {
+      const boardInput = document.getElementById('boardName').value.trim();
+      const text = document.getElementById('postText').value.trim();
+      if (!boardInput || !text) return alert("Fill both fields");
+      if (localStorage.getItem('loggedIn') !== 'true') return alert("You must be logged in");
+
+      const board = `/b/${boardInput}`;
+      const userId = localStorage.getItem('currentUserId');
+      const userData = JSON.parse(localStorage.getItem(`user_${userId}`));
+
+      const key = `posts_${board}`;
+      let posts = JSON.parse(localStorage.getItem(key) || '[]');
+
+      posts.unshift({
+        id: Date.now(),
+        username: userData.username,
+        userId: userId,
+        text: text,
+        timestamp: new Date().toISOString(),
+        likes: 0
+      });
+
+      localStorage.setItem(key, JSON.stringify(posts));
+      alert("Posted!");
+      window.location.href = '/community.html';  // now goes to community.html
+    }
+  </script>
+</body>
+</html>

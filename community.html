@@ -1,90 +1,155 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Coolbrador Boards</title>
-        <link rel="stylesheet" href="styles.css"/>
-        <style>
-            .boards-top-banner {
-                text-align: center;
-                padding: 40px 20px 30px;
-                margin-bottom: 30px;
-            }
-            .boards-top-banner h1 {
-                margin: 0 0 20px 0;
-                font-size: 2.8rem;
-            }
-            .boards-search {
-                margin: 20px 0;
-            }
-            .boards-search input {
-                padding: 14px 24px;
-                width: 500px;
-                max-width: 90%;
-                font-size: 1.1rem;
-                border: 2px solid #007bff;
-                border-radius: 50px;
-                color: black;           /* only forces typed text black */
-            }
-            .boards-top-banner h2 {
-                margin: 30px 0 0 0;
-                font-weight: 500;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="shared-header"></div>
+<head>
+  <title>Coolbrador Boards</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div id="shared-header"></div>
+  <div class="boards-top-banner">
+    <h1>Coolbrador Boards</h1>
+    <div class="boards-search">
+      <input type="text" placeholder="Search boards..." autocomplete="off">
+    </div>
+    <button class="create-post-btn" onclick="location.href='/create.html'">Create Post</button>
+    <h2>For You</h2>
+    <h3>Some posts will appear in game!</h3>
+  </div>
+  <section class="container bodytext-section">
+    <div class="gallery items"></div>
+  </section>
+  <div id="shared-footer"></div>
 
-        <div class="boards-top-banner">
-            <h1>Coolbrador Boards</h1>
-            <div class="boards-search">
-                <input type="text" placeholder="Search boards..." autocomplete="off">
+  <script>
+    function timeAgo(date) {
+      const seconds = Math.floor((Date.now() - new Date(date)) / 1000);
+      let interval = seconds / 31536000;
+      if (interval > 1) return Math.floor(interval) + "y ago";
+      interval = seconds / 2592000;
+      if (interval > 1) return Math.floor(interval) + "mo ago";
+      interval = seconds / 86400;
+      if (interval > 1) return Math.floor(interval) + "d ago";
+      interval = seconds / 3600;
+      if (interval > 1) return Math.floor(interval) + "h ago";
+      interval = seconds / 60;
+      if (interval > 1) return Math.floor(interval) + "m ago";
+      return "just now";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("../shared/header.html").then(r=>r.text()).then(h=>document.getElementById("shared-header").innerHTML=h);
+      fetch("../shared/footer.html").then(r=>r.text()).then(f=>document.getElementById("shared-footer").innerHTML=f);
+
+      const gallery = document.querySelector('.gallery.items');
+      let allPosts = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('posts_/b/')) {
+          const posts = JSON.parse(localStorage.getItem(key) || '[]');
+          posts.forEach(p => {
+            p.board = key.replace('posts_', '');
+            if (!p.yeahs) p.yeahs = [];
+            allPosts.push(p);
+          });
+        }
+      }
+
+      allPosts.sort((a, b) => b.id - a.id);
+      const currentUserId = localStorage.getItem('currentUserId') || '';
+
+      if (allPosts.length === 0) {
+        gallery.innerHTML = '<p style="text-align:center;padding:80px;color:#888;">No posts yet — be the first!</p>';
+        return;
+      }
+
+      gallery.innerHTML = allPosts.map(post => {
+        const hasYeah = post.yeahs.includes(currentUserId);
+        const yeahCount = post.yeahs.length;
+        const counterText = yeahCount === 0 ? '' :
+                            yeahCount === 1 ? '1 person gave this a Yeah!' :
+                            `${yeahCount} people gave this a Yeah!`;
+
+        const profileUrl = `/users/${post.userId}/profile.html`;
+
+        return `
+          <div class="post">
+            <div class="post-avatar" onclick="location.href='${profileUrl}'" style="cursor:pointer;">
+              <img src="/users/default/pfp.jpg" alt="${post.username}">
             </div>
-            <h2>For You</h2>
-            <h3>Some posts will appear in game!</h3>
-        </div>
-
-        <section class="container bodytext-section">
-            <div class="gallery items">
-                <!-- your gallery items -->
+            <div class="post-body">
+              <div class="post-header">
+                <strong onclick="location.href='${profileUrl}'" style="cursor:pointer;">${post.username}</strong>
+                <span class="post-meta">
+                  <span class="post-board">${post.board}</span>
+                  <span class="post-time">${timeAgo(post.timestamp)}</span>
+                </span>
+              </div>
+              <div class="post-text">${post.text.replace(/\n/g, '<br>br')}</div>
+              <div class="post-footer">
+                <button class="yeah-btn ${hasYeah ? 'liked' : ''}"
+                        data-postid="${post.id}" data-board="${post.board}">
+                  ${hasYeah ? 'Yeah!' : 'Yeah'}
+                </button>
+                <div class="yeah-counter">${counterText}</div>
+                ${yeahCount > 0 ? `
+                  <div class="yeah-avatars">
+                    ${post.yeahs.slice(0,8).map(() => `<img src="/users/default/pfp.jpg">`).join('')}
+                    ${yeahCount > 8 ? `<span class="yeah-more">+${yeahCount-8}</span>` : ''}
+                  </div>` : ''}
+              </div>
             </div>
-        </section>
+          </div>`;
+      }).join('');
 
-        <div id="shared-footer"></div>
+      gallery.addEventListener('click', e => {
+        // Let avatar/username onclick handle navigation
+        if (e.target.closest('.post-avatar') || e.target.tagName === 'STRONG') return;
 
-		<script>
-		document.addEventListener("DOMContentLoaded", function () {
-		  // Load header
-		  fetch("../shared/header.html")
-			.then(r => r.text())
-			.then(html => {
-			  document.getElementById("shared-header").innerHTML = html;
+        const btn = e.target.closest('.yeah-btn');
+        if (!btn || localStorage.getItem('loggedIn') !== 'true') return;
 
-			  // NOW run the user section script AFTER header is inserted
-			  const userSection = document.getElementById("userSection");
-			  const loggedIn = localStorage.getItem("loggedIn") === "true";
-			  const userId = localStorage.getItem("currentUserId");
+        const postId = btn.dataset.postid;
+        const board  = btn.dataset.board;
+        const userId = localStorage.getItem('currentUserId');
+        const key    = `posts_${board}`;
 
-			  if (loggedIn && userId) {
-				const userData = JSON.parse(localStorage.getItem(`user_${userId}`));
-				if (userData?.username) {
-				  userSection.innerHTML = `
-					<span class="username">${userData.username}</span>
-					<a href="/users/${userId}/profile.html" class="user-avatar">
-					  <img src="/users/default/pfp.jpg" alt="${userData.username}'s avatar">
-					</a>
-				  `;
-				  return;
-				}
-			  }
-			  // Not logged in
-			  userSection.innerHTML = `<a href="/login.html" style="color:#007bff;font-weight:bold;text-decoration:none;">Create an account today!</a>`;
-			});
+        let posts = JSON.parse(localStorage.getItem(key) || '[]');
+        const post = posts.find(p => p.id == postId);
+        if (!post.yeahs) post.yeahs = [];
 
-		  // Load footer
-		  fetch("../shared/footer.html")
-			.then(r => r.text())
-			.then(d => document.getElementById("shared-footer").innerHTML = d);
-		});
-		</script>
-	</body>
+        const alreadyYeah = post.yeahs.includes(userId);
+        if (alreadyYeah) {
+          post.yeahs = post.yeahs.filter(id => id !== userId);
+        } else {
+          post.yeahs.push(userId);
+        }
+
+        localStorage.setItem(key, JSON.stringify(posts));
+
+        btn.classList.toggle('liked', !alreadyYeah);
+        btn.textContent = !alreadyYeah ? 'Yeah!' : 'Yeah';
+
+        const count = post.yeahs.length;
+        const counterDiv = btn.closest('.post-footer').querySelector('.yeah-counter');
+        counterDiv.textContent = count === 0 ? '' :
+                                 count === 1 ? '1 person gave this a Yeah!' :
+                                 `${count} people gave this a Yeah!`;
+
+        const avatarsDiv = btn.closest('.post-footer').querySelector('.yeah-avatars');
+        if (count === 0) {
+          if (avatarsDiv) avatarsDiv.remove();
+        } else {
+          if (!avatarsDiv) {
+            btn.closest('.post-footer').insertAdjacentHTML('beforeend', '<div class="yeah-avatars"></div>');
+          }
+          const container = btn.closest('.post-footer').querySelector('.yeah-avatars');
+          container.innerHTML =
+            post.yeahs.slice(0,8).map(() => `<img src="/users/default/pfp.jpg">`).join('') +
+            (count > 8 ? `<span class="yeah-more">+${count-8}</span>` : '');
+        }
+      });
+    });
+  </script>
+</body>
 </html>
