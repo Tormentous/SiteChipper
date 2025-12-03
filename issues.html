@@ -5,49 +5,77 @@
         <link rel="stylesheet" href="styles.css"/>
     </head>
     <body>
-    <div id="shared-header"></div>
-            <div class="bodytext-section container">
-                <h1 class="section-header">Report an Issue with a Coolbrador Product or Moderator</h1>
+        <div id="shared-header"></div>
+
+        <div class="container bodytext-section mt-4">
+            <h1 class="section-header">Report an Issue with a Coolbrador Product or Moderator</h1>
+        </div>
+
+        <!-- Tabs -->
+        <div class="container mt-3">
+            <ul class="nav nav-tabs" id="issueTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="issues-tab" data-toggle="tab" href="#issues" role="tab">Issues</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="mutinies-tab" data-toggle="tab" href="#mutinies" role="tab">Mutinies</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="ideas-tab" data-toggle="tab" href="#ideas" role="tab">Ideas</a>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3">
+                <div class="tab-pane fade show active" id="issues" role="tabpanel">
+                    <section class="container bodytext-section">
+                        <h1>We resolve issues transparently via open community votes, ensuring fairness for all.</h1>
+                        <!-- Existing issues content here -->
+                    </section>
+                </div>
+                <div class="tab-pane fade" id="mutinies" role="tabpanel">
+                    <section class="container bodytext-section">
+                        <h1>Mutinies</h1>
+                        <p>Community proposals to remove or replace moderators.</p>
+                    </section>
+                </div>
+                <div class="tab-pane fade" id="ideas" role="tabpanel">
+                    <section class="container bodytext-section">
+                        <h1>Ideas & Suggestions</h1>
+                        <p>Share your ideas for new features or improvements.</p>
+                    </section>
+                </div>
             </div>
-            <section class="container bodytext-section">
-                    <h1>We resolve issues transparently via open community votes, ensuring fairness for all.</h1>
-               </section>
-			<div id="shared-footer"></div>
+        </div>
 
-		<script>
-		document.addEventListener("DOMContentLoaded", function () {
-		  // Load header
-		  fetch("../shared/header.html")
-			.then(r => r.text())
-			.then(html => {
-			  document.getElementById("shared-header").innerHTML = html;
+        <div id="shared-footer"></div>
 
-			  // NOW run the user section script AFTER header is inserted
-			  const userSection = document.getElementById("userSection");
-			  const loggedIn = localStorage.getItem("loggedIn") === "true";
-			  const userId = localStorage.getItem("currentUserId");
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                fetch("../shared/header.html")
+                    .then(r => r.text())
+                    .then(html => {
+                        document.getElementById("shared-header").innerHTML = html;
+                        const userSection = document.getElementById("userSection");
+                        const loggedIn = localStorage.getItem("loggedIn") === "true";
+                        const userId = localStorage.getItem("currentUserId");
+                        if (loggedIn && userId) {
+                            const userData = JSON.parse(localStorage.getItem(`user_${userId}`));
+                            if (userData?.username) {
+                                userSection.innerHTML = `
+                                    <span class="username">${userData.username}</span>
+                                    <a href="/users/${userId}/profile.html" class="user-avatar">
+                                        <img src="/users/default/pfp.jpg" alt="${userData.username}'s avatar">
+                                    </a>`;
+                                return;
+                            }
+                        }
+                        userSection.innerHTML = `<a href="/login.html" style="color:#007bff;font-weight:bold;text-decoration:none;">Create an account today!</a>`;
+                    });
 
-			  if (loggedIn && userId) {
-				const userData = JSON.parse(localStorage.getItem(`user_${userId}`));
-				if (userData?.username) {
-				  userSection.innerHTML = `
-					<span class="username">${userData.username}</span>
-					<a href="/users/${userId}/profile.html" class="user-avatar">
-					  <img src="/users/default/pfp.jpg" alt="${userData.username}'s avatar">
-					</a>
-				  `;
-				  return;
-				}
-			  }
-			  // Not logged in
-			  userSection.innerHTML = `<a href="/login.html" style="color:#007bff;font-weight:bold;text-decoration:none;">Create an account today!</a>`;
-			});
-
-		  // Load footer
-		  fetch("../shared/footer.html")
-			.then(r => r.text())
-			.then(d => document.getElementById("shared-footer").innerHTML = d);
-		});
-		</script>
-	</body>
+                fetch("../shared/footer.html")
+                    .then(r => r.text())
+                    .then(d => document.getElementById("shared-footer").innerHTML = d);
+            });
+        </script>
+    </body>
 </html>

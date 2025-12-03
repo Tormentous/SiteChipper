@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Board</title>
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .board-banner {
+      position: relative;
+      height: 220px;
+      overflow: hidden;
+      margin-bottom: 30px;
+      background: #000;
+    }
+    .banner-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+    .banner-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.65);
+    }
+    .banner-content {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    #boardIcon {
+      position: absolute;
+      left: 32px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+      pointer-events: auto;
+    }
+    #boardName {
+      margin: 0;
+      color: white;
+      font-size: 4.0rem;
+      font-weight: 800;
+      text-shadow: 0 3px 12px rgba(0,0,0,0.9);
+    }
+  </style>
+</head>
+<body>
+  <div id="shared-header"></div>
+
+  <div class="board-banner">
+    <div class="banner-bg">
+      <img src="" alt="banner" class="banner-image" id="bannerImg" onerror="this.style.display='none'">
+    </div>
+    <div class="banner-content">
+      <h1 id="boardName"></h1>
+    </div>
+    <img id="boardIcon" src="" alt="icon">
+  </div>
+
+  <section class="container bodytext-section">
+    <div class="gallery items" id="postsContainer"></div>
+  </section>
+
+  <div id="shared-footer"></div>
+
+<script>
+function timeAgo(date) {
+  const s = Math.floor((Date.now() - new Date(date)) / 1000);
+  let i = s / 31536000; if (i > 1) return Math.floor(i) + "y";
+  i = s / 2592000; if (i > 1) return Math.floor(i) + "mo";
+  i = s / 86400; if (i > 1) return Math.floor(i) + "d";
+  i = s / 3600; if (i > 1) return Math.floor(i) + "h";
+  i = s / 60; if (i > 1) return Math.floor(i) + "m";
+  return "now";
+}
+function getPfp(id) { return localStorage.getItem("pfp_"+id) || "/users/default/pfp.jpg"; }
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("../../shared/header.html").then(r=>r.text()).then(h=>document.getElementById("shared-header").innerHTML=h);
+  fetch("../../shared/footer.html").then(r=>r.text()).then(f=>document.getElementById("shared-footer").innerHTML=f);
+
+  const parts = location.pathname.split('/').filter(Boolean);
+  const boardId = parts[1];
+  if (!boardId) return;
+
+  document.title = `/${boardId} - Coolbrador Boards`;
+  document.getElementById("boardName").textContent = boardId;
+  document.getElementById("boardIcon").src = `/b/${boardId}/icon.png`;
+  document.getElementById("bannerImg").src = `/b/${boardId}/banner.jpg`;
+
+  const key = `posts_/b/${boardId}`;
+  let posts = JSON.parse(localStorage.getItem(key) || "[]");
+  const container = document.getElementById("postsContainer");
+  const currentUserId = localStorage.getItem("currentUserId") || "";
+  const loggedIn = localStorage.getItem("loggedIn") === "true";
+
+  if (!posts.length) {
+    container.innerHTML = `<p style="text-align:center;padding:80px;color:#888;">No posts yet — be the first!</p>`;
+    return;
+  }
+
+  posts.sort((a,b) => b.id - a.id);
+  container.innerHTML = posts.map(post => {
+    const hasYeah = post.yeahs?.includes(currentUserId);
+    const avatar = getPfp(post.userId);
+    const yeahText = hasYeah ? "Unyeah" : "Yeah!";
+    const yeahCountText = post.yeahs?.length === 1 ? "1 person gave this post a Yeah."
+      : post.yeahs?.length > 1 ? `${post.yeahs.length} people gave this post a Yeah.` : "";
+
+    let mediaHTML = "";
+    if (post.media) {
+      if (post.media.type === "image")
+        mediaHTML = `<img src="${post.media.url}" style="max-width:100%;border-radius:8px;margin-top:10px;">`;
+      else if (post.media.type === "video")
+        mediaHTML = `<video src="${post.media.url}" controls autoplay muted loop style="max-width:100%;border-radius:8px;margin-top:10px;"></video>`;
+    }
+
+    return `
+      <div class="post" data-id="${post.id}">
+        <div class="post-avatar" onclick="location.href='/users/${post.userId}/profile.html'">
+          <img src="${avatar}" alt="${post.username}">
+        </div>
+        <div class="post-body">
+          <div class="post-header">
+            <strong onclick="location.href='/users/${post.userId}/profile.html'">${post.username || "User"}</strong>
+            <span class="post-meta">${timeAgo(post.timestamp)}</span>
+          </div>
+          <div class="post-text">${post.text.replace(/\n/g, "<br>")}</div>
+          ${mediaHTML}
+          <div class="post-actions">
+            <button class="yeah-btn ${hasYeah?"liked":""}" data-id="${post.id}">${yeahText}</button>
+            <div class="stats">
+              <span>${post.replies?.length || 0} Replies</span>
+              <span>${post.views || 0} Views</span>
+            </div>
+          </div>
+          <div class="yeah-section ${hasYeah?"visible":""}">
+            ${yeahCountText ? `<div class="yeah-label">${yeahCountText}</div>` : ""}
+            <div class="yeah-avatars">
+              ${post.yeahs?.slice(0,12).map(id => `<img src="${getPfp(id)}" alt="yeah">`).join("") || ""}
+              ${post.yeahs?.length > 12 ? `<span>+${post.yeahs.length-12}</span>` : ""}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+
+  container.addEventListener("click", e => {
+    const btn = e.target.closest(".yeah-btn");
+    if (btn && loggedIn) {
+      e.stopPropagation();
+      const postId = Number(btn.dataset.id);
+      const post = posts.find(p => p.id === postId);
+      const idx = post.yeahs.indexOf(currentUserId);
+      if (idx > -1) post.yeahs.splice(idx,1);
+      else post.yeahs.push(currentUserId);
+      localStorage.setItem(key, JSON.stringify(posts));
+      location.reload();
+    }
+  });
+});
+</script>
+</body>
+</html>

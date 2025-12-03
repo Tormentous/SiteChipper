@@ -2,64 +2,147 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>You've landed on Planet Chipper!</title>
+    <title>Planet Coolbrador</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .discover-boards-section { margin: 2rem 0; }
+        .discover-boards-horizontal {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+            scrollbar-width: thin;
+            width: 100%;
+        }
+        .board-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-decoration: none;
+            color: #333;
+            padding: 16px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            background: transparent;
+            min-width: 240px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        .board-card:hover {
+            border-color: #999;
+            background: #f8f9fa;
+        }
+        .icon-button {
+            width: 72px;
+            height: 72px;
+            border: none;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .icon-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        .board-card:hover .icon-button img {
+            transform: scale(1.1);
+        }
+        .board-card span {
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+    </style>
 </head>
 <body>
     <div id="shared-header"></div>
-
     <div class="banner">
-        <button class="downloadbutton">
-            <a href="https://github.com/SillyBilly10/game" target="_blank">Buy Chipper on Steam!</a>
-        </button>
-        <button class="downloadbutton">
-            <a href="https://www.roblox.com/communities/323609233/Coolbrador#!/about" target="_blank">Join our group!</a>
-        </button>
+        <button class="downloadbutton"><a href="https://github.com/SillyBilly10/game" target="_blank">Buy Chipper on Steam!</a></button>
+        <button class="downloadbutton"><a href="https://www.roblox.com/communities/323609233/Coolbrador#!/about" target="_blank">Join our group!</a></button>
     </div>
-
     <section class="bodytext-section container">
         <h1 class="section-header">You have landed on Planet Chipper!</h1>
         <p>Enjoy your stay</p>
-        <hr>
-        <p>index</p>
     </section>
-
+    <section class="container discover-boards-section">
+        <h2 class="section-header">Discover Boards</h2>
+        <div class="discover-boards-horizontal" id="discoverBoards">
+            <p style="padding: 2rem; color:#888;">Loading boards...</p>
+        </div>
+    </section>
     <div id="shared-footer"></div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  // Load header
-  fetch("../shared/header.html")
-    .then(r => r.text())
-    .then(html => {
-      document.getElementById("shared-header").innerHTML = html;
+document.addEventListener("DOMContentLoaded", () => {
+    fetch("../shared/header.html").then(r=>r.text()).then(h=>document.getElementById("shared-header").innerHTML=h);
+    fetch("../shared/footer.html").then(r=>r.text()).then(f=>document.getElementById("shared-footer").innerHTML=f);
 
-      // NOW run the user section script AFTER header is inserted
-      const userSection = document.getElementById("userSection");
-      const loggedIn = localStorage.getItem("loggedIn") === "true";
-      const userId = localStorage.getItem("currentUserId");
+    const container = document.getElementById("discoverBoards");
 
-      if (loggedIn && userId) {
-        const userData = JSON.parse(localStorage.getItem(`user_${userId}`));
-        if (userData?.username) {
-          userSection.innerHTML = `
-            <span class="username">${userData.username}</span>
-            <a href="/users/${userId}/profile.html" class="user-avatar">
-              <img src="/users/default/pfp.jpg" alt="${userData.username}'s avatar">
-            </a>
-          `;
-          return;
+    // Discover real user-generated boards from localStorage
+    let boards = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('posts_/b/')) {
+            const board = key.replace('posts_/b/', '');
+            boards.push(board);
         }
-      }
-      // Not logged in
-      userSection.innerHTML = `<a href="/login.html" style="color:#007bff;font-weight:bold;text-decoration:none;">Create an account today!</a>`;
-    });
+    }
+    boards = [...new Set(boards)].sort();
 
-  // Load footer
-  fetch("../shared/footer.html")
-    .then(r => r.text())
-    .then(d => document.getElementById("shared-footer").innerHTML = d);
+    if (boards.length === 0) {
+        container.innerHTML = '<p style="padding: 2rem; color:#888;">No boards yet. Create the first post!</p>';
+        return;
+    }
+
+    container.innerHTML = boards.map(board => {
+        const name = board.charAt(0).toUpperCase() + board.slice(1);
+        return `
+            <a href="/b/${board}/board.html" class="board-card">
+                <div class="icon-button">
+                    <img src="/b/${board}/icon.png" onerror="this.src='/default-icon.png'" alt="${name}">
+                </div>
+                <span>${name}</span>
+            </a>
+        `;
+    }).join("");
 });
+
+		document.addEventListener("DOMContentLoaded", function () {
+		  // Load header
+		  fetch("../shared/header.html")
+			.then(r => r.text())
+			.then(html => {
+			  document.getElementById("shared-header").innerHTML = html;
+
+			  // NOW run the user section script AFTER header is inserted
+			  const userSection = document.getElementById("userSection");
+			  const loggedIn = localStorage.getItem("loggedIn") === "true";
+			  const userId = localStorage.getItem("currentUserId");
+
+			  if (loggedIn && userId) {
+				const userData = JSON.parse(localStorage.getItem(`user_${userId}`));
+				if (userData?.username) {
+				  userSection.innerHTML = `
+					<span class="username">${userData.username}</span>
+					<a href="/users/${userId}/profile.html" class="user-avatar">
+					  <img src="/users/default/pfp.jpg" alt="${userData.username}'s avatar">
+					</a>
+				  `;
+				  return;
+				}
+			  }
+			  // Not logged in
+			  userSection.innerHTML = `<a href="/login.html" style="color:#007bff;font-weight:bold;text-decoration:none;">Create an account today!</a>`;
+			});
+
+		  // Load footer
+		  fetch("../shared/footer.html")
+			.then(r => r.text())
+			.then(d => document.getElementById("shared-footer").innerHTML = d);
+		});
 </script>
 </body>
 </html>
