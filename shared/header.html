@@ -4,55 +4,104 @@
   <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
   <meta charset="UTF-8">
   <title>Coolbrador</title>
-
+  <link rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" 
+      crossorigin="anonymous" 
+      referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="styles.css">
+  <style>
+  </style>
 </head>
 <body>
-<header class="main-header">
-  <nav class="nav main-nav" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;">
-    <ul class="left-nav" style="display:flex; gap:20px; list-style:none; margin:0; padding:0;">
-      <li class="logo"><a href="/">Coolbrador</a></li>
-      <li><a href="/">Home</a></li>
-      <li><a href="/community">Community</a></li>
-      <li><a href="/games/chipper">Chipper</a></li>
-      <li><a href="/polls">Polls</a></li>
-      <li><a href="/gift">Gift</a></li>
-    </ul>
 
-    <div class="header-search">
-      <input type="text" placeholder="Search" autocomplete="off">
-    </div>
+	<!-- Desktop Header -->
+	<header class="main-header" id="desktopHeader">
+	  <nav class="nav main-nav" style="display:flex; align-items:center; justify-content:space-between; padding:0 20px;">
+		<ul class="left-nav" style="display:flex; gap:20px; list-style:none; margin:0; padding:0;">
+		  <li class="logo"><a href="/">Coolbrador</a></li>
+		  <li><a href="/">Home</a></li>
+		  <li><a href="/community">Community</a></li>
+		  <li><a href="/games/chipper">Chipper</a></li>
+		  <li><a href="/polls">Polls</a></li>
+		  <li><a href="/gift">Gift</a></li>
+		</ul>
+		<div class="header-search">
+		  <input type="text" placeholder="Search" autocomplete="off">
+		  
+		</div>
+		<div class="user-section" id="userSection"></div>
+	  </nav>
+	</header>
+	
+	<!-- Mobile Top Bar -->
+	<div class="mobile-top-bar" id="mobileTop">
+	  <div class="header-search">
+		<input type="text" placeholder="Search" autocomplete="off">
+	  </div>
+	  <div id="userSectionMobile"></div>  <!-- fixed: added > -->
+	</div>
 
-    <div class="user-section" id="userSection"></div>
-  </nav>
-</header>
+<div class="mobile-bottom-nav">
+  <a href="/"><i class="fa-solid fa-house"></i><span>Home</span></a>
+  <a href="/community"><i class="fa-solid fa-users"></i><span>Community</span></a>
+  <a href="/games/chipper"><i class="fa-solid fa-gamepad"></i><span>Chipper</span></a>
+  <a href="/polls"><i class="fa-solid fa-square-poll-vertical"></i><span>Polls</span></a>
+  <a href="/gift"><i class="fa-solid fa-gift"></i><span>Gift</span></a>
+</div>
+  <main><!-- Content --></main>
 
-<script>
-function updateUserSection() {
-  const userSection = document.getElementById("userSection");
-  if (!userSection) return;
+	<script>
+	  function updateUser(id) {
+		const el = document.getElementById(id);
+		if (!el) return;
 
-  const loggedIn = localStorage.getItem("loggedIn") === "true";
-  const userId = localStorage.getItem("currentUserId");
+		const loggedIn = localStorage.getItem("loggedIn") === "true";
+		const userId = localStorage.getItem("currentUserId");
 
-  if (loggedIn && userId) {
-    const userData = JSON.parse(localStorage.getItem(`user_${userId}`)) || {};
-    const pfp = userData.profilePicture || "/users/default/pfp.jpg";
-    userSection.innerHTML = `
-      <a href="/users/${userId}/profile.html" class="user-avatar" style="margin-left:15px;">
-        <img src="${pfp}" alt="${userData.username}'s avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-      </a>
-      <span style="margin-left:10px;font-weight:bold;">${userData.username || 'User'}</span>`;
-  } else {
-    userSection.innerHTML = `<a href="/login.html" style="color:#007bff;font-weight:bold;">Login</a>`;
-  }
-}
+		if (loggedIn && userId) {
+		  const user = JSON.parse(localStorage.getItem(`user_${userId}`)) || {};
+		  const pfp = user.profilePicture || "/users/default/pfp.jpg";
+		  const username = user.username || "User";
 
-// Run on DOM ready (standalone pages)
-document.addEventListener("DOMContentLoaded", updateUserSection);
+		  if (id === "userSectionMobile") {
+			// Mobile: avatar only, on the far right
+			el.innerHTML = `
+			  <a href="/users/${userId}/profile.html">
+				<img src="${pfp}" alt="${username}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+			  </a>`;
+		  } else {
+			// Desktop: avatar + username
+			el.innerHTML = `
+			  <a href="/users/${userId}/profile.html" style="display:flex; align-items:center; gap:10px; text-decoration:none; color:white;">
+				<img src="${pfp}" alt="${username}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+				<span style="font-weight:bold;">${username}</span>
+			  </a>`;
+		  }
+		} else {
+		  // Not logged in
+		  el.innerHTML = `<a href="/login" style="color:#4a9eff; font-weight:bold; text-decoration:none;">Login</a>`;
+		}
+	  }
 
-// Run again after everything is loaded (shared header pages)
-window.addEventListener("load", () => setTimeout(updateUserSection, 100));
-</script>
+	  // Initial load
+	  updateUser("userSectionMobile");
+	  updateUser("userSection");
 
+	  // Update if login status changes in another tab
+	  window.addEventListener("storage", () => {
+		updateUser("userSectionMobile");
+		updateUser("userSection");
+	  });
+
+	  // Hide header on scroll down (both mobile & desktop)
+	  let lastScroll = 0;
+	  window.addEventListener("scroll", () => {
+		const current = window.scrollY;
+		const hide = current > lastScroll && current > 60;
+		document.getElementById("desktopHeader")?.classList.toggle("hidden", hide);
+		document.getElementById("mobileTop")?.classList.toggle("hidden", hide);
+		lastScroll = current;
+	  });
+	</script>
 </body>
 </html>

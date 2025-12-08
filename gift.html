@@ -82,89 +82,113 @@
   <div id="shared-footer"></div>
 
 <script>
-function updateUserSection() {
-  const userSection = document.getElementById("userSection");
-  if (!userSection) return;
-
+// Unified function — updates BOTH desktop and mobile avatars
+function updateUserProfile() {
   const loggedIn = localStorage.getItem("loggedIn") === "true";
   const userId = localStorage.getItem("currentUserId");
 
-  if (loggedIn && userId) {
-    const userData = JSON.parse(localStorage.getItem(`user_${userId}`)) || {};
-    const pfp = userData.profilePicture || "/users/default/pfp.jpg";
-    userSection.innerHTML = `
-      <a href="/users/${userId}/profile.html" class="user-avatar" style="margin-left:15px;">
-        <img src="${pfp}" alt="${userData.username}'s avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-      </a>
-      <span style="margin-left:10px;font-weight:bold;">${userData.username || 'User'}</span>`;
-  } else {
-    userSection.innerHTML = `<a href="/login.html" style="color:#007bff;font-weight:bold;">Login</a>`;
+  if (!loggedIn || !userId) {
+    document.querySelectorAll("#userSection, #userSectionMobile").forEach(el => {
+      if (el) el.innerHTML = `<a href="/login.html" style="color:#4a9eff;font-weight:bold;text-decoration:none;">Login</a>`;
+    });
+    return;
+  }
+
+  const user = JSON.parse(localStorage.getItem(`user_${userId}`)) || {};
+  const pfp = user.profilePicture || "/users/default/pfp.jpg";
+  const username = user.username || "User";
+
+  // Desktop: avatar + name
+  const desktop = document.getElementById("userSection");
+  if (desktop) {
+    desktop.innerHTML = `
+      <a href="/users/${userId}/profile.html" style="display:flex;align-items:center;gap:10px;color:white;text-decoration:none;">
+        <img src="${pfp}" alt="${username}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 0px 8px rgba(0,0,0,0.3);">
+        <span style="font-weight:bold;">${username}</span>
+      </a>`;
+  }
+
+  // Mobile: avatar only (stays on top even when zoomed)
+  const mobile = document.getElementById("userSectionMobile");
+  if (mobile) {
+    mobile.innerHTML = `
+      <a href="/users/${userId}/profile.html">
+        <img src="${pfp}" alt="${username}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:0px solid #fff;box-shadow:0 0px 8px rgba(0,0,0,0.4);">
+      </a>`;
   }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+// Load header/footer and update profile
+document.addEventListener("DOMContentLoaded", () => {
   fetch("../shared/header.html")
     .then(r => r.text())
-    .then(d => {
-      document.getElementById("shared-header").innerHTML = d;
-      updateUserSection();   // ← profile picture appears as soon as header loads
+    .then(html => {
+      document.getElementById("shared-header").innerHTML = html;
+      updateUserProfile(); // ← runs right after header loads
     });
 
   fetch("../shared/footer.html")
     .then(r => r.text())
-    .then(d => document.getElementById("shared-footer").innerHTML = d)
-    .catch(err => console.error("Footer failed to load:", err));
-});
+    .then(html => document.getElementById("shared-footer").innerHTML = html)
+    .catch(err => console.error("Footer failed:", err));
 
-// Your original donation code (unchanged)
-const raisedEl = document.querySelector('.raised');
-let total = Number(localStorage.getItem('christmas_raised') || 0);
-raisedEl.textContent = '$' + total.toLocaleString();
+  // Keep updated across tabs
+  window.addEventListener("storage", updateUserProfile);
 
-let donations = JSON.parse(localStorage.getItem('christmas_donations') || '[]');
+  // ——— CHRISTMAS DONATION SYSTEM (unchanged & still works) ———
+  const raisedEl = document.querySelector('.raised');
+  if (raisedEl) {
+    let total = Number(localStorage.getItem('christmas_raised') || 0);
+    raisedEl.textContent = '$' + total.toLocaleString();
 
-document.querySelectorAll('.donate-btn').forEach(btn => {
-  btn.onclick = () => {
-    const type = btn.textContent.trim();
-    const name = prompt("Your name/nickname (shown publicly):") || "Anonymous";
-    const amount = prompt(`Enter ${type.toLowerCase()} donation amount ($):`);
-    const message = prompt("Optional message (shown under your donation):");
-    if (amount && !isNaN(amount) && amount > 0) {
-      const num = Number(amount);
-      total += num;
-      localStorage.setItem('christmas_raised', total);
-      raisedEl.textContent = '$' + total.toLocaleString();
-      donations.push({name, amount: num, message: message||null, type, date: Date.now()});
-      localStorage.setItem('christmas_donations', JSON.stringify(donations));
-      renderLeaderboard();
-      alert(`Thank you ${name} for donating $${amount}!`);
+    let donations = JSON.parse(localStorage.getItem('christmas_donations') || '[]');
+
+    document.querySelectorAll('.donate-btn').forEach(btn => {
+      btn.onclick = () => {
+        const type = btn.textContent.trim();
+        const name = prompt("Your name/nickname (shown publicly):") || "Anonymous";
+        const amount = prompt(`Enter ${type.toLowerCase()} donation amount ($):`);
+        const message = prompt("Optional message:");
+        if (amount && !isNaN(amount) && amount > 0) {
+          const num = Number(amount);
+          total += num;
+          localStorage.setItem('christmas_raised', total);
+          raisedEl.textContent = '$' + total.toLocaleString();
+          donations.push({name, amount: num, message: message||null, type, date: Date.now()});
+          localStorage.setItem('christmas_donations', JSON.stringify(donations));
+          renderLeaderboard();
+          alert(`Thank you ${name} for donating $${amount}!`);
+        }
+      };
+    });
+
+    function renderLeaderboard() {
+      const totals = {};
+      const messagesByName = {};
+      donations.forEach(d => {
+        totals[d.name] = (totals[d.name] || 0) + d.amount;
+        if (d.message) messagesByName[d.name] = d.message;
+      });
+      const sorted = Object.entries(totals).sort((a,b) => b[1] - a[1]).slice(0, 30);
+      const html = sorted.map(([name, amt], i) => `
+        <div class="donor-entry">
+          <div class="donor-main">
+            <span class="rank">#${i+1}</span>
+            <span class="name">${name}</span>
+            <span class="amount">$${amt.toLocaleString()}</span>
+          </div>
+          ${messagesByName[name] ? `<div class="donor-message">${messagesByName[name]}</div>` : ''}
+        </div>
+      `).join('');
+      const leaderboard = document.getElementById('topDonors');
+      if (leaderboard) {
+        leaderboard.innerHTML = html || '<p style="opacity:0.6;text-align:center;padding:20px;">No donations yet — be the first!</p>';
+      }
     }
-  };
-});
 
-function renderLeaderboard() {
-  const totals = {};
-  const messagesByName = {};
-  donations.forEach(d => {
-    totals[d.name] = (totals[d.name] || 0) + d.amount;
-    if (d.message) messagesByName[d.name] = d.message;
-  });
-  const sorted = Object.entries(totals)
-    .sort((a,b) => b[1] - a[1])
-    .slice(0, 30);
-  const html = sorted.map(([name, amt], i) => `
-    <div class="donor-entry">
-      <div class="donor-main">
-        <span class="rank">#${i+1}</span>
-        <span class="name">${name}</span>
-        <span class="amount">$${amt.toLocaleString()}</span>
-      </div>
-      ${messagesByName[name] ? `<div class="donor-message">${messagesByName[name]}</div>` : ''}
-    </div>
-  `).join('');
-  document.getElementById('topDonors').innerHTML = html || '<p style="opacity:0.6;text-align:center;padding:20px;">No donations yet — be the first!</p>';
-}
-renderLeaderboard();
+    renderLeaderboard();
+  }
+});
 </script>
 </body>
 </html>

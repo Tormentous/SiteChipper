@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Chipper / Coolbrador</title>
+    <title>Chipper - Coolbrador</title>
     <link rel="stylesheet" href="../styles.css" />
 </head>
 <body>
@@ -20,39 +20,58 @@
 
 			<div id="shared-footer"></div>
 
-		<script>
-		document.addEventListener("DOMContentLoaded", function () {
-		  fetch("../shared/header.html")
-			.then(r => r.text())
-			.then(html => {
-			  document.getElementById("shared-header").innerHTML = html;
+<script>
+	function updateUserProfile() {
+	  const loggedIn = localStorage.getItem("loggedIn") === "true";
+	  const userId = localStorage.getItem("currentUserId");
 
-			  // ——— PROFILE PICTURE & USERNAME ———
-			  const userSection = document.getElementById("userSection");
-			  if (!userSection) return;
-
-			  const loggedIn = localStorage.getItem("loggedIn") === "true";
-			  const userId = localStorage.getItem("currentUserId");
-
-			  if (loggedIn && userId) {
-				const userData = JSON.parse(localStorage.getItem(`user_${userId}`)) || {};
-				const pfp = userData.profilePicture || "/users/default/pfp.jpg";
-
-				userSection.innerHTML = `
-				  <a href="/users/${userId}/profile.html" class="user-avatar" style="margin-left:15px;">
-					<img src="${pfp}" alt="${userData.username}'s avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-				  </a>
-				  <span style="margin-left:10px;font-weight:bold;">${userData.username || 'User'}</span>`;
-			  } else {
-				userSection.innerHTML = `<a href="/login.html" style="color:#007bff;font-weight:bold;">Login</a>`;
-			  }
-			});
-
-		  // Load footer
-		  fetch("../shared/footer.html")
-			.then(r => r.text())
-			.then(d => document.getElementById("shared-footer").innerHTML = d);
+	  if (!loggedIn || !userId) {
+		document.querySelectorAll("#userSection, #userSectionMobile").forEach(el => {
+		  if (el) el.innerHTML = `<a href="/login.html" style="color:#4a9eff;font-weight:bold;">Login</a>`;
 		});
-		</script>
+		return;
+	  }
+
+	  const user = JSON.parse(localStorage.getItem(`user_${userId}`)) || {};
+	  const pfp = user.profilePicture || "/users/default/pfp.jpg";
+	  const username = user.username || "User";
+
+	  // Desktop
+	  const desk = document.getElementById("userSection");
+	  if (desk) {
+		desk.innerHTML = `
+		  <a href="/users/${userId}/profile.html" style="display:flex;align-items:center;gap:10px;color:white;text-decoration:none;">
+			<img src="${pfp}" alt="${username}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:0px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+			<span style="font-weight:bold;">${username}</span>
+		  </a>`;
+	  }
+
+	  // Mobile
+	  const mob = document.getElementById("userSectionMobile");
+	  if (mob) {
+		mob.innerHTML = `
+		  <a href="/users/${userId}/profile.html">
+			<img src="${pfp}" alt="${username}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:0px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.4);">
+		  </a>`;
+	  }
+	}
+
+	// Load header + footer, then update profile
+	document.addEventListener("DOMContentLoaded", () => {
+	  fetch("../shared/header.html")
+		.then(r => r.text())
+		.then(html => {
+		  document.getElementById("shared-header").innerHTML = html;
+		  updateUserProfile(); // ← runs after header loads
+		});
+
+	  fetch("../shared/footer.html")
+		.then(r => r.text())
+		.then(html => document.getElementById("shared-footer").innerHTML = html);
+
+	  // Keep updated across tabs
+	  window.addEventListener("storage", updateUserProfile);
+	});
+</script>
 	</body>
 </html>

@@ -6,6 +6,12 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/webfonts/fa-solid-900.woff2") format("woff2");
+}
+
 html, body, * {
   box-sizing: border-box;
   font-family: 'Cantarell', system-ui, sans-serif !important;
@@ -40,27 +46,12 @@ html, body {
   border-bottom: 1px solid #ddd;
 }
 
-.user-avatar img {
-  max-height: 100%;
-  width: 40px;
-  height: 100%;
-  object-fit: contain;
-}
-
 .user-section {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0px;
 }
 
-.username {
-  font-family: cantarell, cursive;
-  order: 1;
-}
-
-.user-avatar {
-  order: 2;
-}
 
 .main-nav {
   display: flex;
@@ -72,12 +63,6 @@ html, body {
   height: 60px;
 }
 
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-decoration: none;
-  color: white;
-}
 
 .main-nav ul {
   display: flex;
@@ -199,19 +184,19 @@ html, body {
   outline: none;
 }
 
+
 .header-search::before {
-  content: "🔍";
+  content: "\f002"; /* Font Awesome 6 search icon */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
   position: absolute;
-  left: 16px;
+  left: 18px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 1.2rem;
-  pointer-events: none;
-  opacity: 0.7;
-}
-
-::placeholder {
   color: #888;
+  font-size: 1.1rem;
+  pointer-events: none;
+  z-index: 1;
 }
 
 @media (max-width: 768px) {
@@ -416,3 +401,82 @@ html, body {
 .yeah-avatars { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .yeah-avatars img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #0e043e; }
 .yeah-avatars span { color: #aaa; font-size: 13px; }
+
+@media (min-width: 768px) and (max-width: 1100px) {
+  .main-nav { padding: 0 10px !important; }
+  .left-nav { gap: 0.5rem !important; }
+  .main-nav a { padding: 0.5em 0.5em !important; }
+  .header-search { max-width: 250px !important; margin: 0 10px !important; }
+  #userSectionDesktop { min-width: 100px !important; }
+}
+  
+.main-header .left-nav {
+flex-shrink: 0;
+gap: 1rem;
+}
+
+.header-search {
+flex: 1;
+max-width: 500px;
+margin: 0 30px;
+}
+
+/* Mobile: show only avatar, hide username */
+@media (max-width: 768px) {
+  #userSectionMobile {
+	  position: absolute;
+	  right: 16px;
+	  top: 50%;
+	  transform: translateY(-50%);
+}
+  #userSectionMobile .user-section {
+    gap: 0;
+  }
+}
+
+	/* Mobile: show only avatar, hide username */
+@media (max-width: 768px) {
+  #userSectionMobile .user-section {
+	gap: 0;
+  }
+  
+
+#userSectionMobile {
+  position: center;
+  z-index: 1001;  
+}
+
+  
+}
+	.mobile-bottom-nav i {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900;
+  font-size: 1.0em;
+}
+
+@media (min-width: 768px) {
+  .mobile-top-bar { display: none !important; }
+  .main-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; transition: transform 0.3s ease; }
+  .main-header.hidden { transform: translateY(-100%); }
+  body { padding-top: 70px; }
+}
+@media (max-width: 767px) {
+  .mobile-top-bar {
+	position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+	background: linear-gradient(to bottom, rgb(15,5,64), rgb(8,2,35));
+	border-bottom: 1px solid #ddd; padding: 10px 16px;
+	display: flex; justify-content: center;
+	transition: transform 0.3s ease;
+  }
+
+  .main-header { display: none !important; }
+}
+.mobile-bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+  background: linear-gradient(to top, rgb(15,5,64), rgb(8,2,35));
+  border-top: 1px solid #ddd; padding: 10px 0;
+  display: flex; justify-content: space-around;
+}
+.mobile-bottom-nav a { color: white; text-decoration: none; text-align: center; font-weight: bolder; font-size: 0.9rem; }
+.mobile-bottom-nav i { display: block; font-size: 1.7rem; margin-bottom: 4px; }
+@media (min-width: 768px) { .mobile-bottom-nav { display: none; } }
