@@ -292,7 +292,7 @@ html, body {
   color: #4a9eff;
   padding: 8px 12px;
   border-radius: 6px;
-  width: 180px;
+  width: 170px;
   font-size: 14px;
 }
 #suggestions {
@@ -343,7 +343,7 @@ html, body {
   background: none;
   border: none;
   color: #4a9eff;
-  font-size: 20px;
+  font-size: 15px;
   cursor: pointer;
   padding: 6px;
   border-radius: 6px;
