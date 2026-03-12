@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scene.background = new THREE.Color(0x000011);
 
     // Camera (center = inside the sphere)
-    camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 5000);
+    camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 5000);
     camera.position.set(0, 0, 1000);
 
     // Renderer
