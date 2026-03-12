@@ -107,22 +107,196 @@ html, body {
   background-color: rgba(0, 0, 0, 0.3);
 }
 
-.banner {
-  background: center / contain no-repeat url(img/PlanetChipperHomepage.png);
-  background-color: black;
-  height: 60vh;
-  background-size: 1535px;
+#container3D {
+  position: relative;
+  width: 100%;
+  height: 700px;
+  overflow: hidden;
+  background: transparent;     /* Must be transparent – no fallback color */
+}
+
+#container3D canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+
+  /* Pure transparent fade at top and bottom – no black */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,       /* invisible at very top */
+    black      10%,       /* fade in quickly to full visibility */
+    black      90%,       /* stay full almost to bottom */
+    transparent 100%      /* fade out quickly at bottom */
+  );
+     mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black      10%,
+    black      90%,
+    transparent 100%
+  );
+
+  /* Force consistent rendering (fixes DevTools zoom/visibility glitches) */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+#container3D::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,          /* fully transparent from top */
+    transparent 60%,         /* stay transparent for most of the height */
+    rgba(0,0,28,0.4) 80%,     /* start darkening toward bottom */
+    rgba(0,0,28,0.95) 95%,    /* almost solid black near bottom */
+    rgba(0,0,28,1) 100%       /* fully black at very bottom */
+  );
+}
+
+/* Big heading text – centered, large, with glow/shadow for visibility over stars */
+.hero-heading {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);   /* perfect center */
+  z-index: 3;                         /* above canvas and gradient */
+  color: white;
+  font-size: 4.5rem;                  /* big – adjust as needed (3.5rem–6rem) */
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 
+    0 0 30px rgba(255, 255, 255, 0.532); /* glow effect – looks great on dark/star background */
+  letter-spacing: 2px;
+  pointer-events: none;               /* doesn't block clicks on buttons */
+  white-space: nowrap;
+  max-width: 90%;                     /* prevents overflow on small screens */
+  
+}
+
+/* Optional: responsive font size */
+@media (max-width: 768px) {
+  .hero-heading {
+    font-size: 3rem;
+  }
+  
+}
+
+.button-group {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 40px;
+  z-index: 10;
 }
 
 .downloadbutton {
-  background-color: rgb(0, 0, 0, .6);
+  width: 280px;
+  height: 80px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
   background-image: url(/img/Osaka_Stars_side.png);
   background-blend-mode: multiply;
-  font-size: 20px;
-  text-align: center;
-  font-weight: bolder;
-  padding: 1.5%;
-  margin: 500px 50px;
+  background-size: 180% auto;
+  background-position: 0% center;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  clip-path: polygon(12% 0%, 100% 0%, 88% 100%, 0% 100%);
+
+  /* Base animation – always runs, even on hover */
+  animation: bgMove 10s linear infinite !important;  /* !important beats hover override */
+
+  /* Default state */
+  background-color: rgba(0, 0, 0, 0.5);
+  transform: scale(1);
+  transition: transform 0.4s ease;  /* only size is smooth */
+}
+
+/* Hover: instant white flash + fade-out animation + grow + shine */
+.downloadbutton:hover {
+  /* Flash white then fade to default (overrides only color) */
+  animation: flashFade 0.2s ease-out forwards, bgMove 10s linear infinite !important;
+
+  transform: scale(1.1);
+
+  /* Shine effect */
+  &::before {
+    content: "";
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 60%;
+    height: 300%;
+    background: linear-gradient(
+      120deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.45),
+      transparent 70%
+    );
+    transform: skewX(-25deg);
+    animation: shineMove 5.0s linear infinite;
+    opacity: 1;
+  }
+}
+
+/* Flash + fade animation (color only) */
+@keyframes flashFade {
+  0%   { background-color: rgb(255, 255, 255); }
+  100% { background-color: rgba(0, 0, 0, 0.5); }
+}
+
+/* Shine move */
+@keyframes shineMove {
+  0%   { left: -100%; }
+  100% { left: 5000%; }
+}
+
+/* Constant background scroll – this is now reinforced */
+@keyframes bgMove {
+  0%   { background-position: 0% center; }
+  100% { background-position: 100% center; }
+}
+
+/* Link fill */
+.downloadbutton a {
+  color: inherit;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive stacking */
+@media (max-width: 768px) {
+  .button-group {
+    flex-direction: column;
+    gap: 30px;
+    bottom: 40px;
+  }
+
+  .downloadbutton {
+    width: 300px;
+    height: 75px;
+    font-size: 1.15rem;
+  }
 }
 
 .bodytext-section {

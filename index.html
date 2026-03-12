@@ -57,11 +57,27 @@
         }
     </style>
 </head>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/"
+  }
+}
+</script>
 <body>
     <div id="shared-header"></div>
-    <div class="banner">
-        <button class="downloadbutton"><a href="https://github.com/SillyBilly10/game" target="_blank">Buy Chipper on Steam!</a></button>
-        <button class="downloadbutton"><a href="https://www.roblox.com/communities/323609233/Coolbrador#!/about" target="_blank">Join our group!</a></button>
+    <div id="container3D">
+      <h1 class="hero-heading">Welcome to
+        PLANET CHIPPER</h1>
+      <div class="button-group">
+        <button class="downloadbutton">
+          <a href="https://github.com/SillyBilly10/game" target="_blank">Buy Chipper on Steam!</a>
+        </button>
+        <button class="downloadbutton">
+          <a href="https://www.roblox.com/communities/323609233/Coolbrador#!/about" target="_blank">Join our group!</a>
+        </button>
+      </div>
     </div>
     <section class="bodytext-section container">
         <h1 class="section-header">You have landed on Planet Chipper!</h1>
@@ -161,5 +177,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }).join("");
 });
 </script>
+<script type="module" src="js/StarrySky.js"></script>
 </body>
 </html>
