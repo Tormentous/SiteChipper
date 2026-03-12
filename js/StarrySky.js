@@ -32,13 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     dirLight.position.set(10, 20, 15);
     scene.add(dirLight);
 
-    // Debug red box (remove after stars appear)
-    const debugBox = new THREE.Mesh(
-        new THREE.BoxGeometry(8, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    );
-    scene.add(debugBox);
-    console.log('✅ Debug red box added — you should see a small red cube at center');
     // Full-screen gradient plane (behind stars)
     
     // Load your Stars model
