@@ -9,6 +9,11 @@
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="styles.css">
 <style>
+  .left-nav .spacer {
+  width: 12px;           /* no width needed – gap handles the space */
+  flex: none;         /* prevents it from growing/shrinking */
+  pointer-events: none; /* just in case */
+  }
   /* Only the parts that needed to be responsive – everything else untouched */
   .mobile-top-bar {
     display: flex;
@@ -48,14 +53,17 @@
 
 <!-- Desktop Header (hidden on mobile) -->
 <header class="main-header" id="desktopHeader">
-  <nav class="nav main-nav" style="display:flex; align-items:center; justify-content:space-between; padding:0 20px;">
-    <ul class="left-nav" style="display:flex; gap:20px; list-style:none; margin:0; padding:0;">
-      <li class="logo"><a href="/">Coolbrador</a></li>
-      <li><a href="/">Home</a></li>
-      <li><a href="/community">Community</a></li>
-      <li><a href="/games/chipper">Chipper</a></li>
-      <li><a href="/polls">Polls</a></li>
-      <li><a href="/gift">Gift</a></li>
+  <nav class="nav main-nav" style="display:flex; align-items:center; justify-content:space-between; padding:40 40px;">
+    <ul class="left-nav" style="display:flex; gap:3px; list-style:none; margin:0; padding:0;">
+      <li class="logo"><a href="/">Coolbrador</a></li>           <!-- maybe leave logo plain? -->
+<!-- Empty spacer li(s) – creates the larger gap after logo -->
+      <li class="spacer"></li>   <!-- one spacer = one gap unit -->
+      <!-- <li class="spacer"></li> -->  <!-- uncomment multiples if you want even larger space -->
+      <li><a href="/" class="nav-rhombus">Home</a></li>
+      <li><a href="/community" class="nav-rhombus">Community</a></li>
+      <li><a href="/games/chipper" class="nav-rhombus">Chipper</a></li>
+      <li><a href="/polls" class="nav-rhombus">Polls</a></li>
+      <li><a href="/gift" class="nav-rhombus">Gift</a></li>
     </ul>
     <div class="header-search">
       <input type="text" placeholder="Search" autocomplete="off">

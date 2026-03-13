@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const dirLight = new THREE.DirectionalLight(0xffffff, 2.8);
     dirLight.position.set(10, 20, 15);
     scene.add(dirLight);
-
     // Full-screen gradient plane (behind stars)
     
     // Load your Stars model
