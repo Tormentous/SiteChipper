@@ -1,53 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
-  <title>Messages - Coolbrador</title>
-  <link rel="stylesheet" href="/styles.css">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Messages · Coolbrador</title><link rel="icon" href="/img/favicon3.ico">
+  <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/social.css">
 </head>
-<body class="messages-page community-page">
+<body class="social-page" data-page="messages">
+  <a class="social-skip" href="#socialRoot">Skip to content</a>
   <div id="shared-header"></div>
-<script src="/js/shell-boot.js"></script>
-  <main class="cb-msg-shell" id="messagesRoot">
-    <aside class="cb-msg-sidebar">
-      <div class="cb-msg-side-head">
-        <h1>Messages</h1>
-        <button type="button" class="tool-btn" id="msgNewBtn" title="New message">New</button>
-      </div>
-      <div class="cb-msg-search-wrap">
-        <input type="search" id="msgSearch" class="cb-msg-search" placeholder="Search messages" autocomplete="off">
-      </div>
-      <div class="cb-msg-thread-list" id="msgThreadList" role="list"></div>
-    </aside>
-    <section class="cb-msg-pane" id="msgPane">
-      <div class="cb-msg-chat" id="msgChat" hidden>
-        <header class="cb-msg-chat-head" id="msgChatHead"></header>
-        <div class="cb-msg-chat-body" id="msgChatBody"></div>
-        <form class="cb-msg-composer" id="msgComposer">
-          <div class="cb-msg-media-preview" id="msgMediaPreview" hidden></div>
-          <div class="cb-msg-composer-row">
-            <button type="button" class="cb-msg-attach-btn" id="msgAttachBtn" title="Attach media" aria-label="Attach media">
-              <i class="fa-solid fa-paperclip" aria-hidden="true"></i>
-            </button>
-            <input type="file" id="msgMediaInput" accept="image/*,video/*,audio/*" hidden>
-            <input type="text" id="msgInput" placeholder="Message..." autocomplete="off">
-            <button type="submit" class="post-submit-btn" id="msgSend">Send</button>
-          </div>
-        </form>
-      </div>
-    </section>
-  </main>
+  <main class="social-main" id="socialRoot" tabindex="-1"><p role="status">Loading your corner of the cosmos…</p><noscript>Enable JavaScript to use Coolbrador’s social features.</noscript></main>
   <div id="shared-footer"></div>
-  <script src="/js/layout.js"></script>
-  <script src="/js/seed-demo.js"></script>
-  <script src="/js/cb-scrub-chart.js"></script>
-<script src="/js/cb-media-player.js"></script>
-<script src="/js/cb-feed-algo.js"></script>
-<script src="/js/cb-sensitive-filter.js"></script>
-  <script src="/js/cb-media-safety.js"></script>
-  <script src="/js/posts.js"></script>
-  <script src="/js/messages.js"></script>
+  <script src="/js/layout.js"></script><script src="/js/cb-scrub-chart.js"></script>
+  <script src="/js/cb-media-safety.js"></script><script type="module" src="/js/social.js"></script>
 </body>
 </html>

@@ -645,110 +645,12 @@
   }
 
   function ensureSessionNotDemo() {
-    var loggedIn = false;
-    var oldId = "";
-    try {
-      loggedIn = localStorage.getItem("loggedIn") === "true";
-      oldId = String(localStorage.getItem("currentUserId") || "").trim();
-    } catch (_) { return ""; }
-    if (!loggedIn || !oldId) return oldId;
-    var safe = sanitizePublicUserId(oldId);
-    if (!safe) return oldId;
-    var demoBase = (window.CB_DEMO_ID_BASE != null) ? Number(window.CB_DEMO_ID_BASE) : 2;
-    var demoEnd = demoBase + 21;
-    var nSafe = parseInt(safe, 10);
-    var inDemoBand = !isNaN(nSafe) && nSafe >= demoBase && nSafe <= demoEnd;
-    // Never leave a signed-in Labrador on demo band ids 2..23 (Cardbrador etc).
-    if (!inDemoBand && !isDemoAccountId(safe)) return safe;
-
-    // Real session stuck on a demo id (e.g. Cardbrador=2): reallocate into 0..1 or 24+.
-    var newId = allocatePublicUserId();
-    if (!newId || newId === safe || isDemoAccountId(newId)) {
-      // Force above demo band if allocator somehow bounced.
-      var demoBase = (window.CB_DEMO_ID_BASE != null) ? Number(window.CB_DEMO_ID_BASE) : 2;
-      newId = String(demoBase + 22);
-      while (slotTakenByReal(parseInt(newId, 10)) || isDemoAccountId(newId)) {
-        newId = String(parseInt(newId, 10) + 1);
-      }
-    }
-
-    try {
-      var u = {};
-      var p = {};
-      try { u = JSON.parse(localStorage.getItem("user_" + safe) || "{}"); } catch (_) {}
-      try { p = JSON.parse(localStorage.getItem("profile_" + safe) || "null") || {}; } catch (_) {}
-      var fb = "";
-      try { fb = String(localStorage.getItem("firebaseUid") || ""); } catch (_) {}
-      var cacheName = "";
-      try {
-        var cache = readAuthChromeCache();
-        if (cache && cache.username) cacheName = String(cache.username);
-      } catch (_) {}
-      // Preserve real firebase/session fields; strip demo flag.
-      delete u.demo;
-      delete p.demo;
-      if (fb) {
-        u.uid = u.uid || fb;
-        u.firebaseUid = u.firebaseUid || fb;
-      }
-      var seedName = DEMO_SEED_NAMES[safe] || "";
-      var curName = u.displayName || u.username || p.displayName || "";
-      if (seedName && curName === seedName) {
-        curName = cacheName || "Labrador";
-        u.username = curName;
-        u.displayName = curName;
-        p.displayName = curName;
-      }
-      if (!u.username && !u.displayName) {
-        u.username = cacheName || "Labrador";
-        u.displayName = cacheName || "Labrador";
-      }
-      p.id = newId;
-      p.displayName = p.displayName || u.displayName || u.username || cacheName || "Labrador";
-      localStorage.setItem("user_" + newId, JSON.stringify(u));
-      localStorage.setItem("profile_" + newId, JSON.stringify(p));
-      copyStoragePrefix("pfp_", safe, newId);
-      copyStoragePrefix("friends_", safe, newId);
-      localStorage.setItem("currentUserId", newId);
-      // Do not leave the Labrador on the demo id; restore demo stub on old id if roster known.
-      if (DEMO_SEED_NAMES[safe]) {
-        var seedName = DEMO_SEED_NAMES[safe];
-        var avatar = (window.CB_DEMO_AVATARS && window.CB_DEMO_AVATARS[safe]) || "/users/default/pfp.jpg";
-        localStorage.setItem("user_" + safe, JSON.stringify({
-          username: seedName,
-          displayName: seedName,
-          profilePicture: avatar,
-          demo: true
-        }));
-        localStorage.setItem("profile_" + safe, JSON.stringify({
-          id: safe,
-          displayName: seedName,
-          handle: String(seedName).toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 24),
-          avatar: avatar,
-          demo: true
-        }));
-        localStorage.setItem("pfp_" + safe, avatar);
-      }
-      writeAuthChromeCache({
-        userId: newId,
-        username: p.displayName || u.displayName || u.username || "Labrador",
-        signedIn: true
-      });
-      try {
-        window.dispatchEvent(new CustomEvent("cb-auth-changed", { detail: { signedIn: true, userId: newId } }));
-      } catch (_) {}
-      return newId;
-    } catch (_) {
-      return safe;
-    }
+    return window.CoolbradorSocial?.state.profile?.id || localStorage.getItem('currentUserId') || '';
   }
 
-
   function sanitizePublicUserId(raw) {
-    var id = String(raw == null ? "" : raw).trim();
-    if (!id || id === "me" || id === "guest" || id === "index.html" || id === "profile") return "";
-    if (/^\d+$/.test(id)) return id;
-    return "";
+    var value = String(raw || '');
+    return /^[a-zA-Z0-9_-]{1,128}$/.test(value) && value !== 'me' ? value : '';
   }
 
   function remapFriendId(id) {
@@ -781,44 +683,9 @@
     return { id: rid, name: name, handle: handle, pfp: pfp };
   }
 
-  function hasLocalSession() {
-    try {
-      var loggedIn = localStorage.getItem("loggedIn") === "true";
-      var id = String(localStorage.getItem("currentUserId") || "").trim();
-      return loggedIn && !!id;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  function isSignedIn() {
-    if (hasLocalSession()) return true;
-    try {
-      if (window.CoolbradorAuth && window.CoolbradorAuth.currentUser) return true;
-    } catch (_) {}
-    const id = localStorage.getItem("currentUserId") || "";
-    const uid = localStorage.getItem("firebaseUid") || "";
-    if (id && uid && id !== uid) return localStorage.getItem("loggedIn") === "true";
-    return localStorage.getItem("loggedIn") === "true" && !!id;
-  }
-
-  function getSessionUserId() {
-    try { ensureSessionNotDemo(); } catch (_) {}
-    const id = localStorage.getItem("currentUserId") || "";
-    const uid = localStorage.getItem("firebaseUid") || "";
-    var safe = sanitizePublicUserId(id);
-    if (safe) {
-      if (isDemoAccountId(safe) && localStorage.getItem("loggedIn") === "true") {
-        var moved = "";
-        try { moved = ensureSessionNotDemo(); } catch (_) {}
-        if (moved && !isDemoAccountId(moved)) return moved;
-      }
-      return safe;
-    }
-    if (id && id !== uid && /^\d+$/.test(String(id))) return String(id);
-    // Never expose firebase uid or "me" as a public profile id
-    return "";
-  }
+  function hasLocalSession() { return !!window.CoolbradorSocial?.state.profile && !!window.CoolbradorAuth?.currentUser; }
+  function isSignedIn() { return hasLocalSession(); }
+  function getSessionUserId() { return window.CoolbradorSocial?.state.profile?.id || ''; }
 
   function requireSignedIn(what) {
     // Local session first: never block repost/discuss/compose when browser already knows the Labrador.
@@ -1496,26 +1363,8 @@ function wireRightRail() {
   }
 
 
-  function ensureNotificationsScript() {
-    if (window.CoolbradorNotifications) {
-      try { window.CoolbradorNotifications.refreshBadges(); } catch (_) {}
-      return;
-    }
-    if (document.querySelector('script[data-cb-notifications]')) return;
-    const s = document.createElement("script");
-    s.src = "/js/notifications.js";
-    s.async = true;
-    s.dataset.cbNotifications = "1";
-    s.onload = function () {
-      try {
-        if (window.CoolbradorNotifications) {
-          window.CoolbradorNotifications.seedIfNeeded();
-          window.CoolbradorNotifications.refreshBadges();
-        }
-      } catch (_) {}
-    };
-    document.head.appendChild(s);
-  }
+  function ensureNotificationsScript() { /* Shared notifications are loaded by the social application. */ }
+
   function wireSidebar() {
     const sidebar = document.getElementById("cbSidebar");
     if (!sidebar) return;
@@ -1565,179 +1414,26 @@ function wireRightRail() {
     });
   }
 
+  var socialAuthWired = false;
   async function updateUserProfile() {
-    // Roblox-style: keep last-known chrome visible; skeleton only when nothing cached
-    try { ensureSessionNotDemo(); } catch (_) {}
-    if (!paintAuthChromeFromCache()) {
-      var localEarly = getLocalUser();
-      if (localEarly) renderLocalProfile(localEarly);
-      else renderAuthSkeleton();
-    }
-    authLoading = true;
-    authReady = false;
+    if (socialAuthWired) return;
+    socialAuthWired = true;
     try {
-      const mod = await import("/js/firebase.js");
-      const auth = mod.auth;
-      if (auth) {
-        window.CoolbradorAuth = auth;
-        const apply = async (user) => {
-          if (!user) {
-            // Never clear a live local session on a transient null (persistence race).
-            // Only drop session after auth has already settled (true sign-out).
-            if (authReady) {
-              clearLocalSession();
-              renderLoginLinks();
-              markAuthReady();
-              return;
-            }
-            if (hasLocalSession()) {
-              var keep = getLocalUser();
-              if (keep) renderLocalProfile(keep);
-              // Do not markAuthReady yet; wait for restored user or outer timeout.
-              return;
-            }
-            renderLoginLinks();
-            markAuthReady();
-            return;
-          }
-          localStorage.setItem("loggedIn", "true");
-          localStorage.setItem("firebaseUid", user.uid);
-          const username = user.displayName || (user.email && user.email.split("@")[0]) || "User";
-          let pfp = user.photoURL || "/users/default/pfp.jpg";
-          if (!pfp || (pfp.includes("googleusercontent.com") && pfp.length < 50)) pfp = "/users/default/pfp.jpg";
-          let profileId = localStorage.getItem("currentUserId") || "";
-          if (profileId === user.uid) profileId = "";
-          if (!profileId) {
-            try {
-              const fs = await import("https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js");
-              const db = fs.getFirestore();
-              const q = fs.query(fs.collection(db, "profiles"), fs.where("uid", "==", user.uid));
-              const snap = await fs.getDocs(q);
-              if (!snap.empty) {
-                profileId = snap.docs[0].id;
-                localStorage.setItem("currentUserId", profileId);
-                localStorage.setItem("loggedIn", "true");
-                localStorage.setItem("firebaseUid", user.uid);
-                const existing = JSON.parse(localStorage.getItem("user_" + profileId) || "{}");
-                existing.username = existing.username || username;
-                existing.profilePicture = existing.profilePicture || pfp;
-                existing.uid = user.uid;
-                localStorage.setItem("user_" + profileId, JSON.stringify(existing));
-                if (existing.profilePicture) {
-                  localStorage.setItem("pfp_" + profileId, existing.profilePicture);
-                  pfp = existing.profilePicture;
-                }
-              }
-            } catch (_) {}
-          } else {
-            localStorage.setItem("currentUserId", profileId);
-            try {
-              const existing = JSON.parse(localStorage.getItem("user_" + profileId) || "{}");
-              if (existing.profilePicture) pfp = existing.profilePicture;
-            } catch (_) {}
-          }
-          if (profileId && isDemoAccountId(String(profileId))) {
-            profileId = "";
-          }
-          if (!profileId || profileId === "me" || profileId === user.uid || !/^\d+$/.test(String(profileId))) {
-            profileId = allocatePublicUserId();
-            localStorage.setItem("currentUserId", profileId);
-            try {
-              const existing = JSON.parse(localStorage.getItem("user_" + profileId) || "{}");
-              existing.username = existing.username || username;
-              existing.displayName = existing.displayName || existing.username || username;
-              existing.profilePicture = existing.profilePicture || pfp;
-              existing.uid = user.uid;
-              localStorage.setItem("user_" + profileId, JSON.stringify(existing));
-              if (existing.profilePicture) localStorage.setItem("pfp_" + profileId, existing.profilePicture);
-              var prof = JSON.parse(localStorage.getItem("profile_" + profileId) || "null") || {};
-              prof.id = profileId;
-              prof.displayName = existing.displayName;
-              prof.handle = prof.handle || String(existing.displayName || "lab").toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 24);
-              prof.avatar = existing.profilePicture || pfp;
-              localStorage.setItem("profile_" + profileId, JSON.stringify(prof));
-            } catch (_) {}
-          }
-          try { profileId = ensureSessionNotDemo() || profileId; } catch (_) {}
-          const profileUrl = "/users/" + encodeURIComponent(profileId);
-          let displayName = username;
-          try {
-            const existing = JSON.parse(localStorage.getItem("user_" + profileId) || "{}");
-            const prof = JSON.parse(localStorage.getItem("profile_" + profileId) || "null") || {};
-            displayName = prof.displayName || existing.displayName || existing.username || username;
-            // Never show a demo roster name for a real signed-in Labrador.
-            if (existing.demo || prof.demo) {
-              delete existing.demo;
-              delete prof.demo;
-              existing.uid = existing.uid || user.uid;
-              localStorage.setItem("user_" + profileId, JSON.stringify(existing));
-              localStorage.setItem("profile_" + profileId, JSON.stringify(prof));
-            }
-          } catch (_) {}
-          renderSignedInChrome({
-            id: profileId,
-            username: displayName,
-            pfp: pfp,
-            profileUrl: profileUrl
-          });
-          try {
-            window.dispatchEvent(new CustomEvent("cb-auth-changed", { detail: { signedIn: true, userId: profileId } }));
-          } catch (_) {}
-          markAuthReady();
-        };
-        if (!auth._cbAuthWired) {
-          auth._cbAuthWired = true;
-          auth.onAuthStateChanged(apply);
-        }
-        if (auth.currentUser) {
-          await apply(auth.currentUser);
-        } else {
-          // Wait for persistence. Do not treat the first null as sign-out when a
-          // local session still exists (that race cleared loggedIn and broke post/repost).
-          await new Promise((resolve) => {
-            var settled = false;
-            var unsub = null;
-            var finish = async function (user) {
-              if (settled) return;
-              settled = true;
-              try { if (unsub) unsub(); } catch (_) {}
-              await apply(user);
-              if (!authReady) markAuthReady();
-              resolve();
-            };
-            unsub = auth.onAuthStateChanged(async (user) => {
-              if (user) {
-                await finish(user);
-                return;
-              }
-              // Transient null: keep waiting unless we already know nobody is signed in.
-              if (hasLocalSession()) return;
-              await finish(null);
-            });
-            setTimeout(async function () {
-              if (settled) return;
-              // Timeout: if Firebase still has no user, treat as signed out and
-              // drop leftover localStorage session (stale Coolbrador/demo chrome).
-              if (auth.currentUser) {
-                await finish(auth.currentUser);
-                return;
-              }
-              clearLocalSession();
-              renderLoginLinks();
-              if (!authReady) markAuthReady();
-              settled = true;
-              try { if (unsub) unsub(); } catch (_) {}
-              resolve();
-            }, 4000);
-          });
-        }
-        return;
-      }
-    } catch (_) {}
-    const local = getLocalUser();
-    if (local) renderLocalProfile(local);
-    else renderLoginLinks();
-    markAuthReady();
+      const api = await import('/js/social-api.js');
+      window.CoolbradorSocial = api;
+      window.CoolbradorAuth = api.auth;
+      api.watchAuth(function (state) {
+        if (state.profile && state.user) {
+          renderSignedInChrome({ id: state.profile.id, username: state.profile.displayName,
+            pfp: state.profile.avatarUrl || '/users/default/pfp.jpg', profileUrl: '/users/' + encodeURIComponent(state.profile.id) });
+        } else { clearLocalSession(); renderLoginLinks(); }
+        markAuthReady();
+        window.dispatchEvent(new CustomEvent('cb-auth-changed', { detail: { signedIn: !!state.profile, userId: state.profile?.id || '' } }));
+      });
+    } catch (error) {
+      clearLocalSession(); renderLoginLinks(); markAuthReady();
+      console.error('Could not restore session', error);
+    }
   }
 
   function collectSearchTargets() {
@@ -2053,9 +1749,9 @@ function sectionIcon(section) {
     }
     wireSidebar();
     ensureNotificationsScript();
-    wireRightRail();
+    if (!document.body.classList.contains("social-page")) wireRightRail();
     writeShellFlags();
-    wireMessagesFab();
+
     await updateUserProfile();
     wireAllSearch();
     window.addEventListener("storage", updateUserProfile);

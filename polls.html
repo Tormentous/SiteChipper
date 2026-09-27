@@ -1,61 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon" sizes="any">
-  <link rel="shortcut icon" href="/img/favicon3.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="/img/favicon3.ico">
-  <title>Polls - Coolbrador</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Polls · Coolbrador</title><link rel="icon" href="/img/favicon3.ico">
+  <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/social.css">
 </head>
-<body>
+<body class="social-page" data-page="polls">
+  <a class="social-skip" href="#socialRoot">Skip to content</a>
   <div id="shared-header"></div>
-<script src="/js/shell-boot.js"></script>
-  <div class="polls-page">
-    <div id="pollsBoardCarousel" class="cb-polls-board-carousel"></div>
-    <h1 class="section-header" style="text-align:center;">Coolbrador Polls</h1>
-    <p class="polls-intro">We resolve issues transparently via open community votes. No secret tribunals. Just vibes, mutinies, and ideas.</p>
-    <div class="poll-tabs" role="tablist">
-      <button type="button" class="poll-tab active" data-tab="issues" role="tab">Issues</button>
-      <button type="button" class="poll-tab" data-tab="mutinies" role="tab">Mutinies</button>
-      <button type="button" class="poll-tab" data-tab="ideas" role="tab">Ideas</button>
-    </div>
-    <div id="pollDetail" class="poll-detail" hidden></div>
-    <div class="poll-panel active" id="panel-issues" data-panel="issues">
-      <p class="polls-intro">Report product bugs, mod weirdness, or cosmic injustice. The crowd votes.</p>
-      <div class="poll-compose" data-type="issues">
-        <input type="text" class="poll-title" placeholder="Issue title (keep it spicy but clear)" maxlength="120">
-        <div class="poll-compose-mount" data-compose-host="issues"></div>
-      </div>
-      <div class="poll-list hub-feed" id="list-issues"></div>
-    </div>
-    <div class="poll-panel" id="panel-mutinies" data-panel="mutinies">
-      <p class="polls-intro">Think a mod should walk the plank? File a mutiny. Democracy with lasers.</p>
-      <div class="poll-compose" data-type="mutinies">
-        <input type="text" class="poll-title" placeholder="Who are we mutinying against?" maxlength="120">
-        <div class="poll-compose-mount" data-compose-host="mutinies"></div>
-      </div>
-      <div class="poll-list hub-feed" id="list-mutinies"></div>
-    </div>
-    <div class="poll-panel" id="panel-ideas" data-panel="ideas">
-      <p class="polls-intro">Feature dreams, board ideas, Chipper wishlists. Drop them here.</p>
-      <div class="poll-compose" data-type="ideas">
-        <input type="text" class="poll-title" placeholder="Idea title" maxlength="120">
-        <div class="poll-compose-mount" data-compose-host="ideas"></div>
-      </div>
-      <div class="poll-list hub-feed" id="list-ideas"></div>
-    </div>
-  </div>
+  <main class="social-main" id="socialRoot" tabindex="-1"><p role="status">Loading your corner of the cosmos…</p><noscript>Enable JavaScript to use Coolbrador’s social features.</noscript></main>
   <div id="shared-footer"></div>
-  <script src="/js/layout.js"></script>
-  <script src="/js/media-viewer.js"></script>
-  <script src="/js/cb-scrub-chart.js"></script>
-<script src="/js/cb-media-player.js"></script>
-<script src="/js/cb-feed-algo.js"></script>
-<script src="/js/cb-sensitive-filter.js"></script>
-  <script src="/js/cb-media-safety.js"></script>
-  <script src="/js/posts.js"></script>
-  <script src="/js/polls.js"></script>
+  <script src="/js/layout.js"></script><script src="/js/cb-scrub-chart.js"></script>
+  <script src="/js/cb-media-safety.js"></script><script type="module" src="/js/social.js"></script>
 </body>
 </html>

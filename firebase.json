@@ -161,6 +161,18 @@
       {
         "source": "/b/*/post/*/comments/",
         "destination": "/b/post-thread.html"
+      },
+      {
+        "source": "/post/**",
+        "destination": "/post.html"
+      },
+      {
+        "source": "/b/*",
+        "destination": "/board.html"
+      },
+      {
+        "source": "/b/*/",
+        "destination": "/board.html"
       }
     ],
     "redirects": [
@@ -198,7 +210,8 @@
     "rules": "database.rules.json"
   },
   "firestore": {
-    "rules": "firestore.rules"
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   },
   "storage": {
     "rules": "storage.rules"
