@@ -1,35 +1,10 @@
 {
   "hosting": {
-    "public": ".",
+    "public": ".hosting",
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**",
-      "**/*.py",
-      "**/*.md",
-      "**/*.bak",
-      "**/*.bak_*",
-      "**/_patch*",
-      "**/_probe*",
-      "**/_fix*",
-      "**/_verify*",
-      "_batch4/**",
-      "_extract/**",
-      "data/_backup_pre_autopublish/**",
-      "functions/**",
-      "tools/**",
-      "tests/**",
-      "package.json",
-      "package-lock.json",
-      "mise.toml",
-      "serve.json",
-      "vercel.json",
-      "_redirects",
-      "database.rules.json",
-      "firestore.rules",
-      "firestore.indexes.json",
-      "storage.rules",
-      "test.html"
+      "**/node_modules/**"
     ],
     "headers": [
       {
@@ -195,6 +170,9 @@
         "destination": "https://labradorsim.vercel.app/:path*",
         "type": 302
       }
+    ],
+    "predeploy": [
+      "node tools/build-hosting.mjs"
     ]
   },
   "functions": [
@@ -207,6 +185,9 @@
         "firebase-debug.log",
         "firebase-debug.*.log",
         "*.local"
+      ],
+      "predeploy": [
+        "node tools/build-hosting.mjs --functions-only"
       ]
     }
   ],

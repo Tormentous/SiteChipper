@@ -1471,10 +1471,14 @@ function wireRightRail() {
         if (socialBadgeUid !== state.user?.uid) {
           socialBadgeStops.forEach(stop => stop()); socialBadgeStops = [];
           socialBadgeUid = state.user?.uid;
-          liveBadge('notifications', 0); liveBadge('friends', 0);
+          liveBadge('notifications', 0); liveBadge('friends', 0); liveBadge('messages', 0);
           if (state.profile && state.user) {
-            socialBadgeStops.push(api.watchNotifications(rows => liveBadge('notifications', rows.filter(n => !n.read).length, 'Unread notifications'), () => {}));
+            socialBadgeStops.push(api.watchUnreadNotifications(count => liveBadge('notifications', count, 'Unread notifications'), () => {}));
             socialBadgeStops.push(api.watchFriends(rows => liveBadge('friends', rows.filter(f => f.status === 'pending' && f.requester !== state.user.uid).length, 'Pending friend requests'), () => {}));
+            let threads=[], reads=new Map();
+            const updateMessages=()=>liveBadge('messages',threads.filter(t=>t.lastSenderId && t.lastSenderId!==state.user.uid && api.timestamp(t.updatedAt)>(reads.get(t.id)||0)).length,'Unread conversations');
+            socialBadgeStops.push(api.watchConversations(rows=>{threads=rows;updateMessages();},()=>{}));
+            socialBadgeStops.push(api.watchConversationReads(rows=>{reads=rows;updateMessages();},()=>{}));
           }
         }
         markAuthReady();

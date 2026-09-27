@@ -2,7 +2,7 @@
 import { auth, db, getStorageInstance } from './firebase.js';
 import { onAuthStateChanged, updateProfile, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc,
-  query, where, orderBy, limit, startAfter, onSnapshot, serverTimestamp, writeBatch, runTransaction
+  query, where, orderBy, limit, startAfter, documentId, onSnapshot, serverTimestamp, writeBatch, runTransaction
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
 export { auth };
@@ -90,9 +90,24 @@ export async function profile(id) {
   if (!snap.exists()) return null;
   const value = row(snap); cacheProfile(value); return value;
 }
-export async function people() {
-  const snap = await getDocs(query(collection(db, 'profiles'), limit(100)));
-  return snap.docs.map(s => { const p = row(s); cacheProfile(p); return p; });
+export async function peoplePage(after, count = 30) {
+  const clauses = [orderBy(documentId())]; if (after) clauses.push(startAfter(after));
+  const snap = await getDocs(query(collection(db, 'profiles'), ...clauses, limit(count)));
+  return { rows: snap.docs.map(s => { const p = row(s); cacheProfile(p); return p; }), cursor: snap.docs.at(-1), hasMore: snap.size === count };
+}
+export async function profileByUid(uid) {
+  const cached = [...profiles.values()].find(p => p.uid === uid); if (cached) return cached;
+  const snap = await getDocs(query(collection(db, 'profiles'), where('uid','==',uid), limit(1)));
+  if (snap.empty) return null;
+  const p = row(snap.docs[0]); cacheProfile(p); return p;
+}
+// A growing live window keeps inserts/deletes consistent while exposing older rows.
+export function liveWindow(makeQuery, success, error, size = 30) {
+  let count = size, stop, disposed = false;
+  function subscribe() { stop?.(); stop = onSnapshot(makeQuery(count), snap => success(snap.docs.map(row), snap.size === count), error); }
+  const dispose = () => { disposed = true; stop?.(); };
+  dispose.more = () => { if (!disposed) { count += size; subscribe(); } };
+  subscribe(); return dispose;
 }
 export async function saveProfile(fields) {
   signedIn();
@@ -127,10 +142,11 @@ export async function createPost({ body, board = 'General', media = null, conten
     media, contentWarnings, inGame: board === 'BeeSid', createdAt: serverTimestamp(), editedAt: null });
   return ref.id;
 }
-export function watchPosts({ board, authorId, after, count = 30 } = {}, success, error) {
+export function watchPosts({ board, authorId, authorIds, after, count = 30 } = {}, success, error) {
   const clauses = [];
   if (board) clauses.push(where('board', '==', board));
   if (authorId) clauses.push(where('authorId', '==', authorId));
+  if (authorIds) clauses.push(where('authorId', 'in', authorIds));
   clauses.push(orderBy('createdAt', 'desc'));
   if (after) clauses.push(startAfter(after));
   clauses.push(limit(count));
@@ -160,7 +176,7 @@ export async function react(id, kind) {
   });
 }
 export function watchComments(id, success, error) {
-  return onSnapshot(query(collection(db, 'posts', id, 'comments'), orderBy('createdAt'), limit(200)), snap => success(snap.docs.map(row)), error);
+  return liveWindow(count => query(collection(db, 'posts', id, 'comments'), orderBy('createdAt'), limit(count)), success, error);
 }
 export async function comment(post, body, media = null) {
   const uid = signedIn();
@@ -208,16 +224,17 @@ export function watchConversations(success, error) {
   return onSnapshot(query(collection(db, 'conversations'), where('participants', 'array-contains', signedIn())), snap => success(snap.docs.map(row).sort((a,b) => timestamp(b.updatedAt)-timestamp(a.updatedAt))), error);
 }
 export function watchMessages(id, success, error) {
-  return onSnapshot(query(collection(db, 'conversations', id, 'messages'), orderBy('createdAt', 'desc'), limit(100)), snap => success(snap.docs.map(row).reverse()), error);
+  return liveWindow(count => query(collection(db, 'conversations', id, 'messages'), orderBy('createdAt', 'desc'), limit(count)), (rows, more) => success(rows.reverse(), more), error);
 }
 export async function sendMessage(id, body) {
   const uid = signedIn(), batch = writeBatch(db);
-  batch.set(doc(collection(db, 'conversations', id, 'messages')), { senderId: uid, text: text(body, 2000, 'Message'), createdAt: serverTimestamp() });
-  batch.update(doc(db, 'conversations', id), { updatedAt: serverTimestamp() });
+  const message=doc(collection(db, 'conversations', id, 'messages'));
+  batch.set(message, { senderId: uid, text: text(body, 2000, 'Message'), createdAt: serverTimestamp() });
+  batch.update(doc(db, 'conversations', id), { updatedAt: serverTimestamp(), lastSenderId:uid, lastMessageId:message.id });
   await batch.commit();
 }
 export function watchNotifications(success, error) {
-  return onSnapshot(query(collection(db, 'users', signedIn(), 'notifications'), orderBy('createdAt', 'desc'), limit(100)), snap => success(snap.docs.map(row)), error);
+  const uid = signedIn(); return liveWindow(count => query(collection(db, 'users', uid, 'notifications'), orderBy('createdAt', 'desc'), limit(count)), success, error);
 }
 export async function markRead(id) { await updateDoc(doc(db, 'users', signedIn(), 'notifications', id), { read: true }); }
 export async function createPoll(title, options, board) {
@@ -227,22 +244,26 @@ export async function createPoll(title, options, board) {
   if (!BOARDS.includes(board)) throw new Error('Choose a community.');
   return addDoc(collection(db, 'polls'), { authorId: uid, profileId: state.profile.id, title: text(title, 180, 'Question'), options, board, createdAt: serverTimestamp() });
 }
-export function watchPolls(success, error) { return onSnapshot(query(collection(db, 'polls'), orderBy('createdAt', 'desc'), limit(30)), snap => success(snap.docs.map(row)), error); }
+export function watchPolls(success, error) { return liveWindow(count => query(collection(db, 'polls'), orderBy('createdAt', 'desc'), limit(count)), success, error); }
 export function watchVotes(id, success, error) { return onSnapshot(query(collection(db, 'polls', id, 'votes'), orderBy('createdAt')), snap => success(snap.docs.map(row)), error); }
 export async function vote(id, choice) { await setDoc(doc(db, 'polls', id, 'votes', signedIn()), { choice, createdAt: serverTimestamp() }); }
 
-export function watchReposts({ authorId, count = 30 } = {}, success, error) {
-  const filters = authorId ? [where('authorId', '==', authorId)] : [];
+export function watchReposts({ authorId, authorIds, count = 30 } = {}, success, error) {
+  const filters = authorId ? [where('authorId', '==', authorId)] : authorIds ? [where('authorId', 'in', authorIds)] : [];
   return onSnapshot(query(collection(db, 'reposts'), ...filters, orderBy('createdAt', 'desc'), limit(count)), snap => success(snap.docs.map(row)), error);
 }
 export async function getPost(id) { const snap = await getDoc(doc(db, 'posts', id)); return snap.exists() ? row(snap) : null; }
 export async function isModerator() { return !!auth.currentUser && (await auth.currentUser.getIdTokenResult()).claims.moderator === true; }
-export function watchReports(success, error) { return onSnapshot(query(collection(db, 'reports'), orderBy('createdAt','desc'), limit(100)), snap => success(snap.docs.map(row)), error); }
+export function watchReports(success, error) { return liveWindow(count => query(collection(db, 'reports'), orderBy('createdAt','desc'), limit(count)), success, error); }
 export async function dismissReport(id) { await deleteDoc(doc(db, 'reports', id)); }
 
 export async function loadBoards() {
-  const snapshot = await getDocs(query(collection(db, 'boards'), limit(100)));
-  snapshot.docs.forEach(s => { const b = row(s); boardInfo.set(b.id, b); if (!BOARDS.includes(b.id)) BOARDS.push(b.id); });
+  let cursor;
+  for (;;) {
+    const snapshot = await getDocs(query(collection(db, 'boards'), orderBy(documentId()), ...(cursor ? [startAfter(cursor)] : []), limit(100)));
+    snapshot.docs.forEach(s => { const b = row(s); boardInfo.set(b.id, b); if (!BOARDS.includes(b.id)) BOARDS.push(b.id); });
+    if (snapshot.size < 100) break; cursor = snapshot.docs.at(-1);
+  }
 }
 export async function createBoard(name, description) {
   const uid = signedIn();
@@ -258,3 +279,23 @@ export async function createBoard(name, description) {
   return id;
 }
 export async function updateBoard(id, description) { signedIn(); await updateDoc(doc(db,'boards',id),{description:String(description).trim().slice(0,280)}); }
+
+export function watchUnreadNotifications(success, error) {
+  return onSnapshot(query(collection(db,'users',signedIn(),'notifications'),where('read','==',false),limit(100)),snap=>success(snap.size),error);
+}
+export async function markAllNotificationsRead() {
+  const uid=signedIn();
+  for (;;) {
+    const snap=await getDocs(query(collection(db,'users',uid,'notifications'),where('read','==',false),limit(100)));
+    if(snap.empty)return;
+    const batch=writeBatch(db);snap.docs.forEach(s=>batch.update(s.ref,{read:true}));await batch.commit();
+  }
+}
+export function watchConversationReads(success,error) {
+  return onSnapshot(collection(db,'users',signedIn(),'conversationReads'),snap=>success(new Map(snap.docs.map(s=>[s.id,timestamp(s.data().readAt)]))),error);
+}
+export async function markConversationRead(id) {
+  await setDoc(doc(db,'users',signedIn(),'conversationReads',id),{readAt:serverTimestamp()});
+}
+export async function closePoll(id) { signedIn(); await updateDoc(doc(db,'polls',id),{closedAt:serverTimestamp()}); }
+export async function removePoll(id) { signedIn(); await deleteDoc(doc(db,'polls',id)); }

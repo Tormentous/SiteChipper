@@ -8,7 +8,7 @@ const safeUrl = value => {
 const profileUrl = id => '/users/' + encodeURIComponent(id);
 const postUrl = id => '/post/' + encodeURIComponent(id);
 const loginUrl = () => '/login.html?next=' + encodeURIComponent(location.pathname + location.search);
-const userName = p => p?.displayName || p?.username || 'Labrador';
+const userName = p => p?.displayName || p?.username || 'Deleted account';
 const timeLabel = value => {
   const t = api.timestamp(value);
   return t ? new Date(t).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Just now';
@@ -152,49 +152,54 @@ function boardGrid() {
   return `<nav class="social-boards" aria-label="Communities">${api.BOARDS.map((b,i) => `<a href="/b/${b}"><span aria-hidden="true">${['✦','🎮','☾','🌱','🌎','⚑','🎁','🌾'][i] || '✦'}</span><strong>${escape(api.boardInfo.get(b)?.name || b)}</strong><small>${b === 'BeeSid' ? 'The Chipper game board' : 'Join the conversation'}</small></a>`).join('')}</nav>`;
 }
 function renderFeed(board, authorId) {
-  const host = root.querySelector('#liveFeed');
-  let current = [], reposts = [], stop, stopReposts, repostStops = [], generation = 0, count = 30;
-  const load = root.querySelector('#loadMore');
-  feedRender = () => {
+  const host = root.querySelector('#liveFeed'), load = root.querySelector('#loadMore');
+  let current = [], reposts = [], stops = [], repostStops = [], generation = 0, count = 30, subscribedKey;
+  const postPages = new Map(), repostPages = new Map();
+  function friendsMode() { return !!root.querySelector('[data-feed="friends"][aria-selected="true"]'); }
+  function sourceIds() { return [...new Set(friends.filter(f=>f.status==='accepted').flatMap(f=>f.participants))].filter(id=>id!==api.state.user?.uid&&!blocks.includes(id)).sort(); }
+  function render() {
     disposeCards(); host.replaceChildren();
     let filtered = [...current, ...reposts].filter(p => !blocks.includes(p.authorId) && !blocks.includes(p._repost?.authorId));
     filtered.sort((a,b) => api.timestamp(b._repost?.createdAt || b.createdAt)-api.timestamp(a._repost?.createdAt || a.createdAt));
-    if (root.querySelector('[data-feed="friends"][aria-selected="true"]')) {
-      const ids = friends.filter(f => f.status === 'accepted').flatMap(f => f.participants);
-      filtered = filtered.filter(p => ids.includes(p._repost?.authorId || p.authorId) && (p._repost?.authorId || p.authorId) !== api.state.user?.uid);
-    }
     const term = (root.querySelector('#feedSearch')?.value || '').toLowerCase().trim();
     if (term) filtered = filtered.filter(p => p.text.toLowerCase().includes(term) || p.board.toLowerCase().includes(term));
-    if (!filtered.length) host.innerHTML = empty('A fresh start', term ? 'No matching posts in this page. Load more or try another search.' : 'Share the first post, explore a community, or find people to follow.', '<a href="/friends.html">Discover people →</a>');
+    if (!filtered.length) host.innerHTML = empty('A fresh start', term ? 'No matching posts loaded. Load more or try another search.' : friendsMode() ? 'Posts and reposts from your friends will appear here.' : 'Share the first post or explore a community.', '<a href="/friends.html">Discover people →</a>');
     else filtered.forEach(p => host.append(postCard(p)));
-  };
-  function subscribe() {
-    stop?.(); host.setAttribute('aria-busy', 'true');
-    stop = api.watchPosts({ board, authorId, count }, rows => { current = rows; host.removeAttribute('aria-busy'); load.hidden = rows.length < count; feedRender(); }, error => {
-      host.removeAttribute('aria-busy'); host.innerHTML = empty('Could not load posts', api.friendlyError(error), '<button id="retryFeed">Try again</button>'); host.querySelector('#retryFeed').onclick = subscribe;
-    });
+    load.hidden = ![...postPages.values(),...repostPages.values()].some(rows=>rows.length===count);
   }
-  load.onclick = () => { count += 30; subscribe(); };
-  root.querySelector('#feedSearch')?.addEventListener('input', feedRender);
-  root.querySelectorAll('[data-feed]').forEach(tab => { tab.onclick = () => {
-    if (tab.dataset.feed === 'friends' && !requireUser()) return;
-    root.querySelectorAll('[data-feed]').forEach(el => { el.setAttribute('aria-selected', String(el === tab)); el.tabIndex = el === tab ? 0 : -1; });
-    feedRender();
-  }; });
-  stopReposts = api.watchReposts({authorId, count: 100}, entries => {
-    ++generation; repostStops.forEach(fn => fn()); repostStops = []; reposts = []; feedRender();
-    const version = generation;
-    entries.forEach(r => {
-      repostStops.push(api.watchPost(r.postId, async p => {
-        const sharer = await api.profile(r.profileId).catch(() => null);
-        if (version !== generation) return;
-        reposts = reposts.filter(existing => existing._repost.id !== r.id);
-        if (p && (!board || p.board === board)) reposts.push({ ...p, _repost: { ...r, name: userName(sharer) } });
-        feedRender();
-      }, failure));
+  function subscribe() {
+    stops.forEach(fn=>fn()); repostStops.forEach(fn=>fn()); stops=[];repostStops=[];
+    const version=++generation; current=[];reposts=[];postPages.clear();repostPages.clear();
+    const ids=sourceIds(), mode=friendsMode(); subscribedKey=JSON.stringify([mode,ids,count]);
+    const chunks=mode ? Array.from({length:Math.ceil(ids.length/30)},(_,i)=>ids.slice(i*30,i*30+30)) : [null];
+    host.setAttribute('aria-busy','true');
+    function failed(error) { if(version!==generation)return;host.removeAttribute('aria-busy');host.innerHTML=empty('Could not load posts',api.friendlyError(error),'<button id="retryFeed">Try again</button>');host.querySelector('#retryFeed').onclick=subscribe; }
+    function rebuildReposts() {
+      repostStops.forEach(fn=>fn());repostStops=[];reposts=[];
+      const entries=[...repostPages.values()].flat();
+      entries.forEach(r=>repostStops.push(api.watchPost(r.postId,async p=>{
+        const sharer=await api.profile(r.profileId).catch(()=>null);
+        if(version!==generation)return;
+        reposts=reposts.filter(existing=>existing._repost.id!==r.id);
+        if(p&&(!board||p.board===board))reposts.push({...p,_repost:{...r,name:userName(sharer)}});
+        render();
+      },failure)));
+      render();
+    }
+    chunks.forEach((authorIds,i)=>{
+      stops.push(api.watchPosts({board,authorId,authorIds,count},rows=>{if(version!==generation)return;postPages.set(i,rows);current=[...postPages.values()].flat();host.removeAttribute('aria-busy');render();},failed));
+      stops.push(api.watchReposts({authorId,authorIds,count},rows=>{if(version!==generation)return;repostPages.set(i,rows);rebuildReposts();},failed));
     });
-  }, failure);
-  disposers.push(() => { stop?.(); stopReposts?.(); repostStops.forEach(fn => fn()); generation++; }); subscribe();
+    if(!chunks.length){host.removeAttribute('aria-busy');render();}
+  }
+  feedRender=()=>{if(subscribedKey!==JSON.stringify([friendsMode(),sourceIds(),count]))subscribe();else render();};
+  load.onclick=()=>{count+=30;subscribe();};
+  root.querySelector('#feedSearch')?.addEventListener('input',render);
+  root.querySelectorAll('[data-feed]').forEach(tab=>{tab.onclick=()=>{
+    if(tab.dataset.feed==='friends'&&!requireUser())return;
+    root.querySelectorAll('[data-feed]').forEach(el=>{el.setAttribute('aria-selected',String(el===tab));el.tabIndex=el===tab?0:-1;});count=30;subscribe();
+  };});
+  disposers.push(()=>{generation++;stops.forEach(fn=>fn());repostStops.forEach(fn=>fn());});subscribe();
 }
 async function feedPage(board) {
   const title = (api.boardInfo.get(board)?.name || board) || (page === 'home' ? 'Your corner of the cosmos' : 'Community');
@@ -221,7 +226,7 @@ async function feedPage(board) {
 }
 async function threadPage() {
   const id = decodeURIComponent(location.pathname.split('/')[2] || '');
-  root.innerHTML = `<a href="/community.html">← Back to community</a><section id="threadPost"><p>Loading post…</p></section><section id="threadComments" aria-label="Replies"></section><div id="reply"></div>`;
+  root.innerHTML = `<a href="/community.html">← Back to community</a><section id="threadPost"><p>Loading post…</p></section><section id="threadComments" aria-label="Replies"></section><button id="moreReplies" class="social-load" hidden>Load more replies</button><div id="reply"></div>`;
   let stopComments, mounted = false;
   disposers.push(api.watchPost(id, post => {
     disposeCards(); const target = root.querySelector('#threadPost'); target.replaceChildren();
@@ -229,24 +234,38 @@ async function threadPage() {
     target.append(postCard(post, true));
     if (!mounted) {
       mounted = true; root.querySelector('#reply').append(composer('', post));
-      stopComments = api.watchComments(id, async comments => {
+      stopComments = api.watchComments(id, async (comments, more) => {
+        root.querySelector('#moreReplies').hidden = !more;
         const container = root.querySelector('#threadComments');
         const cards = await Promise.all(comments.map(async c => {
           const p = await api.profile(c.profileId).catch(() => null);
           if (blocks.includes(c.authorId)) return '';
           return `<article class="social-comment" id="comment-${escape(c.id)}"><a class="social-author" href="${profileUrl(c.profileId)}">${avatar(p)}<strong>${escape(userName(p))}</strong></a>${time(c.createdAt)}<p>${escape(c.text)}</p>${mediaHTML(c.media)}${api.state.user?.uid === c.authorId || api.state.user?.uid === post.authorId ? `<button data-delete-comment="${escape(c.id)}">Delete reply</button>` : ''}</article>`;
         }));
-        container.innerHTML = `<h2>Replies (${comments.length}${comments.length === 200 ? '+' : ''})</h2>` + (cards.join('') || '<p class="social-muted">Start the conversation.</p>');
+        container.innerHTML = `<h2>Replies (${comments.length}${more ? '+' : ''})</h2>` + (cards.join('') || '<p class="social-muted">Start the conversation.</p>');
         container.querySelectorAll('[data-delete-comment]').forEach(button => { button.onclick = async () => { if (await confirmDialog('Delete reply?', '', '')) { try { await api.removeComment(id, button.dataset.deleteComment); } catch (error) { failure(error); } } }; });
       }, failure);
+      root.querySelector('#moreReplies').onclick = () => stopComments.more();
     }
   }, error => { root.querySelector('#threadPost').innerHTML = empty('Could not load post', api.friendlyError(error)); }));
   disposers.push(() => stopComments?.());
 }
 async function peoplePage() {
-  root.innerHTML = heading('Find your pack', 'Real people, shared interests, and conversations that carry on.') + `<label class="social-search">Search people<input id="peopleSearch" type="search" placeholder="Search by display name"></label><div id="requests"></div><h2>Your friends</h2><div id="friendList" class="social-person-grid"></div><h2>Discover people</h2><div id="peopleList" class="social-person-grid"><p>Loading people…</p></div><div id="blockedList"></div>`;
-  people = await api.people();
+  root.innerHTML = heading('Find your pack', 'Real people, shared interests, and conversations that carry on.') + `<label class="social-search">Search people<input id="peopleSearch" type="search" placeholder="Search by display name"></label><div id="requests"></div><h2>Your friends</h2><div id="friendList" class="social-person-grid"></div><h2>Discover people</h2><div id="peopleList" class="social-person-grid"><p>Loading people…</p></div><button id="morePeople" class="social-load">Load more people</button><p class="social-muted">Search covers people loaded so far. Load more to explore further.</p><div id="blockedList"></div>`;
+  let cursor, resolving = false; const resolved = new Set();
+  async function loadPeople() {
+    const button = root.querySelector('#morePeople'); button.disabled = true;
+    try { const result = await api.peoplePage(cursor); cursor = result.cursor;
+      const merged = new Map(people.map(p => [p.uid,p])); result.rows.forEach(p => merged.set(p.uid,p)); people = [...merged.values()];
+      button.hidden = !result.hasMore; paint();
+    } catch(error) { failure(error); } finally { button.disabled = false; }
+  }
+  root.querySelector('#morePeople').onclick = loadPeople;
   function paint() {
+    // Resolve all friends/requesters independently from discovery pagination.
+    const ids = [...new Set([...friends.flatMap(f=>f.participants), ...blocks])].filter(id=>!resolved.has(id)&&!people.some(p=>p.uid===id));
+    if (ids.length && !resolving) { resolving=true; ids.forEach(id=>resolved.add(id)); Promise.all(ids.map(id=>api.profileByUid(id))).then(rows=>{ rows.filter(Boolean).forEach(p=>people.push(p)); resolving=false; paint(); }).catch(error=>{resolving=false;failure(error);}); }
+
     const query = root.querySelector('#peopleSearch').value.toLowerCase();
     const accepted = friends.filter(f => f.status === 'accepted').flatMap(f => f.participants);
     const pending = friends.filter(f => f.status === 'pending' && f.requester !== api.state.user?.uid && !blocks.includes(f.requester));
@@ -271,7 +290,7 @@ async function peoplePage() {
       } catch (error) { failure(error); } finally { button.disabled = false; }
     }; });
   }
-  feedRender = paint; root.querySelector('#peopleSearch').oninput = paint; paint();
+  feedRender = paint; root.querySelector('#peopleSearch').oninput = paint; await loadPeople(); paint();
 }
 async function profilePage() {
   const id = decodeURIComponent(location.pathname.split('/')[2] || api.state.profile?.id || '');
@@ -302,39 +321,55 @@ async function profilePage() {
 }
 async function messagesPage() {
   if (!api.state.profile) return gate();
-  people = await api.people();
   root.innerHTML = heading('Messages', 'A quieter corner for conversations with your pack.') + `<div class="social-inbox"><aside><a href="/friends.html">＋ New conversation</a><nav id="conversationList" aria-label="Conversations"></nav></aside><section id="conversation"><div class="social-empty"><h2>Choose a conversation</h2><p>Start a message from someone’s profile or the people directory.</p></div></section></div>`;
-  let active = new URLSearchParams(location.search).get('thread'), stopMessages, threadRows = [];
-  function select(id) {
+  let active = new URLSearchParams(location.search).get('thread'), stopMessages, threadRows = [], readTimes=new Map(), lastRead=0;
+  function readActive() { if(active&&!document.hidden&&threadRows.some(t=>t.id===active)&&Date.now()-lastRead>1000){lastRead=Date.now();api.markConversationRead(active).catch(failure);} }
+  document.addEventListener('visibilitychange',readActive); disposers.push(()=>document.removeEventListener('visibilitychange',readActive));
+  disposers.push(api.watchConversationReads(rows=>{readTimes=rows;paintThreads();},failure));
+  let selection = 0;
+  async function select(id) {
     if (!threadRows.some(t => t.id === id)) { root.querySelector('#conversation').innerHTML = empty('Conversation unavailable', 'Choose a conversation you belong to.'); return; }
     active = id; history.replaceState(null, '', '?thread=' + encodeURIComponent(id)); stopMessages?.();
     const thread = threadRows.find(t => t.id === id), otherId = thread.participants.find(uid => uid !== api.state.user.uid);
-    const other = people.find(p => p.uid === otherId);
+    const version = ++selection; lastRead=0;
+    const other = await api.profileByUid(otherId); if(version !== selection) return;
     const pane = root.querySelector('#conversation');
-    pane.innerHTML = `<header class="social-chat-head"><a href="${profileUrl(other?.id || otherId)}">${escape(userName(other))}</a><span class="social-muted">Private conversation</span></header><div id="messageLog" class="social-message-log" role="log" aria-label="Messages" aria-live="polite"></div><form class="social-chat-compose"><label>Message<textarea name="message" rows="2" maxlength="2000" required placeholder="Write a message…"></textarea></label><button type="submit" class="social-primary">Send</button><p role="status"></p></form>`;
+    pane.innerHTML = `<header class="social-chat-head"><a href="${profileUrl(other?.id || otherId)}">${escape(userName(other))}</a><span class="social-muted">Private conversation</span></header><button id="olderMessages" class="social-load" hidden>Load older messages</button><div id="messageLog" class="social-message-log" role="log" aria-label="Messages" aria-live="polite"></div><form class="social-chat-compose"><label>Message<textarea name="message" rows="2" maxlength="2000" required placeholder="Write a message…"></textarea></label><button type="submit" class="social-primary">Send</button><p role="status"></p></form>`;
     const form = pane.querySelector('form');
-    bindForm(form, async data => { await api.sendMessage(id, data.get('message')); form.elements.message.value = ''; form.elements.message.focus(); });
-    stopMessages = api.watchMessages(id, messages => {
+    const draftKey = `cb_dm_draft_${api.state.user.uid}_${id}`;
+    try { form.elements.message.value = localStorage.getItem(draftKey) || ''; } catch (_) {}
+    form.elements.message.oninput = () => { try { localStorage.setItem(draftKey,form.elements.message.value); } catch (_) {} };
+    if (!other || blocks.includes(otherId)) { form.hidden=true; pane.querySelector('.social-chat-head span').textContent=other?'You blocked this person':'This account was deleted'; }
+    bindForm(form, async data => { await api.sendMessage(id, data.get('message')); form.elements.message.value = ''; try { localStorage.removeItem(draftKey); } catch (_) {} });
+    let loadingOlder = false;
+    pane.querySelector('#olderMessages').onclick = () => { loadingOlder=true; stopMessages.more(); };
+    stopMessages = api.watchMessages(id, (messages, more) => {
+      if(version !== selection) return; pane.querySelector('#olderMessages').hidden=!more;
       const log = pane.querySelector('#messageLog');
+      const oldHeight = log.scrollHeight, oldTop = log.scrollTop;
       const nearEnd = log.scrollHeight - log.scrollTop - log.clientHeight < 80 || !log.children.length;
       log.innerHTML = messages.length ? messages.map(m => `<article class="social-message${m.senderId === api.state.user.uid ? ' is-own' : ''}"><p>${escape(m.text)}</p>${time(m.createdAt)}</article>`).join('') : '<p class="social-muted">Say hello to start the conversation.</p>';
-      if (nearEnd) log.scrollTop = log.scrollHeight;
+      if (loadingOlder) { log.scrollTop = oldTop + log.scrollHeight - oldHeight; loadingOlder=false; }
+      else if (nearEnd) log.scrollTop = log.scrollHeight;
+      if(!document.hidden&&messages.some(m=>m.senderId!==api.state.user.uid&&api.timestamp(m.createdAt)>(readTimes.get(id)||0)))readActive();
     }, error => { pane.querySelector('[role=status]').textContent = api.friendlyError(error); });
     paintThreads();
   }
   function paintThreads() {
     const list = root.querySelector('#conversationList');
-    list.innerHTML = threadRows.length ? threadRows.map(t => { const p = people.find(p => p.uid === t.participants.find(id => id !== api.state.user.uid)); return `<button data-thread="${escape(t.id)}" aria-current="${t.id === active}">${avatar(p)}<span>${escape(userName(p))}<small>${escape(timeLabel(t.updatedAt))}</small></span></button>`; }).join('') : '<p class="social-muted">No conversations yet.</p>';
-    list.querySelectorAll('[data-thread]').forEach(button => { button.onclick = () => select(button.dataset.thread); });
+    list.innerHTML = threadRows.length ? threadRows.map(t => { const p = people.find(p => p.uid === t.participants.find(id => id !== api.state.user.uid)); return `<button data-thread="${escape(t.id)}" aria-current="${t.id === active}">${avatar(p)}<span>${escape(userName(p))}${t.lastSenderId&&t.lastSenderId!==api.state.user.uid&&api.timestamp(t.updatedAt)>(readTimes.get(t.id)||0)?' <strong class="social-unread">New</strong>':''}<small>${escape(timeLabel(t.updatedAt))}</small></span></button>`; }).join('') : '<p class="social-muted">No conversations yet.</p>';
+    list.querySelectorAll('[data-thread]').forEach(button => { button.onclick = () => select(button.dataset.thread).catch(failure); });
   }
   let opened = false;
-  disposers.push(api.watchConversations(rows => { threadRows = rows; paintThreads(); if (active && !opened) { opened = true; select(active); } }, failure));
+  disposers.push(api.watchConversations(async rows => { threadRows = rows; const profiles = await Promise.all(rows.map(t=>api.profileByUid(t.participants.find(id=>id!==api.state.user.uid)))); people=profiles.filter(Boolean); paintThreads(); if (active && !opened) { opened = true; select(active).catch(failure); } }, failure));
   disposers.push(() => stopMessages?.());
 }
 async function notificationsPage() {
   if (!api.state.profile) return gate();
-  root.innerHTML = heading('Notifications', 'Replies to your posts and new connections.') + '<a href="/friends.html">View friend requests →</a><section id="notificationList"><p>Loading notifications…</p></section>';
-  disposers.push(api.watchNotifications(async rows => {
+  root.innerHTML = heading('Notifications', 'Replies to your posts and new connections.') + '<div class="social-actions"><a href="/friends.html">View friend requests →</a><button id="readAllNotifications">Mark all as read</button></div><section id="notificationList"><p>Loading notifications…</p></section><button id="moreNotifications" class="social-load" hidden>Load older notifications</button>';
+  root.querySelector('#readAllNotifications').onclick=async event=>{const b=event.currentTarget;b.disabled=true;try{await api.markAllNotificationsRead();}catch(error){failure(error);}finally{b.disabled=false;}};
+  const stopNotifications = api.watchNotifications(async (rows, more) => {
+    root.querySelector('#moreNotifications').hidden=!more;
     const entries = await Promise.all(rows.map(async n => {
       const p = await api.profile(n.profileId).catch(() => null);
       return `<article class="social-notification${n.read ? '' : ' is-unread'}">${avatar(p)}<div><a data-read="${escape(n.id)}" href="${postUrl(n.postId)}#comment-${encodeURIComponent(n.commentId)}"><strong>${escape(userName(p))}</strong> replied to your post<p>${escape(n.text)}</p></a>${time(n.createdAt)}</div>${n.read ? '' : `<button data-mark="${escape(n.id)}" aria-label="Mark notification as read">✓</button>`}</article>`;
@@ -342,35 +377,39 @@ async function notificationsPage() {
     const host = root.querySelector('#notificationList'); host.innerHTML = entries.join('') || empty('You’re all caught up', 'Replies to your posts will appear here.');
     host.querySelectorAll('[data-mark]').forEach(button => { button.onclick = () => api.markRead(button.dataset.mark).catch(failure); });
     host.querySelectorAll('[data-read]').forEach(link => { link.onclick = async event => { event.preventDefault(); try { await api.markRead(link.dataset.read); } catch (_) {} location.assign(link.href); }; });
-  }, failure));
+  }, failure);
+  disposers.push(stopNotifications); root.querySelector('#moreNotifications').onclick=()=>stopNotifications.more();
 }
 async function pollsPage() {
-  root.innerHTML = heading('The pack decides', 'Ask a question. Cast a vote. Watch the conversation take shape.') + `<details class="social-poll-compose"><summary>＋ Create a poll</summary><form class="social-compose"><label>Question<input name="title" maxlength="180" required placeholder="What should we explore next?"></label><label>Choices, one per line<textarea name="choices" rows="3" required placeholder="A new Chipper world&#10;A community drawing night"></textarea></label><label>Community<select name="board">${options('General')}</select></label><button type="submit" class="social-primary">Create poll</button><p role="status"></p></form></details><div id="pollList"><p>Loading polls…</p></div>`;
+  root.innerHTML = heading('The pack decides', 'Ask a question. Cast a vote. Watch the conversation take shape.') + `<details class="social-poll-compose"><summary>＋ Create a poll</summary><form class="social-compose"><label>Question<input name="title" maxlength="180" required placeholder="What should we explore next?"></label><label>Choices, one per line<textarea name="choices" rows="3" required placeholder="A new Chipper world&#10;A community drawing night"></textarea></label><label>Community<select name="board">${options('General')}</select></label><button type="submit" class="social-primary">Create poll</button><p role="status"></p></form></details><div id="pollList"><p>Loading polls…</p></div><button id="morePolls" class="social-load" hidden>Load older polls</button>`;
   const form = root.querySelector('form'); bindForm(form, async data => {
     await api.createPoll(data.get('title'), String(data.get('choices')).split('\n').map(v => v.trim()).filter(Boolean), data.get('board'));
     form.reset(); root.querySelector('details').open = false; toast('Poll created.');
   });
   let pollStops = [], charts = new Map();
   disposers.push(() => { pollStops.forEach(fn => fn()); charts.forEach(c => c?.destroy()); });
-  disposers.push(api.watchPolls(polls => {
+  const stopPolls = api.watchPolls((polls, more) => {
+    root.querySelector('#morePolls').hidden=!more;
     pollStops.forEach(fn => fn()); charts.forEach(c => c?.destroy()); pollStops = []; charts = new Map();
     const host = root.querySelector('#pollList'); host.replaceChildren();
     if (!polls.length) host.innerHTML = empty('A question starts a conversation', 'Create the first community poll.');
     polls.forEach(poll => {
       const card = document.createElement('article'); card.className = 'social-poll'; card.id = 'poll-' + poll.id;
-      card.innerHTML = `<span class="social-board-tag">${escape(poll.board)}</span><h2>${escape(poll.title)}</h2><div class="social-vote-options">${poll.options.map((option,i) => `<button data-choice="${i}"><span>${escape(option)}</span><strong>0%</strong></button>`).join('')}</div><p class="social-vote-status" role="status"></p><div class="social-chart"></div><p class="social-muted">Share of votes, not betting odds. One vote per account. Votes are public.</p>`;
+      card.innerHTML = `<span class="social-board-tag">${escape(poll.board)}</span><h2>${escape(poll.title)}</h2><div class="social-vote-options">${poll.options.map((option,i) => `<button data-choice="${i}"><span>${escape(option)}</span><strong>0%</strong></button>`).join('')}</div><p class="social-vote-status" role="status"></p><div class="social-chart"></div><p class="social-muted">Share of votes, not betting odds. One vote per account. Votes are public.</p>${poll.authorId===api.state.user?.uid?`<div class="social-actions">${poll.closedAt?'':'<button data-close-poll>Close voting</button>'}<button data-delete-poll>Delete poll</button></div>`:''}`;
       host.append(card); let myVote, chart;
+      card.querySelector('[data-close-poll]')?.addEventListener('click',async()=>{if(await confirmDialog('Close this poll?','Existing votes and history will remain visible.','')){try{await api.closePoll(poll.id);}catch(error){failure(error);}}});
+      card.querySelector('[data-delete-poll]')?.addEventListener('click',async()=>{if(await confirmDialog('Delete this poll?','Its votes and history will be permanently removed.','')){try{await api.removePoll(poll.id);}catch(error){failure(error);}}});
       card.querySelectorAll('[data-choice]').forEach(button => { button.onclick = async () => {
-        if (!requireUser() || myVote) return;
+        if (!requireUser() || myVote || poll.closedAt) return;
         card.querySelectorAll('button[data-choice]').forEach(b => { b.disabled = true; });
         try { await api.vote(poll.id, Number(button.dataset.choice)); }
-        catch (error) { failure(error); card.querySelectorAll('button[data-choice]').forEach(b => { b.disabled = !!myVote; }); }
+        catch (error) { failure(error); card.querySelectorAll('button[data-choice]').forEach(b => { b.disabled = !!myVote || !!poll.closedAt; }); }
       }; });
       pollStops.push(api.watchVotes(poll.id, votes => {
         myVote = votes.find(v => v.id === api.state.user?.uid);
         const counts = poll.options.map((_,i) => votes.filter(v => v.choice === i).length);
-        card.querySelectorAll('[data-choice]').forEach((button,i) => { button.disabled = !!myVote; button.setAttribute('aria-pressed', String(myVote?.choice === i)); button.querySelector('strong').textContent = (votes.length ? Math.round(counts[i] / votes.length * 100) : 0) + '%'; });
-        card.querySelector('.social-vote-status').textContent = `${votes.length} vote${votes.length === 1 ? '' : 's'}${myVote ? ' · You voted for ' + poll.options[myVote.choice] : ' · Choose an option to vote'}`;
+        card.querySelectorAll('[data-choice]').forEach((button,i) => { button.disabled = !!myVote || !!poll.closedAt; button.setAttribute('aria-pressed', String(myVote?.choice === i)); button.querySelector('strong').textContent = (votes.length ? Math.round(counts[i] / votes.length * 100) : 0) + '%'; });
+        card.querySelector('.social-vote-status').textContent = `${votes.length} vote${votes.length === 1 ? '' : 's'}${poll.closedAt?' · Voting closed':''}${myVote ? ' · You voted for ' + poll.options[myVote.choice] : poll.closedAt ? '' : ' · Choose an option to vote'}`;
         const sorted = votes.filter(v => api.timestamp(v.createdAt)).sort((a,b) => api.timestamp(a.createdAt)-api.timestamp(b.createdAt));
         const running = poll.options.map(() => 0);
         const series = poll.options.map((name,i) => ({ id: String(i), name, points: [] }));
@@ -378,7 +417,8 @@ async function pollsPage() {
         chart?.destroy(); chart = window.CoolbradorScrubChart.mount(card.querySelector('.social-chart'), { series, title: poll.title, interpolation: 'step' }); charts.set(poll.id, chart);
       }, failure));
     });
-  }, failure));
+  }, failure);
+  disposers.push(stopPolls); root.querySelector('#morePolls').onclick=()=>stopPolls.more();
 }
 async function archivePage() {
   const board = decodeURIComponent(location.pathname.split('/')[2] || 'BeeSid');
@@ -395,13 +435,15 @@ async function archivePage() {
 }
 async function moderationPage() {
   if (!await api.isModerator()) { root.innerHTML = heading('Moderation') + empty('Moderator access required', 'Sign in with an account assigned the moderator role.'); return; }
-  root.innerHTML = heading('Moderation', 'Review reports from the community. Removing a post also removes it from the live Chipper feed.') + '<section id="reports"></section>';
-  disposers.push(api.watchReports(rows => {
+  root.innerHTML = heading('Moderation', 'Review reports from the community. Removing a post also removes it from the live Chipper feed.') + '<section id="reports"></section><button id="moreReports" class="social-load" hidden>Load older reports</button>';
+  const stopReports = api.watchReports((rows, more) => {
+    root.querySelector('#moreReports').hidden=!more;
     const host = root.querySelector('#reports');
     host.innerHTML = rows.length ? rows.map(r => `<article class="social-post"><a href="${postUrl(r.postId)}">Open reported post →</a><p>${escape(r.reason)}</p>${time(r.createdAt)}<div class="social-actions"><button data-remove-post="${escape(r.postId)}">Remove post</button><button data-dismiss="${escape(r.id)}">Dismiss report</button></div></article>`).join('') : empty('No pending reports');
     host.querySelectorAll('[data-dismiss]').forEach(button => { button.onclick = () => api.dismissReport(button.dataset.dismiss).catch(failure); });
-    host.querySelectorAll('[data-remove-post]').forEach(button => { button.onclick = async () => { if (await confirmDialog('Remove this post?', 'It will no longer be publicly visible.', '')) { try { await api.removePost(button.dataset.removePost); toast('Post removed.'); } catch (error) { failure(error); } } }; });
-  }, failure));
+    host.querySelectorAll('[data-remove-post]').forEach(button => { button.onclick = async () => { if (await confirmDialog('Remove this post?', 'It will no longer be publicly visible.', '')) { try { await api.removePost(button.dataset.removePost); toast('Post removed. Related reports are being cleared.'); } catch (error) { failure(error); } } }; });
+  }, failure);
+  disposers.push(stopReports); root.querySelector('#moreReports').onclick=()=>stopReports.more();
 }
 function wireKeyboardTabs() {
   root.addEventListener('keydown', e => {

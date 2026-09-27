@@ -97,7 +97,10 @@ service cloud.firestore {
         && id == request.resource.data.participants[0] + '__' + request.resource.data.participants[1]
         && !blocked(request.resource.data.participants[0],request.resource.data.participants[1])
         && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
-      allow update: if participant() && available() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['updatedAt']) && request.resource.data.updatedAt == request.time;
+      allow update: if participant() && available() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['updatedAt','lastSenderId','lastMessageId'])
+        && request.resource.data.updatedAt == request.time && mine(request.resource.data.lastSenderId)
+        && getAfter(/databases/$(database)/documents/conversations/$(id)/messages/$(request.resource.data.lastMessageId)).data.senderId == request.auth.uid
+        && !exists(/databases/$(database)/documents/conversations/$(id)/messages/$(request.resource.data.lastMessageId));
       match /messages/{messageId} {
         function parent() { return get(/databases/$(database)/documents/conversations/$(id)).data; }
         allow read: if signedIn() && request.auth.uid in parent().participants;
@@ -106,6 +109,12 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['senderId','text','createdAt']) && mine(request.resource.data.senderId)
           && shortText(request.resource.data.text,2000) && request.resource.data.createdAt == request.time;
       }
+    }
+    match /users/{uid}/conversationReads/{thread} {
+      allow read: if mine(uid);
+      allow create, update: if mine(uid) && request.resource.data.keys().hasOnly(['readAt'])
+        && request.resource.data.readAt == request.time
+        && uid in get(/databases/$(database)/documents/conversations/$(thread)).data.participants;
     }
     match /users/{uid}/blocks/{target} {
       allow read, delete: if mine(uid);
@@ -134,9 +143,13 @@ service cloud.firestore {
         && (request.resource.data.options.size() < 5 || shortText(request.resource.data.options[4],80))
         && (request.resource.data.options.size() < 6 || shortText(request.resource.data.options[5],80))
         && request.resource.data.createdAt == request.time;
+      allow update: if mine(resource.data.authorId) && !('closedAt' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['closedAt']) && request.resource.data.closedAt == request.time;
+      allow delete: if mine(resource.data.authorId) || moderator();
       match /votes/{uid} {
         allow read: if true;
         allow create: if mine(uid) && request.resource.data.keys().hasOnly(['choice','createdAt']) && request.resource.data.choice is int
+          && !('closedAt' in get(/databases/$(database)/documents/polls/$(id)).data)
           && request.resource.data.choice >= 0 && request.resource.data.choice < get(/databases/$(database)/documents/polls/$(id)).data.options.size()
           && request.resource.data.createdAt == request.time;
       }

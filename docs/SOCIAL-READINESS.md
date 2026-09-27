@@ -81,3 +81,19 @@ the turn. No alternative API is used to bypass that restriction.
 - These checks use synthetic local accounts and emulators. Production migration,
   deployment and the launch hardening in SOCIAL-DEPLOYMENT.md remain outstanding.
   CodeRabbit review remains unavailable because it is disabled in task settings.
+
+## Continued launch work
+- Added account verification, password/email changes and permanent deletion controls.
+  Deletion uses a recent authenticated login, a write-lock tombstone, and retryable
+  background cleanup. Legacy profile IDs and other people's content are handled.
+- Removed fixed history cutoffs for replies, messages, notifications, polls and
+  reports. Discovery pages load progressively; friendship/conversation identities
+  resolve separately. Friends feeds query friend authors directly.
+- Added private unread conversation state, draft restoration, mark-all-read and
+  owner controls to close/delete polls.
+- Added a public-only Hosting artifact, excluding tools, tests and local state.
+  The live deployment omits static game-feed overrides; packaged curated archives
+  are now a Functions fallback, preserving the original feed on first deployment.
+- 22-test lifecycle gate passed. HTTP deletion worker and mobile password-change
+  flows passed. Pagination browser fixtures exposed 37 messages and 36 replies.
+  The account settings accessibility audit reported zero violations.

@@ -21,7 +21,7 @@
     document.querySelectorAll(".theme-option").forEach(function (btn) {
       var on = Rice.normalizeTheme(btn.getAttribute("data-theme")) === t;
       btn.classList.toggle("selected", on);
-      btn.setAttribute("aria-selected", on ? "true" : "false");
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
     });
   }
 
@@ -30,7 +30,7 @@
     document.querySelectorAll(".mode-option").forEach(function (btn) {
       var on = btn.getAttribute("data-mode") === mode;
       btn.classList.toggle("selected", on);
-      btn.setAttribute("aria-selected", on ? "true" : "false");
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
     });
   }
 

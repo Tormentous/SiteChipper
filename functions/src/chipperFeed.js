@@ -92,12 +92,7 @@ async function curatedFeed() {
   // Storage fallback (legacy publish path)
   const stored = await readJson(FEED_PATH);
   if (stored) return stored;
-  return {
-    board: "chipper-game-board",
-    version: 0,
-    meta: { empty: true, source: "storage-miss" },
-    posts: [],
-  };
+  return JSON.parse(JSON.stringify(require("../data/feed.json")));
 }
 
 async function sharedGamePosts() {
@@ -129,12 +124,7 @@ async function curatedBoard() {
   }
   const stored = await readJson(BOARD_PATH);
   if (stored) return stored;
-  return {
-    board: "BeeSid",
-    version: 0,
-    posts: [],
-    meta: { empty: true },
-  };
+  return JSON.parse(JSON.stringify(require("../data/board.json")));
 }
 
 async function liveBoard() {

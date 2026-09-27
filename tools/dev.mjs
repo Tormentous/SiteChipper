@@ -13,6 +13,8 @@ const PORT = process.env.PORT || "8000";
 const extra = process.argv.slice(2);
 const withFunctions = extra.includes("--functions");
 if (withFunctions) {
+  const { buildGameArchives } = await import('./build-hosting.mjs');
+  await buildGameArchives();
   const sdkBin = path.join(ROOT, 'functions', 'node_modules', '.bin', 'firebase-functions');
   if (!fs.existsSync(sdkBin)) {
     console.error('Install Functions dependencies first: npm --prefix functions ci');

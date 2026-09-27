@@ -26,8 +26,10 @@ Emulator data persists in `.emulator-data/` (delete it to start fresh).
 firebase deploy --only hosting,firestore:rules,storage,functions
 ```
 
-Hosting deploys the repository root; `firebase.json` `hosting.ignore` keeps
-tooling, tests, backups and server code out of the public site.
+Hosting predeploy runs `npm run build` to generate `.hosting/` with public files
+only. Functions predeploy packages the preserved game archives. Live game URLs
+reach Functions rather than stale static files. `npm run build:archive` can build
+an archived-feed artifact for inspection, but standard deployment rebuilds live mode.
 
 ## Shared social features
 

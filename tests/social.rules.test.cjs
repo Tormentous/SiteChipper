@@ -141,4 +141,24 @@ test('deletion tombstone locks stale sessions out of all social writes',async()=
  await assertFails(setDoc(doc(alice,'conversations','alice__bob','messages','after-delete'),{senderId:'alice',text:'No',createdAt:serverTimestamp()}));
  await assertFails(uploadBytes(ref(env.authenticatedContext('alice').storage(),'media/alice/after-delete'),new Uint8Array([1]),{contentType:'image/png'}));
  await assertFails(deleteDoc(doc(alice,'accountDeletions','alice')));
+ await env.withSecurityRulesDisabled(async context=>deleteDoc(doc(context.firestore(),'accountDeletions','alice')));
+});
+
+test('conversation unread state is participant-private and message activity cannot be forged',async()=>{
+ const message=doc(bob,'conversations','alice__bob','messages','activity');const batch=writeBatch(bob);
+ batch.set(message,{senderId:'bob',text:'New message',createdAt:serverTimestamp()});
+ batch.update(doc(bob,'conversations','alice__bob'),{lastMessageId:'activity',lastSenderId:'bob',updatedAt:serverTimestamp()});
+ await assertSucceeds(batch.commit());
+ await assertFails(updateDoc(doc(alice,'conversations','alice__bob'),{lastSenderId:'bob',lastMessageId:'activity',updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(doc(alice,'users','alice','conversationReads','alice__bob'),{readAt:serverTimestamp()}));
+ await assertFails(getDoc(doc(bob,'users','alice','conversationReads','alice__bob')));
+ await assertFails(setDoc(doc(outsider,'users','outsider','conversationReads','alice__bob'),{readAt:serverTimestamp()}));
+});
+test('poll owner may close voting permanently and remove a poll, with other owners denied',async()=>{
+ await assertFails(updateDoc(doc(bob,'polls','test'),{closedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(doc(alice,'polls','test'),{closedAt:serverTimestamp()}));
+ await assertFails(setDoc(doc(alice,'polls','test','votes','alice'),{choice:0,createdAt:serverTimestamp()}));
+ await assertFails(updateDoc(doc(alice,'polls','test'),{closedAt:null}));
+ await assertFails(deleteDoc(doc(bob,'polls','test')));
+ await assertSucceeds(deleteDoc(doc(alice,'polls','test')));
 });

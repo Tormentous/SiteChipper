@@ -69,7 +69,7 @@ function globToRegExp(glob) {
   return new RegExp("^" + re + "$");
 }
 
-const ignoreRes = (hosting.ignore || []).map(globToRegExp);
+const ignoreRes = [...(hosting.ignore || []), 'functions/**','tools/**','tests/**','docs/**','**/*.md','**/*.py','**/*.bak*','**/_*','**/_*/**','package*.json','firebase.json','firestore.*','storage.rules','database.rules.json','mise.toml'].map(globToRegExp);
 const rewrites = (hosting.rewrites || []).map((r) => ({ ...r, re: globToRegExp(r.source) }));
 const redirects = (hosting.redirects || []).map((r) => ({ ...r, re: globToRegExp(r.source) }));
 
