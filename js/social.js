@@ -92,7 +92,8 @@ function composer(board = '', reply = null) {
       if (result?.ok === false) throw new Error('This attachment could not be accepted. Please choose another file.');
     }
     const media = selected ? await api.upload(selected) : null;
-    if (reply) await api.comment(reply, body); else await api.createPost({ body, media, contentWarnings, board: board || data.get('board') });
+    try { if (reply) await api.comment(reply, body); else await api.createPost({ body, media, contentWarnings, board: board || data.get('board') }); }
+    catch(error){if(media&&['permission-denied','invalid-argument'].includes(error.code))await api.discardUpload(media).catch(()=>{});throw error;}
     textarea.value = ''; if (file) file.value = ''; preview.hidden = true; preview.replaceChildren();
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     remember(); toast(reply ? 'Reply posted.' : 'Your post is live.');
@@ -309,7 +310,7 @@ async function profilePage() {
   const p = await api.profile(id);
   if (!p) { root.innerHTML = heading('Profile') + empty('Profile not found', 'This profile may be an archived demo or its link may be incorrect.', '<a href="/friends.html">Discover people →</a>'); return; }
   const own = p.uid === api.state.user?.uid;
-  root.innerHTML = `<header class="social-profile">${avatar(p)}<div><p class="social-eyebrow">MEMBER OF THE PACK</p><h1>${escape(userName(p))}</h1><p class="social-bio">${escape(p.bio || 'A little corner of the Coolbrador cosmos.')}</p><small>Joined ${escape(timeLabel(p.createdAt))}</small></div></header><div class="social-actions">${own ? '<button id="editProfile">Edit profile</button><a href="/settings">Customize appearance</a>' : '<button id="profileFriend">Add friend</button><button id="profileMessage">Message</button>'}</div><div id="profileEditor"></div><h2>Posts</h2><section id="liveFeed"></section><button id="loadMore" class="social-load" hidden>Load more posts</button>`;
+  root.innerHTML = `<header class="social-profile">${avatar(p)}<div><p class="social-eyebrow">MEMBER OF THE PACK</p><h1>${escape(userName(p))}</h1><p class="social-bio">${escape(p.bio || 'A little corner of the Coolbrador cosmos.')}</p><small>Joined ${escape(timeLabel(p.createdAt))}</small></div></header><div class="social-actions">${own ? '<button id="editProfile">Edit profile</button><a href="/settings">Customize appearance</a>' : '<button id="profileFriend">Add friend</button><button id="profileMessage">Message</button><button id="profileBlock">Block</button>'}</div><div id="profileEditor"></div><h2>Posts</h2><section id="liveFeed"></section><button id="loadMore" class="social-load" hidden>Load more posts</button>`;
   renderFeed(undefined, p.uid);
   if (own) root.querySelector('#editProfile').onclick = () => {
     const editor = root.querySelector('#profileEditor');
@@ -318,16 +319,22 @@ async function profilePage() {
     bindForm(editor.querySelector('form'), async data => {
       const file = data.get('avatar');
       const media = file?.size ? await api.upload(file) : null;
-      await api.saveProfile({ displayName: data.get('displayName'), bio: data.get('bio'), avatarUrl: media?.url });
+      try { await api.saveProfile({ displayName: data.get('displayName'), bio: data.get('bio'), avatarUrl: media?.url, avatarPath:media?.path }); }
+      catch(error){if(media&&['permission-denied','invalid-argument'].includes(error.code))await api.discardUpload(media).catch(()=>{});throw error;}
       location.reload();
     });
     editor.querySelector('input').focus();
   };
   else {
     const friend = root.querySelector('#profileFriend');
-    function update() { const relation = friends.find(f => f.participants.includes(p.uid)); friend.textContent = relation ? relation.status === 'accepted' ? 'Friends ✓' : 'Request pending' : 'Add friend'; friend.disabled = !!relation || blocks.includes(p.uid); }
-    const renderPosts = feedRender; feedRender = () => { renderPosts(); update(); }; update();
-    friend.onclick = async () => { if (requireUser()) { try { await api.requestFriend(p.uid); } catch (error) { failure(error); } } };
+    function update() {
+      const relation=friends.find(f=>f.participants.includes(p.uid)),blocked=blocks.includes(p.uid);
+      friend.textContent=blocked?'Unblock to connect':relation?relation.status==='accepted'?'Remove friend':relation.requester===api.state.user?.uid?'Cancel request':'Accept request':'Add friend';friend.disabled=blocked;
+      root.querySelector('#profileMessage').disabled=blocked;root.querySelector('#profileBlock').textContent=blocked?'Unblock':'Block';
+    }
+    const renderPosts=feedRender;feedRender=()=>{renderPosts();update();};update();
+    friend.onclick=async()=>{if(!requireUser())return;friend.disabled=true;try{const relation=friends.find(f=>f.participants.includes(p.uid));if(!relation)await api.requestFriend(p.uid);else if(relation.status==='pending'&&relation.requester!==api.state.user.uid)await api.acceptFriend(relation.id);else await api.removeFriend(relation.id);}catch(error){failure(error);}finally{update();}};
+    root.querySelector('#profileBlock').onclick=async()=>{if(!requireUser())return;const blocked=blocks.includes(p.uid);if(blocked||await confirmDialog('Block this person?','Their posts will be hidden and contact will be restricted.','')){try{await api.block(p.uid,!blocked);}catch(error){failure(error);}}};
     root.querySelector('#profileMessage').onclick = async () => { if (requireUser()) { try { location.assign('/messages?thread=' + encodeURIComponent(await api.openConversation(p.uid))); } catch (error) { failure(error); } } };
   }
 }

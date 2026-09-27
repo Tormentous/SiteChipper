@@ -39,6 +39,8 @@ test('profiles: owner-only updates, no private email or impersonation', async ()
   await assertFails(updateDoc(doc(alice,'profiles','alice'),{uid:'bob'}));
   await assertFails(updateDoc(doc(alice,'profiles','alice'),{email:'private@example.test'}));
   await assertFails(updateDoc(doc(alice,'profiles','alice'),{avatarUrl:'javascript:alert(1)'}));
+  await assertFails(updateDoc(doc(alice,'profiles','alice'),{avatarPath:'media/bob/stolen'}));
+  await assertFails(updateDoc(doc(alice,'profiles','alice'),{searchTokens:'invalid'}));
   await assertSucceeds(updateDoc(doc(alice,'profiles','alice'),{displayName:'Alice',bio:'Chipper player'}));
   assert.equal((await getDoc(doc(bob,'profiles','alice'))).data().displayName,'Alice');
 });

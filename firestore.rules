@@ -5,6 +5,7 @@ service cloud.firestore {
     function mine(uid) { return signedIn() && request.auth.uid == uid; }
     function moderator() { return signedIn() && request.auth.token.get('moderator', false) == true; }
     function shortText(value, max) { return value is string && value.size() > 0 && value.size() <= max; }
+    function validAvatar() { return !('avatarPath' in request.resource.data) || request.resource.data.avatarPath.matches('media/' + request.auth.uid + '/[^/]+'); }
     function validSearch() { return request.resource.data.get('searchTokens',[]) is list && request.resource.data.get('searchTokens',[]).size() <= 100; }
     function validProfile(id) {
       return get(/databases/$(database)/documents/profiles/$(id)).data.uid == request.auth.uid;
@@ -32,13 +33,13 @@ service cloud.firestore {
     }
     match /profiles/{id} {
       allow read: if true;
-      allow create: if mine(id) && request.resource.data.keys().hasOnly(['uid','displayName','bio','avatarUrl','createdAt','searchTokens'])
-        && request.resource.data.uid == request.auth.uid && validSearch() && shortText(request.resource.data.displayName,48)
+      allow create: if mine(id) && request.resource.data.keys().hasOnly(['uid','displayName','bio','avatarUrl','createdAt','searchTokens','avatarPath'])
+        && request.resource.data.uid == request.auth.uid && validAvatar() && validSearch() && shortText(request.resource.data.displayName,48)
         && request.resource.data.bio is string && request.resource.data.bio.size() <= 500
         && safeUrl(request.resource.data.avatarUrl) && request.resource.data.createdAt == request.time;
       // Legacy numeric profiles remain readable/editable by their established owner.
-      allow update: if mine(resource.data.uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','bio','avatarUrl','searchTokens'])
-        && validSearch() && shortText(request.resource.data.displayName,48) && request.resource.data.bio is string
+      allow update: if mine(resource.data.uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','bio','avatarUrl','searchTokens','avatarPath'])
+        && validAvatar() && validSearch() && shortText(request.resource.data.displayName,48) && request.resource.data.bio is string
         && request.resource.data.bio.size() <= 500 && safeUrl(request.resource.data.avatarUrl);
     }
     match /boards/{id} {

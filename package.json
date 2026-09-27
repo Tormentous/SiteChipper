@@ -13,7 +13,8 @@
     "test:functions": "node tests/functions-smoke.cjs",
     "test:deletion": "node tests/deletion-http-smoke.cjs",
     "build": "node tools/build-hosting.mjs",
-    "build:archive": "node tools/build-hosting.mjs --archive"
+    "build:archive": "node tools/build-hosting.mjs --archive",
+    "test:media": "node tests/media-http-smoke.cjs"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "3.0.4",

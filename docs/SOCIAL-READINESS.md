@@ -97,3 +97,23 @@ the turn. No alternative API is used to bypass that restriction.
 - 22-test lifecycle gate passed. HTTP deletion worker and mobile password-change
   flows passed. Pagination browser fixtures exposed 37 messages and 36 replies.
   The account settings accessibility audit reported zero violations.
+
+## Launch-work verification checkpoint
+- Added drawing posts, indexed shared-content search, visible content preferences,
+  reply/poll reporting and Firestore-enforced posting cooldowns. Replaced remaining
+  demo search/sidebars and the nonfunctional Gift donation screen with real links
+  and a shared appreciation board. Home puts the composer before board browsing.
+- Full expanded emulator suite passed 34/34. This includes private-message activity,
+  account locking, shared-image retention, search backfill, routes and build policy.
+- Live HTTP smoke passed packaged Chipper archive fallback, shared/curated merging,
+  authorized publishing, account deletion and avatar-replacement cleanup. The
+  media proxy passed local authentication/quota/unconfigured-provider checks only.
+- Browser checks passed drawing upload, real search, older history, private drafts,
+  unread conversation state, poll closing/report/removal, profile blocking, password
+  changes and permanent account deletion. Drawing and account accessibility audits
+  had zero violations; decorative icon contrast required manual inspection.
+- Hosting artifact: 218 public files; 88 checked asset references resolve. Syntax
+  passed across all 38 changed JavaScript modules at this checkpoint.
+- CodeRabbit review is still disabled by task configuration. GitHub accepted b1268ff
+  then rejected subsequent pushes with403. Later work is committed locally and
+  preserved in the downloadable Git recovery bundle. Production remains undeployed.

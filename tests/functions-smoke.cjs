@@ -17,6 +17,11 @@ async function main() {
   await db.doc('profiles/'+owner).set({uid:owner,displayName:'Game smoke player',avatarUrl:'/users/default/pfp.jpg'});
   await db.doc('posts/'+id).set({authorId:owner,profileId:owner,board:'BeeSid',text:'A shared game-feed smoke post',media:null,inGame:true,createdAt:admin.firestore.Timestamp.now()});
   await db.doc('posts/'+id+'/reactions/test').set({yeah:true,repost:false});
+  await db.doc('chipper/feed').delete();
+  await Promise.all(files.map(path=>bucket.file(path).delete({ignoreNotFound:true})));
+  const fallback=await (await fetch(feedURL)).json();
+  const archive=JSON.parse(require('node:fs').readFileSync('data/chipper_game_board_feed.json','utf8'));
+  assert.ok(fallback.posts.some(p=>p.id===archive.posts[0].id),'packaged game archive fallback');
   await db.doc('chipper/feed').set({payload:JSON.stringify({board:'chipper-game-board',version:7,sensitivity:{chipperDefault:'hide'},posts:[{id:'curated-smoke',body:'Preserved archive'}]}),board:JSON.stringify({board:'BeeSid',posts:[]})});
   const response=await fetch(feedURL); assert.equal(response.status,200);
   const feed=await response.json(), shared=feed.posts.find(p=>p.boardPostId===id);
@@ -37,7 +42,7 @@ async function main() {
   const moderator=await moderatorLogin.json();
   const published=await fetch(publisher,{method:'POST',headers:{'content-type':'application/json',Authorization:'Bearer '+moderator.idToken},body:JSON.stringify({feed:{board:'chipper-game-board',posts:[{id:'authorized-smoke',body:'Moderator curated post'}]},board:{board:'BeeSid',posts:[]}})});
   assert.equal(published.status,200); assert.equal((await published.json()).postCount,1);
-  console.log('PASS: live shared/curated game feed, legacy alias, board mirror, anonymous and non-moderator publisher rejection, authorized moderator publishing.');
+  console.log('PASS: packaged archive fallback, live shared/curated game feed, legacy alias, board mirror, anonymous and non-moderator publisher rejection, authorized moderator publishing.');
  } finally {
   await Promise.all(files.map((path,i)=>originals[i] ? bucket.file(path).save(originals[i],{metadata:{contentType:'application/json'}}) : bucket.file(path).delete({ignoreNotFound:true})));
   if(original.exists) await original.ref.set(original.data()); else await db.doc('chipper/feed').delete();

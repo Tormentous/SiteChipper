@@ -114,7 +114,7 @@ export async function saveProfile(fields) {
   signedIn();
   const value = { displayName: text(fields.displayName, 48, 'Display name'), bio: String(fields.bio || '').trim().slice(0, 500) };
   value.searchTokens=searchTokens(value.displayName+' '+value.bio);
-  if (fields.avatarUrl) value.avatarUrl = fields.avatarUrl;
+  if (fields.avatarUrl) {value.avatarUrl = fields.avatarUrl;if(fields.avatarPath)value.avatarPath=fields.avatarPath;}
   await updateDoc(doc(db, 'profiles', state.profile.id), value);
   state.profile = { ...state.profile, ...value };
   cacheProfile(state.profile);
@@ -333,4 +333,10 @@ export async function searchPublic(kind, term, after) {
  if(!['posts','profiles'].includes(kind))throw Error('Unknown search type.');
  const snap=await getDocs(query(collection(db,kind),where('searchTokens','array-contains',words[0]),orderBy(documentId()),...(after?[startAfter(after)]:[]),limit(30)));
  return {rows:snap.docs.map(row).filter(r=>words.every(w=>r.searchTokens.includes(w))),hasMore:snap.size===30,cursor:snap.docs.at(-1)};
+}
+
+export async function discardUpload(media) {
+ const uid=signedIn();if(!media?.path?.startsWith('media/'+uid+'/'))return;
+ const {ref,deleteObject}=await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js');
+ await deleteObject(ref(await getStorageInstance(),media.path));
 }

@@ -18,18 +18,28 @@ async function eraseQuery(query) { await eachPage(query, snap => db.recursiveDel
 function mediaPath(value, uid) {
   return typeof value?.path === 'string' && value.path.startsWith(`media/${uid}/`) && value.path.split('/').length === 3 ? value.path : null;
 }
-async function eraseMedia(value, uid) {
-  const path = mediaPath(value, uid);
-  if (path) await admin.storage().bucket().file(path).delete({ ignoreNotFound: true });
+function pathFromAvatar(profile, uid) {
+  if(mediaPath({path:profile.avatarPath},uid))return profile.avatarPath;
+  try { const path=decodeURIComponent(new URL(profile.avatarUrl).pathname.split('/o/')[1]||'');return mediaPath({path},uid); } catch(_){return null;}
+}
+async function eraseMedia(value, uid, excludeDocument) {
+  const path = mediaPath(value, uid); if(!path)return;
+  const [posts,comments,profiles]=await Promise.all([
+    db.collection('posts').where('media.path','==',path).get(),
+    db.collectionGroup('comments').where('media.path','==',path).get(),
+    db.collection('profiles').where('uid','==',uid).get()
+  ]);
+  if([...posts.docs,...comments.docs].some(doc=>doc.ref.path!==excludeDocument)||profiles.docs.some(doc=>pathFromAvatar(doc.data(),uid)===path))return;
+  await admin.storage().bucket().file(path).delete({ ignoreNotFound: true });
 }
 async function cleanPost(id, data) {
   const ref = db.doc('posts/' + id);
-  await eachPage(ref.collection('comments'), async snap => { await eraseMedia(snap.data().media, snap.data().authorId); await snap.ref.delete(); });
+  await eachPage(ref.collection('comments'), async snap => { await eraseMedia(snap.data().media, snap.data().authorId,snap.ref.path); await snap.ref.delete(); });
   await eraseQuery(ref.collection('reactions'));
   await eraseQuery(db.collection('reposts').where('postId', '==', id));
   await eraseQuery(db.collectionGroup('notifications').where('postId', '==', id));
   await eraseQuery(db.collection('reports').where('postId', '==', id));
-  await eraseMedia(data.media, data.authorId);
+  await eraseMedia(data.media, data.authorId,'posts/'+id);
 }
 async function cleanAccount(uid) {
   // This tombstone also closes direct SDK writes during retries or partial failure.
@@ -37,7 +47,7 @@ async function cleanAccount(uid) {
   try { await admin.auth().updateUser(uid, { disabled: true }); await admin.auth().revokeRefreshTokens(uid); }
   catch (error) { if (error.code !== 'auth/user-not-found') throw error; }
   await eachPage(db.collection('posts').where('authorId', '==', uid), async snap => { await cleanPost(snap.id, snap.data()); await snap.ref.delete(); });
-  await eachPage(db.collectionGroup('comments').where('authorId', '==', uid), async snap => { await eraseMedia(snap.data().media, uid); await snap.ref.delete(); });
+  await eachPage(db.collectionGroup('comments').where('authorId', '==', uid), async snap => { await eraseMedia(snap.data().media, uid,snap.ref.path); await snap.ref.delete(); });
   await eraseQuery(db.collection('reposts').where('authorId', '==', uid));
   await eraseQuery(db.collection('friendships').where('participants', 'array-contains', uid));
   await eachPage(db.collection('conversations').where('participants', 'array-contains', uid), async snap => {
@@ -59,4 +69,4 @@ async function cleanAccount(uid) {
   try { await admin.auth().deleteUser(uid); } catch (error) { if (error.code !== 'auth/user-not-found') throw error; }
   await db.doc('accountDeletions/' + uid).set({ status: 'complete', completedAt: FieldValue.serverTimestamp() }, { merge: true });
 }
-module.exports = { eachPage, eraseQuery, eraseMedia, cleanPost, cleanAccount, mediaPath };
+module.exports = { eachPage, eraseQuery, eraseMedia, cleanPost, cleanAccount, mediaPath, pathFromAvatar };

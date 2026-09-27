@@ -70,9 +70,9 @@
     { title: "Messages", url: "/messages", hint: "DMs", section: "Pages" },
     { title: "Chipper", url: "/games/chipper.html", hint: "Play soon", section: "Games" },
     { title: "Polls", url: "/polls.html", hint: "Issues / Mutinies / Ideas", section: "Discussions" },
-    { title: "Gift", url: "/gift.html", hint: "Seasonal giveaway", section: "Pages" },
+    { title: "Gift", url: "/gift.html", hint: "Community drawings and thank-yous", section: "Pages" },
     { title: "Support", url: "/support.html", hint: "Help", section: "Pages" },
-    { title: "Settings", url: "/settings", hint: "Theme and preferences", section: "Pages" },
+    { title: "Settings", url: "/settings", hint: "Account, theme and preferences", section: "Pages" },
     { title: "Login", url: "/login.html", hint: "Sign in", section: "Pages" }
   ];
 
@@ -90,7 +90,7 @@
 
   function sharedPath(file) { return "/shared/" + file; }
 
-  var SHELL_CACHE_KEY = "cb_shell_html_v2";
+  var SHELL_CACHE_KEY = "cb_shell_html_v3";
   var SHELL_FLAGS_KEY = "cb_shell_flags_v1";
 
   function readShellCache() {
@@ -115,7 +115,7 @@
         v: 2
       }));
       // Drop legacy key once v2 is written.
-      try { localStorage.removeItem("cb_shell_html_v1"); } catch (_) {}
+      try { localStorage.removeItem("cb_shell_html_v2"); } catch (_) {}
     } catch (_) {}
   }
 
@@ -161,13 +161,6 @@
 
   function paintShellFromCache() {
     var cache = readShellCache();
-    if (!cache) {
-      // Migrate from v1 if present.
-      try {
-        var legacy = JSON.parse(localStorage.getItem("cb_shell_html_v1") || "null");
-        if (legacy && legacy.header) cache = legacy;
-      } catch (_) {}
-    }
     if (!cache) return false;
     var painted = false;
     var headerHost = document.getElementById("shared-header");
@@ -348,46 +341,14 @@
 
 
   function getLocalUser() {
-    const loggedIn = localStorage.getItem("loggedIn") === "true";
-    let userId = localStorage.getItem("currentUserId");
-    if (!loggedIn || !userId) return null;
-    try { userId = ensureSessionNotDemo() || userId; } catch (_) {}
-    // Migrate legacy "me" / firebase-uid-as-id into a numeric public id
-    var safe = sanitizePublicUserId(userId);
-    if (!safe) {
-      try {
-        var oldId = userId;
-        safe = allocatePublicUserId();
-        localStorage.setItem("currentUserId", safe);
-        try {
-          var migrated = JSON.parse(localStorage.getItem("user_" + oldId) || "{}");
-          if (migrated && Object.keys(migrated).length) {
-            localStorage.setItem("user_" + safe, JSON.stringify(migrated));
-          }
-          var migP = localStorage.getItem("pfp_" + oldId);
-          if (migP) localStorage.setItem("pfp_" + safe, migP);
-          var migProf = localStorage.getItem("profile_" + oldId);
-          if (migProf) localStorage.setItem("profile_" + safe, migProf);
-        } catch (_) {}
-        userId = safe;
-      } catch (_) {
-        return null;
-      }
-    } else {
-      userId = safe;
-    }
-    if (!sanitizePublicUserId(userId)) return null;
-    let user = {};
-    let prof = {};
-    try { user = JSON.parse(localStorage.getItem("user_" + userId) || "{}"); } catch (_) {}
-    try { prof = JSON.parse(localStorage.getItem("profile_" + userId) || "null") || {}; } catch (_) {}
-    var name = (prof && prof.displayName) || user.displayName || user.username || "Labrador";
-    return {
-      id: userId,
-      username: name,
-      pfp: (prof && prof.avatar) || user.profilePicture || localStorage.getItem("pfp_" + userId) || "/users/default/pfp.jpg",
-      profileUrl: "/users/" + encodeURIComponent(userId)
-    };
+    // Cache only paints a loading hint. Firebase determines the real session.
+    try {
+      if(localStorage.getItem('loggedIn')!=='true')return null;
+      const id=sanitizePublicUserId(localStorage.getItem('currentUserId'));if(!id)return null;
+      const user=JSON.parse(localStorage.getItem('user_'+id)||'{}'),profile=JSON.parse(localStorage.getItem('profile_'+id)||'{}');
+      if(!user.uid&&!profile.uid)return null;
+      return {id,username:profile.displayName||user.displayName||user.username||'Labrador',pfp:profile.avatar||user.profilePicture||'/users/default/pfp.jpg',profileUrl:'/users/'+encodeURIComponent(id)};
+    }catch(_){return null;}
   }
 
   function escapeHtml(s) {
@@ -1295,92 +1256,13 @@
   }
 
 function wireRightRail() {
-    if (!shouldShowRightRail()) {
-      document.body.classList.remove("has-cb-right-rail");
-      var stale = document.getElementById("cbRightRail");
-      if (stale) try { stale.remove(); } catch (_) {}
-      return;
-    }
-    var existingRail = document.getElementById("cbRightRail");
-    if (existingRail && existingRail.getAttribute("data-cb-shell") !== "cache" && existingRail.dataset.wired === "1") return;
-    if (existingRail) {
-      try { existingRail.remove(); } catch (_) {}
-    }
-
-    const boards = collectHotBoards();
-    const rail = document.createElement("aside");
-    rail.id = "cbRightRail";
-    rail.className = "cb-right-rail";
-    rail.setAttribute("aria-label", "Coolbrador extras");
-
-    const debates = collectHotPolls();
-    const follows = collectFollowSuggestions();
-
-    const boardLinks = boards.filter((b) => String(b).toLowerCase() !== "testboard").slice(0, 10).map((b) => {
-      const low = String(b).toLowerCase();
-      const label = low === "beesid" ? "BeeSid" : (low === "general" ? "General" : b);
-      const folder = (function () {
-        const map = { beesid: "BeeSid", general: "General", starry: "Starry", chippercorner: "ChipperCorner", labradoria: "Labradoria", mutinydesk: "MutinyDesk", giftdrive: "GiftDrive", farmreport: "FarmReport" };
-        return map[low] || b;
-      })();
-      const icon = boardIconPath(b);
-      const desc = ellipsizeWords(boardDescription(folder), 42);
-      return '<a class="cb-rail-link cb-rail-board" href="/b/' + encodeURIComponent(folder) + '/board.html">' +
-        '<img class="cb-rail-board-icon" src="' + icon + '" alt="" onerror="this.onerror=null;this.src=\'/img/Osaka_Stars.png\';">' +
-        '<span><strong>' + escapeHtml(label) + '</strong><small class="cb-rail-board-desc">' + escapeHtml(desc) + '</small></span></a>';
-    }).join("");
-
-    const debateLinks = debates.slice(0, 6).map((d) => {
-      const typeLabel = String(d.type || "ideas");
-      const nice = typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1);
-      return '<a class="cb-rail-link cb-rail-debate" href="/polls.html">' +
-        '<i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>' +
-        '<span><strong>' + escapeHtml(d.title) + '</strong><small>' + escapeHtml(nice) + '</small></span></a>';
-    }).join("");
-
-    const packHtml = follows.map((f) =>
-      '<a class="cb-rail-face" href="/users/' + encodeURIComponent(f.id) + '" title="' + escapeHtml(f.name) + '">' +
-      '<img src="' + f.pfp + '" alt="' + escapeHtml(f.name) + '">' +
-      "</a>"
-    ).join("");
-
-    const openers = [
-      { href: "/games/chipper.html", icon: "fa-paw", title: "Chipper", blurb: "Not out yet. Kicks and giggles loading." },
-      { href: "/simulations.html", icon: "fa-globe", title: "Simulations", blurb: "Open LabradorSim, Coolbrador's civic lab." }
-    ].map((o) =>
-      '<a class="cb-rail-link" href="' + o.href + '">' +
-      '<i class="fa-solid ' + o.icon + '" aria-hidden="true"></i>' +
-      '<span><strong>' + escapeHtml(o.title) + '</strong><small>' + escapeHtml(o.blurb) + '</small></span>' +
-      "</a>"
-    ).join("");
-
-    rail.innerHTML =
-      '<div class="cb-rail-block cb-rail-hero">' +
-        '<p class="cb-rail-kicker">Around the kennel</p>' +
-        '<p class="cb-rail-lede">Coolbrador shortcuts. Less scroll, more Labrador.</p>' +
-        openers +
-      "</div>" +
-      '<div class="cb-rail-block">' +
-        '<div class="cb-rail-block-head"><p class="cb-rail-kicker">Boards</p><a class="cb-rail-more" href="/community.html">Browse</a></div>' +
-        (boardLinks || '<span class="cb-rail-muted">General is waiting.</span>') +
-      "</div>" +
-      '<div class="cb-rail-block">' +
-        '<div class="cb-rail-block-head"><p class="cb-rail-kicker">Open debates</p><a class="cb-rail-more" href="/polls.html">Browse</a></div>' +
-        (debateLinks || '<span class="cb-rail-muted">No open debates yet.</span>') +
-      "</div>" +
-      ((typeof isSignedIn === "function" && isSignedIn())
-        ? ('<div class="cb-rail-block cb-rail-pack-nearby">' +
-            '<p class="cb-rail-kicker">Pack nearby</p>' +
-            '<div class="cb-rail-faces">' + packHtml + "</div>" +
-          "</div>")
-        : "");
-
-    document.body.appendChild(rail);
-    try { rail.dataset.wired = "1"; } catch (_) {}
-    try { writeShellCache(null, null, rail.outerHTML); } catch (_) {}
-    document.body.classList.add("has-cb-right-rail");
+    document.getElementById('cbRightRail')?.remove();
+    if(!shouldShowRightRail()){document.body.classList.remove('has-cb-right-rail');return;}
+    const rail=document.createElement('aside');rail.id='cbRightRail';rail.className='cb-right-rail';rail.setAttribute('aria-label','Explore Coolbrador');
+    const shortcuts=[['/community.html','Communities','Find a board and join the conversation.'],['/friends.html','Find your pack','Meet people and manage friendships.'],['/polls.html','Community polls','Ask questions and explore voting history.'],['/b/BeeSid','Chipper board','Drawings and posts shared with the game.'],['/games/chipper.html','Chipper','Follow the game and its community.']];
+    rail.innerHTML='<div class="cb-rail-block"><p class="cb-rail-kicker">Explore</p>'+shortcuts.map(([url,title,description])=>'<a class="cb-rail-link" href="'+url+'"><span><strong>'+title+'</strong><small>'+description+'</small></span></a>').join('')+'</div>';
+    document.body.append(rail);document.body.classList.add('has-cb-right-rail');writeShellCache(null,null,rail.outerHTML);
   }
-
 
   function ensureNotificationsScript() { /* Shared notifications are loaded by the social application. */ }
 

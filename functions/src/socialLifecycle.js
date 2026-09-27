@@ -1,7 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const { FieldValue } = require('firebase-admin/firestore');
-const { cleanPost, cleanAccount, eraseMedia } = require('./socialCleanup');
+const { cleanPost, cleanAccount, eraseMedia, pathFromAvatar } = require('./socialCleanup');
 const retrying = functions.runWith({ timeoutSeconds: 540, memory: '512MB', failurePolicy: true });
 
 exports.requestAccountDeletion = functions.https.onRequest(async (req, res) => {
@@ -13,7 +13,7 @@ exports.requestAccountDeletion = functions.https.onRequest(async (req, res) => {
     if (!token) throw Error('Missing token');
     identity = await admin.auth().verifyIdToken(token, true);
   } catch (_) { return res.status(401).json({ error: 'Sign in again to delete your account.' }); }
-  if (Date.now() / 1000 - identity.auth_time > 300) return res.status(401).json({ error: 'Confirm your password again before deleting your account.' });
+  if (!Number.isFinite(identity.auth_time) || Date.now() / 1000 - identity.auth_time > 300) return res.status(401).json({ error: 'Confirm your password again before deleting your account.' });
   if (req.body?.confirmation !== 'DELETE') return res.status(400).json({ error: 'Type DELETE to confirm.' });
   try {
     const ref = admin.firestore().doc('accountDeletions/' + identity.uid);
@@ -25,10 +25,16 @@ exports.requestAccountDeletion = functions.https.onRequest(async (req, res) => {
 });
 exports.deleteSocialAccount = retrying.firestore.document('accountDeletions/{uid}').onCreate((_, context) => cleanAccount(context.params.uid));
 exports.cleanupDeletedAuthUser = retrying.auth.user().onDelete(user => cleanAccount(user.uid));
-exports.cleanupDeletedPost = retrying.firestore.document('posts/{id}').onDelete((snap, context) => cleanPost(context.params.id, snap.data()));
+exports.cleanupDeletedPost = retrying.firestore.document('posts/{id}').onDelete(async (snap, context) => { if(!(await snap.ref.get()).exists)await cleanPost(context.params.id, snap.data()); });
 exports.cleanupDeletedReply = retrying.firestore.document('posts/{postId}/comments/{id}').onDelete(async (snap, context) => {
+  if((await snap.ref.get()).exists)return;
   await eraseMedia(snap.data().media, snap.data().authorId);
   await require('./socialCleanup').eraseQuery(admin.firestore().collectionGroup('notifications').where('commentId', '==', context.params.id));
   await require('./socialCleanup').eraseQuery(admin.firestore().collection('reports').where('commentId', '==', context.params.id));
 });
-exports.cleanupDeletedPoll = retrying.firestore.document('polls/{id}').onDelete(async (_, context) => { await admin.firestore().recursiveDelete(admin.firestore().doc('polls/' + context.params.id));await require('./socialCleanup').eraseQuery(admin.firestore().collection('reports').where('pollId','==',context.params.id)); });
+exports.cleanupDeletedPoll = retrying.firestore.document('polls/{id}').onDelete(async (_, context) => { if((await admin.firestore().doc('polls/'+context.params.id).get()).exists)return;await admin.firestore().recursiveDelete(admin.firestore().doc('polls/' + context.params.id));await require('./socialCleanup').eraseQuery(admin.firestore().collection('reports').where('pollId','==',context.params.id)); });
+
+exports.cleanupReplacedAvatar = retrying.firestore.document('profiles/{id}').onUpdate(async change => {
+ const before=change.before.data(),after=change.after.data(),path=pathFromAvatar(before,before.uid);
+ if(path&&path!==pathFromAvatar(after,after.uid))await eraseMedia({path},before.uid);
+});

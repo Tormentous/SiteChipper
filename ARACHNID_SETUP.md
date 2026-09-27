@@ -1,12 +1,22 @@
-# Coolbrador mediaScan (Arachnid Shield proxy)
+# Coolbrador media scan proxy
 
-Illegal media matching stays server-side. Do not put Shield username/password in frontend JS.
+The `/api/media-scan` function requires a Firebase bearer token and enforces a
+per-account cooldown. Provider credentials stay server-side; Functions binds the
+`ARACHNID_SHIELD_USER` and `ARACHNID_SHIELD_PASS` secrets.
 
-## Credentials
-1. Register at https://shield.projectarachnid.com (Canadian Centre for Child Protection).
-2. Set Firebase secrets:
-   - `ARACHNID_SHIELD_USER`
-   - `ARACHNID_SHIELD_PASS`
-3. Deploy functions, then add a hosting rewrite from `/api/media-scan` to `mediaScan`.
+Set these in the production Firebase project and deploy the function plus Hosting:
 
-Until credentials exist, the client still hard-blocks porn via NSFWJS + text heuristics and soft-skips the remote hash scan.
+```sh
+firebase functions:secrets:set ARACHNID_SHIELD_USER
+firebase functions:secrets:set ARACHNID_SHIELD_PASS
+```
+
+For local Firebase emulators, create ignored `functions/.secret.local` with empty
+values for both names. The proxy returns501 (unconfigured) rather than contacting
+a real provider. `npm run test:media` checks local authentication and quotas.
+
+The provider's live response contract has not been verified in this task. The
+approved emulate v0.0.1 catalog has no Arachnid service. Unit tests check positive,
+negative, malformed and failed response handling without claiming to validate the
+upstream. The client treats this scan as best-effort. Direct public Storage
+uploads do not enforce a server quarantine or review workflow.

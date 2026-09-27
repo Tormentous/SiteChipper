@@ -9,7 +9,8 @@ let signup = false, busy = false;
 const messages = {
   'auth/email-already-in-use': 'An account already uses that email. Sign in or reset your password.',
   'auth/invalid-email': 'Enter a valid email address.',
-  'auth/weak-password': 'Use a password with at least six characters.',
+  'auth/weak-password': 'Use a password with at least eight characters.',
+  'auth/user-disabled': 'This account is unavailable. Contact support if you believe this is a mistake.',
   'auth/invalid-credential': 'The email or password is incorrect.',
   'auth/wrong-password': 'The email or password is incorrect.',
   'auth/user-not-found': 'The email or password is incorrect.',
@@ -29,6 +30,7 @@ document.querySelector('#authToggle').onclick = () => {
   document.querySelector('#nameField').hidden = !signup;
   form.elements.displayName.required = signup;
   form.elements.password.autocomplete = signup ? 'new-password' : 'current-password';
+  form.elements.password.minLength = signup ? 8 : 1;
   document.querySelector('#authTitle').textContent = signup ? 'Join the pack' : 'Welcome back';
   submit.textContent = signup ? 'Create account' : 'Sign in';
   document.querySelector('#authToggle').textContent = signup ? 'Already a member? Sign in' : 'Create an account';
@@ -48,7 +50,8 @@ async function finish(user, name) {
   });
   if (name) await saveProfile({ displayName: name, bio: state.profile.bio || '' });
   const next = new URLSearchParams(location.search).get('next');
-  const target = next ? new URL(next, location.origin) : new URL('/', location.origin);
+  let target=new URL('/',location.origin);
+  try { if(next)target=new URL(next,location.origin); } catch (_) {}
   location.assign(target.origin === location.origin ? target.pathname + target.search + target.hash : '/');
 }
 form.onsubmit = async event => {

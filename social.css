@@ -196,3 +196,7 @@ html { scroll-padding-top: 85px; scroll-padding-bottom: 90px; }
 .social-boards.is-carousel { display: flex; overflow-x: auto; padding-bottom: 12px; margin-top: 24px; }
 .social-boards.is-carousel a { flex: 0 0 185px; }
 .search-results .social-person { margin: 14px 0; }
+
+.social-boards.is-carousel { scrollbar-width: thin; scrollbar-color: var(--cb-border, #333348) transparent; }
+.social-boards.is-carousel::-webkit-scrollbar { height: 6px; }
+.social-boards.is-carousel::-webkit-scrollbar-thumb { background: var(--cb-border, #333348); border-radius: 8px; }

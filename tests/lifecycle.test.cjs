@@ -44,3 +44,15 @@ test('account cleanup is repeatable, erases legacy identity and own content whil
  assert.equal((await admin.storage().bucket().file('media/'+uid+'/orphan').exists())[0],false);
  await assert.rejects(admin.auth().getUser(uid),{code:'auth/user-not-found'});
 });
+
+test('shared media is retained until its last public reference is removed',async()=>{
+ const bucket=admin.storage().bucket(),media={path:'media/shared-owner/shared'};
+ await bucket.file(media.path).save('shared image');
+ await db.doc('posts/shared-one').set({authorId:'shared-owner',media});await db.doc('posts/shared-two').set({authorId:'shared-owner',media});
+ await cleanPost('shared-one',{authorId:'shared-owner',media});assert.equal((await bucket.file(media.path).exists())[0],true);
+ await db.doc('posts/shared-one').delete();
+ await db.doc('profiles/shared-owner').set({uid:'shared-owner',avatarPath:media.path});
+ await cleanPost('shared-two',{authorId:'shared-owner',media});assert.equal((await bucket.file(media.path).exists())[0],true);
+ await db.doc('profiles/shared-owner').delete();
+ await cleanPost('shared-two',{authorId:'shared-owner',media});assert.equal((await bucket.file(media.path).exists())[0],false);
+});

@@ -10,7 +10,13 @@ async function main(){
  const custom=await admin.auth().createCustomToken(uid);
  const response=await fetch('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=demo',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:custom,returnSecureToken:true})});
  const {idToken}=await response.json();assert.ok(idToken);
- await db.doc('profiles/deletion-legacy').set({uid,displayName:'Deletion fixture'});
+ const oldAvatar='media/'+uid+'/avatar-old',newAvatar='media/'+uid+'/avatar-new';
+ await admin.storage().bucket().file(oldAvatar).save('old avatar');await admin.storage().bucket().file(newAvatar).save('new avatar');
+ await db.doc('profiles/deletion-legacy').set({uid,displayName:'Deletion fixture',avatarPath:oldAvatar});
+ await db.doc('profiles/deletion-legacy').update({avatarPath:newAvatar});
+ const avatarDeadline=Date.now()+30000;
+ while((await admin.storage().bucket().file(oldAvatar).exists())[0]){if(Date.now()>avatarDeadline)throw Error('Avatar replacement cleanup did not complete');await new Promise(resolve=>setTimeout(resolve,250));}
+ assert.equal((await admin.storage().bucket().file(newAvatar).exists())[0],true);
  await db.doc('posts/deletion-http').set({authorId:uid,text:'Delete me',media:{path:'media/'+uid+'/image'}});
  await admin.storage().bucket().file('media/'+uid+'/image').save('synthetic');
  assert.equal((await request(null,{confirmation:'DELETE'})).status,401);
@@ -23,6 +29,6 @@ async function main(){
  assert.equal((await db.doc('profiles/deletion-legacy').get()).exists,false);assert.equal((await db.doc('posts/deletion-http').get()).exists,false);
  assert.equal((await admin.storage().bucket().file('media/'+uid+'/image').exists())[0],false);
  await assert.rejects(admin.auth().getUser(uid),{code:'auth/user-not-found'});
- console.log('PASS: HTTP authentication, confirmation, recent-login enforcement and asynchronous account deletion trigger.');
+ console.log('PASS: HTTP authentication, confirmation, recent-login enforcement avatar replacement cleanup and asynchronous account deletion trigger.');
 }
 main().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>admin.app().delete());

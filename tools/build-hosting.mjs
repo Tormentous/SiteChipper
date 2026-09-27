@@ -34,7 +34,7 @@ export async function buildHosting({live=true}={}) {
  }
  try {
    await walk(); await buildGameArchives();
-   for(const required of ['index.html','js/social.js','js/account-settings.js','data/community-archive.json','games/chipper.html'])await fs.access(path.join(stage,required));
+   for(const required of ['index.html','js/social.js','js/account-settings.js','js/drawing.js','js/search-utils.mjs','data/community-archive.json','games/chipper.html'])await fs.access(path.join(stage,required));
    await fs.rm(path.join(root,'.hosting'),{recursive:true,force:true});await fs.rename(stage,path.join(root,'.hosting'));
    return {count,live};
  } finally {await fs.rm(stage,{recursive:true,force:true});}
