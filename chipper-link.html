@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect Chipper - Coolbrador</title>
+  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .chipper-link-wrap { width: min(560px, calc(100% - 32px)); margin: 40px auto 100px; }
+    .chipper-link-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px; padding: 20px;
+    }
+    .chipper-link-card h1 { margin: 0 0 8px; font-size: 1.5rem; }
+    .chipper-link-card p { color: #aab; }
+    .chipper-link-card pre {
+      white-space: pre-wrap; word-break: break-word;
+      background: rgba(0,0,0,0.35); border-radius: 10px; padding: 12px;
+      font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.08);
+    }
+    .chipper-link-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .chipper-link-actions button, .chipper-link-actions a.btn {
+      border: 0; border-radius: 10px; padding: 10px 14px; cursor: pointer;
+      background: #4a9eff; color: #fff; font-weight: 700; text-decoration: none;
+      display: inline-flex; align-items: center;
+    }
+    .chipper-link-actions button.secondary { background: rgba(255,255,255,0.12); }
+    .chipper-link-status { margin-top: 12px; color: #8ea0c0; font-size: 0.9rem; }
+    .chipper-link-err { color: #ff8a8a; }
+  </style>
+</head>
+<body>
+  <div id="shared-header"></div>
+  <main class="chipper-link-wrap">
+    <section class="chipper-link-card">
+      <h1>Connect to Chipper</h1>
+      <p id="linkBlurb">One-shot link for Chipper. No refresh tokens. Chipper reads this payload once, then you are linked in-game.</p>
+      <pre id="linkPayload">Loading…</pre>
+      <div class="chipper-link-actions">
+        <button type="button" id="btnCopy">Copy JSON</button>
+        <button type="button" id="btnRegen" class="secondary">New code</button>
+        <a class="btn secondary" href="/settings.html#chipper">Settings</a>
+      </div>
+      <p class="chipper-link-status" id="linkStatus"></p>
+    </section>
+  </main>
+  <div id="shared-footer"></div>
+  <script src="/js/layout.js"></script>
+  <script src="/js/chipper-link.js"></script>
+</body>
+</html>

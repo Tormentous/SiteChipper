@@ -1,28 +1,78 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>ERROR with Chipper!</title>
-        <link rel="stylesheet" href="styles.css"/>
-    </head>
-    <body>
-    <div id="shared-header"></div>
-            <div class="bodytext-section container">
-                <h1 class="section-header">Error</h1>
-            </div>
-
-			<script>
-			document.addEventListener("DOMContentLoaded", function () {
-			  // Load header
-			  fetch("../shared/header.html")
-				.then(r => r.text())
-				.then(d => document.getElementById("shared-header").innerHTML = d);
-
-			  // Load footer
-			  fetch("../shared/footer.html")
-				.then(r => r.text())
-				.then(d => document.getElementById("shared-footer").innerHTML = d)
-				.catch(err => console.error("Footer failed to load:", err));
-			});
-			</script>
-    </body>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon" sizes="any">
+  <link rel="shortcut icon" href="/img/favicon3.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="/img/favicon3.ico">
+  <title>Coolbrador</title>
+  <meta name="theme-color" content="#00001c">
+  <meta property="og:site_name" content="Coolbrador">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Coolbrador">
+  <meta property="og:description" content="Labrador communities, Chipper, polls, and civic sims.">
+  <meta property="og:image" content="/img/PlanetChipperHomepage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Coolbrador">
+  <meta name="twitter:description" content="Labrador communities, Chipper, polls, and civic sims.">
+  <meta name="twitter:image" content="/img/PlanetChipperHomepage.png">
+  <link rel="stylesheet" href="/styles.css"/>
+</head>
+<body>
+  <div id="shared-header"></div>
+<script src="/js/shell-boot.js"></script>
+  <div id="cb404Root" class="error-page">
+    <p class="error-code">404</p>
+    <h1 class="section-header">This sector of Planet Chipper is empty</h1>
+    <div class="error-card">
+      <h2>Wrong coordinates</h2>
+      <p>The page you wanted drifted off into space. Try Home, Community, or Chipper from the nav — or use search.</p>
+      <p><a href="/" class="nav-rhombus" style="display:inline-flex;min-width:160px;height:48px;margin-top:12px;">Go Home</a></p>
+    </div>
+  </div>
+  <div id="shared-footer"></div>
+  <script src="/js/layout.js"></script>
+  <script src="/js/og-meta.js"></script>
+  <script>
+  (function () {
+    var path = location.pathname || "";
+    if (!/\/b\/[^\/]+\/post\/\d+\/comments\/?$/i.test(path)) return;
+    // SPA hosts often serve 404.html for thread URLs — boot the thread shell instead.
+    document.body.className = "post-thread-page community-page";
+    var root = document.getElementById("cb404Root");
+    if (root) {
+      root.outerHTML =
+        '<main class="container bodytext-section post-thread-main">' +
+        '<p class="post-thread-crumb"><a id="threadBack" href="/community.html">Back to board</a></p>' +
+        '<div id="threadPost" class="post-thread-hero"></div>' +
+        '<section class="post-thread-replies-wrap">' +
+        '<h2 class="post-thread-heading">Comments</h2>' +
+        '<div id="threadComposeHost"></div>' +
+        '<div id="threadReplies" class="post-thread-replies"></div>' +
+        "</section>" +
+        '<p id="threadEmpty" class="hub-empty" hidden><strong>Post not found</strong><span>That board post number does not exist (yet).</span></p>' +
+        "</main>";
+    }
+    function load(src) {
+      return new Promise(function (resolve, reject) {
+        var s = document.createElement("script");
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.body.appendChild(s);
+      });
+    }
+    load("/js/seed-demo.js")
+      .then(function () { return load("/js/cb-chipper-feed-sync.js"); })
+      .then(function () { return load("/js/posts.js"); })
+      .then(function () { return load("/js/post-thread.js"); })
+      .catch(function () {});
+  })();
+  </script>
+<script src="/js/cb-scrub-chart.js"></script>
+<script src="/js/cb-media-player.js"></script>
+  <script src="/js/cb-sensitive-filter.js"></script>
+  <script src="/js/cb-media-safety.js"></script>
+</body>
 </html>

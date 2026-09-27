@@ -1,0 +1,345 @@
+{
+  "board": "chipper-game-board",
+  "version": 4,
+  "meta": {
+    "source": "derived-from-boards/BeeSid.json",
+    "derivedAt": "2026-09-22T03:31:30Z",
+    "boardVersion": 6,
+    "note": "yeahs/likes = len(board.yeahs); views = board.views. Do not hardcode."
+  },
+  "sensitivity": {
+    "webDefault": "show",
+    "chipperDefault": "hide",
+    "adultHiddenByDefault": true,
+    "pornHardBlocked": true,
+    "note": "Illegal/porn media hard-blocked sitewide. 18+ hidden by default. Sensitive speech: web SHOW, Chipper HIDE. Seed posts are funny/clean only."
+  },
+  "posts": [
+    {
+      "id": "cg-14",
+      "author": "CrateKid",
+      "display_name": "CrateKid",
+      "handle": "cratekid",
+      "username": "cratekid",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/AnthonySpade.png",
+      "feeling": "puzzled",
+      "body": "why do crates have better hitboxes than me. asking for a friend (the crate)",
+      "media": [],
+      "likes": 12,
+      "yeahs": 12,
+      "views": 99,
+      "url": "https://coolbrador.com/b/BeeSid/post/14/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785632400000",
+      "timestamp": "2026-08-02T01:00:00.000Z"
+    },
+    {
+      "id": "cg-13",
+      "author": "PollenPete",
+      "display_name": "PollenPete",
+      "handle": "pollenpete",
+      "username": "pollenpete",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/GyattToad.png",
+      "feeling": "mischievous",
+      "body": "smuggled a picnic into the boss arena. he joined. we are friends now. run.",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Broke%20and%20Poor.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 33,
+      "yeahs": 33,
+      "views": 361,
+      "url": "https://coolbrador.com/b/BeeSid/post/13/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785628800000",
+      "timestamp": "2026-08-02T00:00:00.000Z"
+    },
+    {
+      "id": "cg-12",
+      "author": "BeeSid",
+      "display_name": "BeeSid",
+      "handle": "beesid",
+      "username": "beesid",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/BeeSid.png",
+      "feeling": "happy",
+      "body": "welcome to the Chipper Game Board. post fails. post tips. post bees. no boring allowed",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Eat%20Slop.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 40,
+      "yeahs": 40,
+      "views": 890,
+      "url": "https://coolbrador.com/b/BeeSid/post/12/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785625200000",
+      "timestamp": "2026-08-01T23:00:00.000Z"
+    },
+    {
+      "id": "cg-11",
+      "author": "MetalLabFan",
+      "display_name": "MetalLabFan",
+      "handle": "metallabfan",
+      "username": "metallabfan",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/NerdDog.png",
+      "feeling": "frustrated",
+      "body": "died to the same laser 12 times. drawing of me yelling at a rectangle enclosed",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Cannot%20Pass.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 25,
+      "yeahs": 25,
+      "views": 277,
+      "url": "https://coolbrador.com/b/BeeSid/post/11/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785621600000",
+      "timestamp": "2026-08-01T22:00:00.000Z"
+    },
+    {
+      "id": "cg-10",
+      "author": "LabPuppy",
+      "display_name": "LabPuppy",
+      "handle": "labpuppy",
+      "username": "labpuppy",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/CoolDog.png",
+      "feeling": "happy",
+      "body": "my first miiverse drawing of a bee that is definitely not a dog in a costume",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Checkpoint.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 16,
+      "yeahs": 16,
+      "views": 144,
+      "url": "https://coolbrador.com/b/BeeSid/post/10/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785618000000",
+      "timestamp": "2026-08-01T21:00:00.000Z"
+    },
+    {
+      "id": "cg-09",
+      "author": "BeeSid",
+      "display_name": "BeeSid",
+      "handle": "beesid",
+      "username": "beesid",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/BeeSid.png",
+      "feeling": "mischievous",
+      "body": "bee tip #47: honey makes platforms sticky. sticky is a lifestyle not a bug",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Eat%20Slop.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 28,
+      "yeahs": 28,
+      "views": 319,
+      "url": "https://coolbrador.com/b/BeeSid/post/9/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785614400000",
+      "timestamp": "2026-08-01T20:00:00.000Z"
+    },
+    {
+      "id": "cg-08",
+      "author": "AnthonySpade",
+      "display_name": "AnthonySpade",
+      "handle": "anthonyspade",
+      "username": "anthonyspade",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/AnthonySpade.png",
+      "feeling": "frustrated",
+      "body": "speedrun any% but i softlocked in the tutorial crate. ETA: forever",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Broke%20and%20Poor.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 19,
+      "yeahs": 19,
+      "views": 240,
+      "url": "https://coolbrador.com/b/BeeSid/post/8/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785610800000",
+      "timestamp": "2026-08-01T19:00:00.000Z"
+    },
+    {
+      "id": "cg-07",
+      "author": "NerdDog",
+      "display_name": "NerdDog",
+      "handle": "nerddog",
+      "username": "nerddog",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/NerdDog.png",
+      "feeling": "puzzled",
+      "body": "hypothesis: bees are just spicy floating dogs. peer review welcome. grant money optional",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Cannot%20Pass.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 11,
+      "yeahs": 11,
+      "views": 156,
+      "url": "https://coolbrador.com/b/BeeSid/post/7/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785607200000",
+      "timestamp": "2026-08-01T18:00:00.000Z"
+    },
+    {
+      "id": "cg-06",
+      "author": "CoolDog",
+      "display_name": "CoolDog",
+      "handle": "cooldog",
+      "username": "cooldog",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/CoolDog.png",
+      "feeling": "happy",
+      "body": "fan knocked me into another fan. performance art. title: Wind Tunnel of Friendship",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Checkpoint.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 17,
+      "yeahs": 17,
+      "views": 188,
+      "url": "https://coolbrador.com/b/BeeSid/post/6/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785603600000",
+      "timestamp": "2026-08-01T17:00:00.000Z"
+    },
+    {
+      "id": "cg-05",
+      "author": "Miguel",
+      "display_name": "Miguel",
+      "handle": "miguel",
+      "username": "miguel",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/Miguel.webp",
+      "feeling": "happy",
+      "body": "selfie with Metal Lab before he noticed. if this posts i am either brave or deleted",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Eat%20Slop.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 31,
+      "yeahs": 31,
+      "views": 402,
+      "url": "https://coolbrador.com/b/BeeSid/post/5/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785600000000",
+      "timestamp": "2026-08-01T16:00:00.000Z"
+    },
+    {
+      "id": "cg-04",
+      "author": "Cardbrador",
+      "display_name": "Cardbrador",
+      "handle": "cardbrador",
+      "username": "cardbrador",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/Cardbrador.png",
+      "feeling": "puzzled",
+      "body": "stock chart went UP so i jumped UP. physics disagreed. currently inside a rhombus",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Broke%20and%20Poor.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 9,
+      "yeahs": 9,
+      "views": 97,
+      "url": "https://coolbrador.com/b/BeeSid/post/4/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785596400000",
+      "timestamp": "2026-08-01T15:00:00.000Z"
+    },
+    {
+      "id": "cg-03",
+      "author": "GyattToad",
+      "display_name": "GyattToad",
+      "handle": "gyatttoad",
+      "username": "gyatttoad",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/GyattToad.png",
+      "feeling": "frustrated",
+      "body": "TIP: if you hear buzzing, do NOT make friends. i made friends. i regret everything",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Cannot%20Pass.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 22,
+      "yeahs": 22,
+      "views": 210,
+      "url": "https://coolbrador.com/b/BeeSid/post/3/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785592800000",
+      "timestamp": "2026-08-01T14:00:00.000Z"
+    },
+    {
+      "id": "cg-02",
+      "author": "BeeSid",
+      "display_name": "BeeSid",
+      "handle": "beesid",
+      "username": "beesid",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/BeeSid.png",
+      "feeling": "mischievous",
+      "body": "drew my lair but the shipping containers ate my crayon. 10/10 stuck again",
+      "media": [
+        {
+          "url": "https://coolbrador.com/shared/TestImages/Checkpoint.jpg",
+          "type": "image"
+        }
+      ],
+      "likes": 14,
+      "yeahs": 14,
+      "views": 128,
+      "url": "https://coolbrador.com/b/BeeSid/post/2/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785589200000",
+      "timestamp": "2026-08-01T13:00:00.000Z"
+    },
+    {
+      "id": "cg-01",
+      "author": "Chipper",
+      "display_name": "Chipper",
+      "handle": "chipper",
+      "username": "chipper",
+      "avatar_url": "https://coolbrador.com/shared/TestImages/ProfilePhotos/BeeSid.png",
+      "feeling": "normal",
+      "body": "CHIPPER GAME BOARD - posts from inside BeeSid's lair show up here. Draw, fail loudly, trade bee tips. (Not a regular chill board.)",
+      "media": [],
+      "likes": 40,
+      "yeahs": 40,
+      "views": 512,
+      "url": "https://coolbrador.com/b/BeeSid/post/1/comments/",
+      "sensitive": false,
+      "contentWarnings": [],
+      "boardPostId": "1785585600000",
+      "timestamp": "2026-08-01T12:00:00.000Z"
+    }
+  ]
+}

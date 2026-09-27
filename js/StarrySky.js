@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // Rest of your code stays the same...
-// (container check, scene, camera at (0,0,0), renderer, lights, debug box, loader.load('./models/Stars.glb', ...), animate loop, resize)
+// (container check, scene, camera at (0,0,0), renderer, lights, debug box, loader.load('/models/Stars.glb', ...), animate loop, resize)
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('container3D');
     if (!container) {
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load your Stars model
     const loader = new GLTFLoader();
     loader.load(
-        './models/Stars.glb',           // ← you said path is correct
+        '/models/Stars.glb',           // ← you said path is correct
         (gltf) => {
             console.log('✅ MODEL LOADED SUCCESSFULLY!', gltf);
             model = gltf.scene;

@@ -1,111 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Boards - Coolbrador</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon" sizes="any">
+  <link rel="shortcut icon" href="/img/favicon3.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="/img/favicon3.ico">
+  <title>Community - Coolbrador</title>
+  <link rel="stylesheet" href="/styles.css"/>
 </head>
-
-<style>
-body { margin:0; font-family:system-ui,-apple-system,sans-serif; background:#000; color:#e7e9ea; }
-
-.container, .bodytext-section { width:100% !important; max-width:100% !important; padding:0 !important; margin:0 !important; }
-
-.boards-top-banner { padding:12px 16px; border-bottom:1px solid #2f3336; }
-
-.create-post-container {
-  padding:12px 16px;
-  border-bottom:1px solid #2f3336;
-  margin:0;
-  background:#000;
-}
-
-.gallery.items { gap:0; }
-
-.post {
-  padding:12px 16px;
-  border-bottom:1px solid #2f3336;
-  gap:0px;
-}
-
-/* Mobile only – perfect X/Twitter look */
-@media screen and (max-width: 430px) {
-
-  #currentUserPfp,
-  .post-avatar img {
-    width:40px !important;
-    height:40px !important;
-    border-radius:50% !important;
-    object-fit:cover;
-  }
-
-  textarea#newPostText {
-    font-size:20px;
-    line-height:28px;
-    color:#e7e9ea;
-    background:transparent;
-    border:none;
-    outline:none;
-    resize:none;
-  }
-
-  textarea#newPostText::placeholder {
-    color:#71767b;
-    font-size:20px;
-  }
-
-  .create-post-footer {
-    margin-top:16px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-  }
-
-  .tool-btn {
-    color:#1d9bf0;
-    font-size:17px;
-    font-weight:500;
-    background:none;
-    border:none;
-    padding:8px 12px;
-  }
-
-  #boardInput {
-    flex:1;
-    max-width:none;
-    height:40px;
-    padding:0 16px;
-    background:#16181c;
-    border-radius:20px;
-    border:none;
-    color:white;
-    font-size:17px;
-  }
-
-  #boardInput::placeholder { color:#71767b; }
-
-  .post-submit-btn {
-    width:72px;
-    height:40px;
-    border-radius:20px;
-    border:none;
-    background:#536471;
-    color:white;
-    font-size:17px;
-    font-weight:600;
-  }
-
-  .post-submit-btn:not(:disabled) {
-    background:#1d9bf0;
-  }
-}
-</style>
-<body>
+<body class="community-page">
   <div id="shared-header"></div>
+<script src="/js/shell-boot.js"></script>
   <div class="boards-top-banner">
-    <h1>Coolbrador Boards</h1>
-    <div class="boards-search"><input type="text" placeholder="Search boards..." autocomplete="off"></div>
-    <h2>For You</h2>
-    <h3>Some posts will appear in game!</h3>
+    <h1>Community</h1>
+    <div class="feed-tabs" role="tablist">
+      <button type="button" class="feed-tab active" data-feed="foryou" role="tab">For You</button>
+      <button type="button" class="feed-tab" data-feed="ingame" role="tab">Friends</button>
+    </div>
+    <p class="feed-hint" id="feedHint">Posts from boards across Coolbrador.</p>
   </div>
 
   <section class="container bodytext-section">
@@ -116,289 +29,125 @@ body { margin:0; font-family:system-ui,-apple-system,sans-serif; background:#000
         </div>
         <textarea id="newPostText" placeholder="Say something and watch what happens..."></textarea>
       </div>
-
       <div class="media-preview" id="mediaPreview" style="display:none; position:relative;"></div>
-
       <div class="create-post-footer">
         <div class="post-tools">
-          <button class="tool-btn" id="attachMedia" title="Add photo/video">Photo/Video</button>
+          <button type="button" class="tool-btn" id="attachMedia" title="Add photo/video">Photo/Video</button>
         </div>
-
         <div class="board-input-wrapper">
-          <input type="text" id="boardInput" placeholder="Pick a community..." autocomplete="off">
+          <input type="text" id="boardInput" value="General" placeholder="Pick a community / your board" autocomplete="off">
           <div id="suggestions"></div>
         </div>
-        <button class="post-submit-btn" id="submitPost" disabled>Post</button>
+        <button type="button" class="post-submit-btn" id="submitPost" disabled>Post</button>
       </div>
     </div>
-
     <input type="file" id="mediaInput" accept="image/*,video/*" style="display:none;">
-    <div class="gallery items"></div>
+    <div class="gallery items" id="communityFeed"></div>
   </section>
 
   <div id="shared-footer"></div>
-
+  <script src="/js/layout.js"></script>
+  <script src="/js/seed-demo.js"></script>
+  <script src="/js/media-viewer.js"></script>
+  <script src="/js/cb-scrub-chart.js"></script>
+<script src="/js/cb-media-player.js"></script>
+<script src="/js/cb-feed-algo.js"></script>
+<script src="/js/cb-sensitive-filter.js"></script>
+  <script src="/js/cb-media-safety.js"></script>
+  <script src="/js/cb-chipper-feed-sync.js"></script>
+  <script src="/js/posts.js"></script>
 <script>
-
-function updateUserSection() {
-  const loggedIn = localStorage.getItem("loggedIn") === "true";
-  const userId = localStorage.getItem("currentUserId");
-
-  if (loggedIn && userId) {
-    const user = JSON.parse(localStorage.getItem(`user_${userId}`)) || {};
-    const pfp = user.profilePicture || "/users/default/pfp.jpg";
-    const username = user.username || "User";
-
-    // Desktop
-    const desk = document.getElementById("userSection");
-    if (desk) {
-      desk.innerHTML = `
-        <a href="/users/${userId}/profile.html" style="display:flex;align-items:center;gap:10px;color:white;text-decoration:none;">
-          <img src="${pfp}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-          <span style="font-weight:bold;">${username}</span>
-        </a>`;
-    }
-
-    // Mobile – this line was missing!
-    const mob = document.getElementById("userSectionMobile");
-    if (mob) {
-      mob.innerHTML = `
-        <a href="/users/${userId}/profile.html">
-          <img src="${pfp}" alt="${username}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-        </a>`;
-    }
-  } else {
-    // Not logged in – update both
-    ["userSection", "userSectionMobile"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.innerHTML = `<a href="/login.html" style="color:#4a9eff;font-weight:bold;">Login</a>`;
-    });
-  }
-}
-
-function timeAgo(date) {
-  const s = Math.floor((Date.now() - new Date(date)) / 1000);
-  let i = s / 31536000; if (i > 1) return Math.floor(i) + "y";
-  i = s / 2592000; if (i > 1) return Math.floor(i) + "mo";
-  i = s / 86400; if (i > 1) return Math.floor(i) + "d";
-  i = s / 3600; if (i > 1) return Math.floor(i) + "h";
-  i = s / 60; if (i > 1) return Math.floor(i) + "m";
-  return "now";
-}
-
-function getPfp(id) { 
-  return localStorage.getItem("pfp_"+id) || "/users/default/pfp.jpg"; 
-}
-
 document.addEventListener("DOMContentLoaded", () => {
-  // Load header + update profile picture immediately
-  fetch("../shared/header.html")
-    .then(r => r.text())
-    .then(h => {
-      document.getElementById("shared-header").innerHTML = h;
-      updateUserSection();  // ← This fixes the header profile
-    });
+  const CP = window.CoolbradorPosts;
+  if (!CP) return;
 
-  fetch("../shared/footer.html")
-    .then(r => r.text())
-    .then(f => document.getElementById("shared-footer").innerHTML = f);
+  const boardInput = document.getElementById("boardInput");
+  const suggestionsBox = document.getElementById("suggestions");
+  const gallery = document.getElementById("communityFeed") || document.querySelector(".gallery.items");
+  let feedMode = "foryou";
 
-  const currentUserId = localStorage.getItem('currentUserId') || '';
-  const loggedIn = localStorage.getItem('loggedIn') === 'true';
-  const userPfp = getPfp(currentUserId);
-  document.getElementById('currentUserPfp').src = userPfp;
-
-  // === Rest of your original code (unchanged) ===
-  const textarea = document.getElementById('newPostText');
-  const boardInput = document.getElementById('boardInput');
-  const suggestionsBox = document.getElementById('suggestions');
-  const submitBtn = document.getElementById('submitPost');
-  const mediaPreview = document.getElementById('mediaPreview');
-  const mediaInput = document.getElementById('mediaInput');
-  let attachedMedia = null;
-
-  // BOARD AUTOCOMPLETE
   let availableBoards = [];
   for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith('posts_/b/')) availableBoards.push(key.replace('posts_/b/', ''));
+    const k = localStorage.key(i);
+    if (k && k.startsWith("posts_/b/")) availableBoards.push(k.replace("posts_/b/", ""));
   }
+  if (!availableBoards.includes("BeeSid") && !availableBoards.some(b => String(b).toLowerCase() === "beesid")) availableBoards.push("BeeSid");
+  if (!availableBoards.some(b => String(b).toLowerCase() === "general")) availableBoards.push("General");
+  if (!availableBoards.length) availableBoards.push("General");
   availableBoards = [...new Set(availableBoards)].sort();
 
-  boardInput.addEventListener('input', () => {
+  if (boardInput) boardInput.addEventListener("input", () => {
     const q = boardInput.value.trim().toLowerCase();
-    suggestionsBox.innerHTML = '';
-    if (!q) { suggestionsBox.style.display = 'none'; return; }
+    suggestionsBox.innerHTML = "";
+    if (!q) { suggestionsBox.style.display = "none"; return; }
     const matches = availableBoards.filter(b => b.toLowerCase().includes(q));
-    if (!matches.length) { suggestionsBox.style.display = 'none'; return; }
+    if (!matches.length) { suggestionsBox.style.display = "none"; return; }
     matches.forEach(b => {
-      const div = document.createElement('div');
-      div.className = 'suggestion-item';
+      const div = document.createElement("div");
+      div.className = "suggestion-item";
       div.textContent = b;
-      div.onclick = () => { boardInput.value = b; suggestionsBox.style.display = 'none'; updateButton(); };
+      div.onclick = () => { boardInput.value = b; suggestionsBox.style.display = "none"; };
       suggestionsBox.appendChild(div);
     });
-    suggestionsBox.style.display = 'block';
+    suggestionsBox.style.display = "block";
+  });
+  document.addEventListener("click", e => {
+    if (!boardInput || !suggestionsBox) return;
+    if (!boardInput.contains(e.target) && !suggestionsBox.contains(e.target)) suggestionsBox.style.display = "none";
   });
 
-  document.addEventListener('click', e => {
-    if (!boardInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
-      suggestionsBox.style.display = 'none';
-    }
-  });
-
-  // MEDIA UPLOAD
-  document.getElementById('attachMedia').onclick = () => mediaInput.click();
-  mediaInput.onchange = () => {
-    const file = mediaInput.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      attachedMedia = { type: file.type.startsWith('video') ? 'video' : 'image', url: e.target.result };
-      showMediaPreview();
-    };
-    reader.readAsDataURL(file);
-  };
-
-  function showMediaPreview() {
-    if (!attachedMedia) { mediaPreview.style.display = 'none'; return; }
-    mediaPreview.innerHTML = '';
-    let el = attachedMedia.type === 'image' 
-      ? Object.assign(document.createElement('img'), { src: attachedMedia.url })
-      : Object.assign(document.createElement('video'), { src: attachedMedia.url, controls: true, autoplay: true, muted: true, loop: true });
-    mediaPreview.appendChild(el);
-    const removeBtn = Object.assign(document.createElement('button'), { textContent: '×', className: 'remove-media' });
-    removeBtn.onclick = () => { attachedMedia = null; mediaPreview.style.display = 'none'; mediaInput.value = ''; };
-    mediaPreview.appendChild(removeBtn);
-    mediaPreview.style.display = 'block';
+  function friendsFilter(p) {
+    return p.inGame || (p.board && String(p.board).indexOf("chipper") !== -1) || /chipper|in.?game/i.test(p.text || "");
   }
 
-  const updateButton = () => {
-    const hasContent = textarea.value.trim() || attachedMedia;
-    const hasBoard = boardInput.value.trim();
-    submitBtn.disabled = !loggedIn || !hasContent || !hasBoard;
-  };
-
-  textarea.addEventListener('input', updateButton);
-  boardInput.addEventListener('input', updateButton);
-
-  submitBtn.addEventListener('click', () => {
-    if (!loggedIn) return alert("Log in to post");
-    const text = textarea.value.trim();
-    const boardName = boardInput.value.trim();
-    if ((!text && !attachedMedia) || !boardName) return;
-
-    const userData = JSON.parse(localStorage.getItem(`user_${currentUserId}`) || '{}');
-    const key = `posts_/b/${boardName}`;
-    let posts = JSON.parse(localStorage.getItem(key) || '[]');
-    posts.unshift({
-      id: Date.now(),
-      username: userData.username || 'User',
-      userId: currentUserId,
-      text: text,
-      media: attachedMedia ? { type: attachedMedia.type, url: attachedMedia.url } : null,
-      timestamp: new Date().toISOString(),
-      yeahs: [],
-      replies: [],
-      views: 0
-    });
-    localStorage.setItem(key, JSON.stringify(posts));
-    textarea.value = ''; boardInput.value = ''; attachedMedia = null; mediaInput.value = '';
-    mediaPreview.style.display = 'none'; updateButton();
-    location.reload();
-  });
-
-  // LOAD POSTS
-  const gallery = document.querySelector('.gallery.items');
-  let allPosts = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith('posts_')) {
-      const posts = JSON.parse(localStorage.getItem(key) || '[]');
-      posts.forEach(p => {
-        p.board = key.replace('posts_', '');
-        p.yeahs = p.yeahs || [];
-        p.replies = p.replies || [];
-        p.views = p.views || 0;
-        allPosts.push(p);
-      });
-    }
-  }
-
-  allPosts.sort((a,b) => b.id - a.id);
-
-  if (!allPosts.length) {
-    gallery.innerHTML = '<p style="text-align:center;padding:80px;color:#888;">No posts yet — be the first!</p>';
-    return;
-  }
-
-  gallery.innerHTML = allPosts.map(post => {
-    const hasYeah = post.yeahs.includes(currentUserId);
-    const profileUrl = `/users/${post.userId}/profile.html`;
-    const avatar = getPfp(post.userId);
-    const yeahText = hasYeah ? "Unyeah" : "Yeah!";
-    const yeahCountText = post.yeahs.length === 1 ? "1 person gave this post a Yeah."
-      : post.yeahs.length > 1 ? `${post.yeahs.length} people gave this post a Yeah.` : "";
-    const cleanBoard = post.board.split('/').pop();
-    let mediaHTML = '';
-    if (post.media) {
-      mediaHTML = post.media.type === 'image'
-        ? `<img src="${post.media.url}" style="max-width:100%; border-radius:8px; margin-top:10px;">`
-        : `<video src="${post.media.url}" controls autoplay muted loop style="max-width:100%; border-radius:8px; margin-top:10px;"></video>`;
-    }
-
-    return `
-      <div class="post" data-id="${post.id}" data-board="${post.board}">
-        <div class="post-avatar" onclick="location.href='${profileUrl}'">
-          <img src="${avatar}" alt="${post.username}">
-        </div>
-        <div class="post-body">
-          <div class="post-header">
-            <strong onclick="location.href='${profileUrl}'">${post.username}</strong>
-            <span class="post-meta">${timeAgo(post.timestamp)}</span>
-            <span class="post-board">${cleanBoard}</span>
-          </div>
-          <div class="post-text">${post.text.replace(/\n/g, '<br>')}</div>
-          ${mediaHTML}
-          <div class="post-actions">
-            <button class="yeah-btn ${hasYeah?'liked':''}" data-id="${post.id}" data-board="${post.board}">${yeahText}</button>
-            <div class="stats">
-              <span>${post.replies.length} Replies</span>
-              <span>${post.views} Views</span>
-            </div>
-          </div>
-          <div class="yeah-section ${hasYeah ? 'visible' : ''}">
-            ${yeahCountText ? `<div class="yeah-label">${yeahCountText}</div>` : ''}
-            <div class="yeah-avatars">
-              ${post.yeahs.slice(0,12).map(id => `<img src="${getPfp(id)}" alt="yeah">`).join('')}
-              ${post.yeahs.length > 12 ? `<span>+${post.yeahs.length-12}</span>` : ''}
-            </div>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-
-  gallery.addEventListener('click', e => {
-    const yeahBtn = e.target.closest('.yeah-btn');
-    if (yeahBtn && loggedIn) {
-      e.stopPropagation();
-      const key = `posts_${yeahBtn.dataset.board}`;
-      let posts = JSON.parse(localStorage.getItem(key) || '[]');
-      const post = posts.find(p => p.id == yeahBtn.dataset.id);
-      const idx = post.yeahs.indexOf(currentUserId);
-      if (idx > -1) post.yeahs.splice(idx, 1);
-      else post.yeahs.push(currentUserId);
-      localStorage.setItem(key, JSON.stringify(posts));
-      location.reload();
+  function loadFeed() {
+    let posts = (typeof CP.loadFeedPosts === "function")
+      ? CP.loadFeedPosts({ boards: "all", includeReposts: true })
+      : CP.loadPostsFromStorage("all");
+    if (feedMode === "ingame") posts = posts.filter(friendsFilter);
+    if (!posts.length) {
+      gallery.innerHTML = '<p class="empty-feed">' + (feedMode === "ingame" ? "No Friends posts yet." : "No posts yet. Be the first!") + "</p>";
       return;
     }
-    const postDiv = e.target.closest('.post');
-    if (postDiv && !e.target.closest('.yeah-btn')) {
-      const board = postDiv.dataset.board;
-      const id = postDiv.dataset.id;
-      location.href = `/boards${board}/posts/${id}.html`;
-    }
+    gallery.innerHTML = posts.map(post => CP.renderPostCard(post, {
+      board: post.board,
+      showBoard: true,
+      repostBy: post._repost || null
+    })).join("");
+  }
+
+  CP.bindFeedInteractions(gallery, {
+    reload: loadFeed,
+    onYeah: function () { loadFeed(); }
   });
+
+  // Public feed first — signed-out Labradors can still read posts.
+  loadFeed();
+
+  document.querySelectorAll(".feed-tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      feedMode = btn.dataset.feed;
+      document.querySelectorAll(".feed-tab").forEach(b => b.classList.toggle("active", b === btn));
+      var hint = document.getElementById("feedHint");
+      if (hint) {
+        hint.textContent = feedMode === "ingame"
+          ? "Posts from friends across Coolbrador."
+          : "Posts from boards across Coolbrador.";
+      }
+      loadFeed();
+    });
+  });
+
+  // Composer last (signed-out becomes a sign-in gate; must not block the feed).
+  try {
+    CP.mountComposer(document.getElementById("createPostBox"), {
+      defaultBoard: "General",
+      boardInput: boardInput || null,
+      onPosted: function () { loadFeed(); }
+    });
+  } catch (err) {
+    console.warn("composer mount skipped", err);
+  }
 });
 </script>
 </body>

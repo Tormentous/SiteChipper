@@ -1,194 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
   <title>Gift - Coolbrador</title>
   <link rel="stylesheet" href="styles.css"/>
-  <style>
-    .gift-page { max-width: 800px; margin: 30px auto; padding: 0 20px; color: white; }
-    .gift-header { text-align: center; font-size: 1.8em; margin-bottom: 8px; }
-    .gift-sub { text-align: center; font-size: 1.1em; margin-bottom: 30px; opacity: 0.9; }
-    .warning { text-align: center; font-size: 0.85em; opacity: 0.7; margin-bottom: 30px; }
-    .main-box { display: flex; justify-content: space-between; align-items: center; 
-      background: rgba(255,255,255,0.07); padding: 30px; border-radius: 12px; margin-bottom: 40px; }
-    .main-text { flex: 1; }
-    .sidebar { text-align: center; }
-    .raised { font-size: 3em; font-weight: bold; color: #27ff00; margin: 0; }
-    .donate-btn { padding: 12px 32px; font-size: 1.4em; background: #27ff00; color: black; 
-      border: none; border-radius: 8px; cursor: pointer; margin: 10px 5px; font-weight: bold; }
-    .donate-btn:hover { background: #1ed700; }
-    .levels { text-align: center; margin: 40px 0; }
-    .levels span { font-size: 1.3em; padding: 0 15px; color: #8fff8f; }
-
-    .leaderboard-section { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 40px; }
-    .section-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; 
-      font-size: 1.4em; font-weight: bold; margin-bottom: 15px; }
-    .collapse-btn { font-size: 1.8em; user-select: none; }
-    .leaderboard-content.collapsed { display: none; }
-
-    .top-donors { margin-top: 20px; }
-    .donor-entry { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .donor-entry:last-child { border-bottom: none; }
-    .donor-main { display: flex; justify-content: space-between; align-items: center; }
-    .rank { color: #27ff00; font-weight: bold; width: 40px; font-size: 1.1em; }
-    .name { flex: 1; font-weight: bold; }
-    .amount { color: #8fff8f; font-weight: bold; font-size: 1.1em; }
-    .donor-message { 
-      margin-top: 8px; padding: 10px 12px; background: rgba(39,255,0,0.15); 
-      border-radius: 8px; font-style: italic; font-size: 0.95em; opacity: 0.9;
-    }
-  </style>
 </head>
 <body>
   <div id="shared-header"></div>
-
-  <div class="container gift-page">
-    <h1 class="gift-header">Christmas Community Giveaway</h1>
-    <div class="gift-sub">90% to Coolbrador users - 10% to charity (you vote)</div>
-    <div class="warning">Robbers/fraudsters will be publicly shamed</div>
-
-    <div class="main-box">
-      <div class="main-text">
-        Help make Christmas awesome for the community!<br>
-        All donations go toward user prizes + charity.
-      </div>
-      <div class="sidebar">
-        <div class="raised">$0</div>
-        <div>raised so far</div>
-        <button class="donate-btn">Donate Once</button>
-        <button class="donate-btn">Monthly</button>
-        <button class="donate-btn">Yearly</button>
-      </div>
+<script src="/js/shell-boot.js"></script>
+  <div class="container gift-page cb-coming-soon-page">
+    <div class="cb-coming-soon-overlay" aria-hidden="true"><span>Coming soon</span></div>
+    <div class="test-watermark" id="giftWatermark">test</div>
+    <div class="gift-hero">
+      <p class="gift-eyebrow">Coolbrador · Seasonal</p>
+      <h1 class="gift-header">Community Gift Drive</h1>
+      <p class="gift-sub">90% to Coolbrador users. 10% to charity you help pick. Starry skies, rhombus energy, zero corporate beige.</p>
     </div>
 
-    <div class="levels">
-      Users can win: <span>$5</span> - <span>$100</span> gifts
+    <div class="gift-grid">
+      <div class="gift-main-card">
+        <h2>Make the season louder</h2>
+        <p>Help fund user prizes and a charity slice the community chooses. Demo buttons only. No real payments here.</p>
+        <ul class="gift-bullets">
+          <li>Prize tiers from $5 to $100 vibes</li>
+          <li>Leaderboard + public messages</li>
+          <li>Fraudsters get publicly roasted (politely-ish)</li>
+        </ul>
+        <p class="gift-warning">Robbers and fraudsters will be publicly shamed.</p>
+      </div>
+      <aside class="gift-side-card">
+        <div class="raised" id="giftRaised">$0</div>
+        <div class="raised-label">raised so far (demo)</div>
+        <button class="donate-btn" disabled tabindex="-1" type="button">Donate Once</button>
+        <button class="donate-btn" disabled tabindex="-1" type="button">Monthly</button>
+        <button class="donate-btn" disabled tabindex="-1" type="button">Yearly</button>
+      </aside>
     </div>
+
+    <div class="gift-levels">Users can win: <span>$5</span> <span>$25</span> <span>$50</span> <span>$100</span></div>
 
     <div class="leaderboard-section">
-      <div class="section-header" onclick="this.parentElement.querySelector('.leaderboard-content').classList.toggle('collapsed');
-           this.querySelector('.collapse-btn').textContent = this.querySelector('.collapse-btn').textContent==='−'?'＋':'−';">
-        <span>Top Donors & Messages</span>
-        <span class="collapse-btn">−</span>
-      </div>
-      <div class="leaderboard-content">
-        <div class="top-donors" id="topDonors"></div>
-      </div>
+      <div class="section-header collapsible"><span>Top Donors &amp; Messages</span><span class="collapse-btn">-</span></div>
+      <div class="leaderboard-content"><div class="top-donors hub-feed" id="topDonors"></div></div>
     </div>
 
-    <h2>Discussions</h2>
-    <div class="gallery items"></div>
   </div>
-
   <div id="shared-footer"></div>
-
-<script>
-// Unified function — updates BOTH desktop and mobile avatars
-function updateUserProfile() {
-  const loggedIn = localStorage.getItem("loggedIn") === "true";
-  const userId = localStorage.getItem("currentUserId");
-
-  if (!loggedIn || !userId) {
-    document.querySelectorAll("#userSection, #userSectionMobile").forEach(el => {
-      if (el) el.innerHTML = `<a href="/login.html" style="color:#4a9eff;font-weight:bold;text-decoration:none;">Login</a>`;
-    });
-    return;
-  }
-
-  const user = JSON.parse(localStorage.getItem(`user_${userId}`)) || {};
-  const pfp = user.profilePicture || "/users/default/pfp.jpg";
-  const username = user.username || "User";
-
-  // Desktop: avatar + name
-  const desktop = document.getElementById("userSection");
-  if (desktop) {
-    desktop.innerHTML = `
-      <a href="/users/${userId}/profile.html" style="display:flex;align-items:center;gap:10px;color:white;text-decoration:none;">
-        <img src="${pfp}" alt="${username}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 0px 8px rgba(0,0,0,0.3);">
-        <span style="font-weight:bold;">${username}</span>
-      </a>`;
-  }
-
-  // Mobile: avatar only (stays on top even when zoomed)
-  const mobile = document.getElementById("userSectionMobile");
-  if (mobile) {
-    mobile.innerHTML = `
-      <a href="/users/${userId}/profile.html">
-        <img src="${pfp}" alt="${username}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:0px solid #fff;box-shadow:0 0px 8px rgba(0,0,0,0.4);">
-      </a>`;
-  }
-}
-
-// Load header/footer and update profile
-document.addEventListener("DOMContentLoaded", () => {
-  fetch("../shared/header.html")
-    .then(r => r.text())
-    .then(html => {
-      document.getElementById("shared-header").innerHTML = html;
-      updateUserProfile(); // ← runs right after header loads
-    });
-
-  fetch("../shared/footer.html")
-    .then(r => r.text())
-    .then(html => document.getElementById("shared-footer").innerHTML = html)
-    .catch(err => console.error("Footer failed:", err));
-
-  // Keep updated across tabs
-  window.addEventListener("storage", updateUserProfile);
-
-  // ——— CHRISTMAS DONATION SYSTEM (unchanged & still works) ———
-  const raisedEl = document.querySelector('.raised');
-  if (raisedEl) {
-    let total = Number(localStorage.getItem('christmas_raised') || 0);
-    raisedEl.textContent = '$' + total.toLocaleString();
-
-    let donations = JSON.parse(localStorage.getItem('christmas_donations') || '[]');
-
-    document.querySelectorAll('.donate-btn').forEach(btn => {
-      btn.onclick = () => {
-        const type = btn.textContent.trim();
-        const name = prompt("Your name/nickname (shown publicly):") || "Anonymous";
-        const amount = prompt(`Enter ${type.toLowerCase()} donation amount ($):`);
-        const message = prompt("Optional message:");
-        if (amount && !isNaN(amount) && amount > 0) {
-          const num = Number(amount);
-          total += num;
-          localStorage.setItem('christmas_raised', total);
-          raisedEl.textContent = '$' + total.toLocaleString();
-          donations.push({name, amount: num, message: message||null, type, date: Date.now()});
-          localStorage.setItem('christmas_donations', JSON.stringify(donations));
-          renderLeaderboard();
-          alert(`Thank you ${name} for donating $${amount}!`);
-        }
-      };
-    });
-
-    function renderLeaderboard() {
-      const totals = {};
-      const messagesByName = {};
-      donations.forEach(d => {
-        totals[d.name] = (totals[d.name] || 0) + d.amount;
-        if (d.message) messagesByName[d.name] = d.message;
-      });
-      const sorted = Object.entries(totals).sort((a,b) => b[1] - a[1]).slice(0, 30);
-      const html = sorted.map(([name, amt], i) => `
-        <div class="donor-entry">
-          <div class="donor-main">
-            <span class="rank">#${i+1}</span>
-            <span class="name">${name}</span>
-            <span class="amount">$${amt.toLocaleString()}</span>
-          </div>
-          ${messagesByName[name] ? `<div class="donor-message">${messagesByName[name]}</div>` : ''}
-        </div>
-      `).join('');
-      const leaderboard = document.getElementById('topDonors');
-      if (leaderboard) {
-        leaderboard.innerHTML = html || '<p style="opacity:0.6;text-align:center;padding:20px;">No donations yet — be the first!</p>';
-      }
-    }
-
-    renderLeaderboard();
-  }
-});
-</script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/seed-demo.js"></script>
+  <script src="/js/media-viewer.js"></script>
+  <script src="/js/cb-scrub-chart.js"></script>
+<script src="/js/cb-media-player.js"></script>
+<script src="/js/cb-feed-algo.js"></script>
+<script src="/js/cb-sensitive-filter.js"></script>
+  <script src="/js/cb-media-safety.js"></script>
+  <script src="/js/posts.js"></script>
+  <script src="/js/gift.js"></script>
 </body>
 </html>

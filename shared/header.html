@@ -1,72 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>Coolbrador</title>
-  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="styles.css">
-<style>
-  .left-nav .spacer {
-  width: 12px;           /* no width needed – gap handles the space */
-  flex: none;         /* prevents it from growing/shrinking */
-  pointer-events: none; /* just in case */
-  }
-  /* Only the parts that needed to be responsive – everything else untouched */
-  .mobile-top-bar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 12px 15px;           /* your original padding */
-  }
-
-  /* Make avatar scale perfectly on every phone */
-  #userSectionMobile a {
-    display: block;
-    width: 5vw;                  /* scales with screen width */
-    max-width: 52px;              /* never gets too big */
-    aspect-ratio: 1 / 1;          /* perfect circle forever */
-  }
-
-  #userSectionMobile img {
-    width: 100%;
-    height: 100%;
-    border-radius: 00%;
-    object-fit: cover;
-    /* your original 40×40px look, but now retina-sharp */
-  }
-
-  /* Bottom nav icons also responsive (still look exactly the same) */
-  .mobile-bottom-nav i {
-    font-size: 6.0vw;
-    max-font-size: 26px;
-  }
-
-  .mobile-bottom-nav span {
-    font-size: 2.25vw;
-  }
-</style>
-</head>
-<body>
-
 <!-- Desktop Header (hidden on mobile) -->
 <header class="main-header" id="desktopHeader">
-  <nav class="nav main-nav" style="display:flex; align-items:center; justify-content:space-between; padding:40 40px;">
+  <nav class="nav main-nav" style="display:flex; align-items:center; justify-content:space-between; padding:0 40px;">
     <ul class="left-nav" style="display:flex; gap:3px; list-style:none; margin:0; padding:0;">
-      <li class="logo"><a href="/">Coolbrador</a></li>           <!-- maybe leave logo plain? -->
-<!-- Empty spacer li(s) – creates the larger gap after logo -->
-      <li class="spacer"></li>   <!-- one spacer = one gap unit -->
-      <!-- <li class="spacer"></li> -->  <!-- uncomment multiples if you want even larger space -->
+      <li class="logo"><a href="/">Coolbrador</a></li>
+      <li class="spacer"></li>
       <li><a href="/" class="nav-rhombus">Home</a></li>
-      <li><a href="/community" class="nav-rhombus">Community</a></li>
-      <li><a href="/games/chipper" class="nav-rhombus">Chipper</a></li>
-      <li><a href="/polls" class="nav-rhombus">Polls</a></li>
-      <li><a href="/gift" class="nav-rhombus">Gift</a></li>
+      <li><a href="/community.html" class="nav-rhombus">Community</a></li>
+      <li><a href="/games/chipper.html" class="nav-rhombus">Chipper</a></li>
+      <li><a href="/polls.html" class="nav-rhombus">Polls</a></li>
+      <li><a href="/gift.html" class="nav-rhombus">Gift</a></li>
     </ul>
     <div class="header-search">
-      <input type="text" placeholder="Search" autocomplete="off">
+      <input type="text" placeholder="Search Coolbrador…" autocomplete="off">
     </div>
     <div class="user-section" id="userSection"></div>
   </nav>
@@ -74,73 +19,40 @@
 
 <!-- Mobile Top Bar -->
 <div class="mobile-top-bar" id="mobileTop">
+  <button type="button" class="cb-sidebar-toggle" id="cbSidebarToggle" aria-label="Open menu" aria-expanded="false" aria-controls="cbSidebar">
+    <i class="fa-solid fa-bars"></i>
+  </button>
   <div class="header-search">
     <input type="text" placeholder="Search" autocomplete="off">
   </div>
   <div id="userSectionMobile"></div>
 </div>
 
+<!-- Left sidebar (sitewide) -->
+<aside class="cb-sidebar" id="cbSidebar" aria-label="Main">
+  <nav class="cb-sidebar-nav">
+    <div class="cb-sidebar-user is-pending" id="cbSidebarUser" aria-live="polite"><span class="cb-sidebar-user-name"></span><span class="cb-sidebar-user-initials" aria-hidden="true"></span></div>
+    <a class="cb-side-link" data-nav="home" href="/"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <a class="cb-side-link" data-nav="profile" id="cbSideProfile" href="/login.html"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+    <a class="cb-side-link" data-nav="notifications" href="/notifications"><i class="fa-solid fa-bell"></i><span>Notifications</span></a>
+    <a class="cb-side-link" data-nav="messages" href="/messages"><i class="fa-solid fa-comments"></i><span>Messages</span></a>
+    <a class="cb-side-link" data-nav="simulations" href="/simulations.html"><i class="fa-solid fa-globe"></i><span>Simulations</span></a>
+    <a class="cb-side-link" data-nav="settings" href="/settings"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+    <a class="cb-side-link" data-nav="support" href="/support.html"><i class="fa-solid fa-life-ring"></i><span>Support</span></a>
+  </nav>
+  <div class="cb-sidebar-bottom">
+    <button type="button" class="cb-sidebar-collapse" id="cbSidebarCollapse" aria-label="Collapse sidebar" title="Collapse">
+      <i class="fa-solid fa-angles-left"></i>
+    </button>
+  </div>
+</aside>
+<div class="cb-sidebar-backdrop" id="cbSidebarBackdrop" hidden></div>
+
 <!-- Mobile Bottom Nav -->
 <div class="mobile-bottom-nav">
-  <a href="/" class="active"><i class="fa-solid fa-house"></i><span>Home</span></a>
-  <a href="/community"><i class="fa-solid fa-users"></i><span>Community</span></a>
-  <a href="/games/chipper"><i class="fa-solid fa-gamepad"></i><span>Chipper</span></a>
-  <a href="/polls"><i class="fa-solid fa-square-poll-vertical"></i><span>Polls</span></a>
-  <a href="/gift"><i class="fa-solid fa-gift"></i><span>Gift</span></a>
+  <a href="/"><i class="fa-solid fa-house"></i><span>Home</span></a>
+  <a href="/community.html"><i class="fa-solid fa-users"></i><span>Community</span></a>
+  <a href="/games/chipper.html"><i class="fa-solid fa-gamepad"></i><span>Chipper</span></a>
+  <a href="/polls.html"><i class="fa-solid fa-square-poll-vertical"></i><span>Polls</span></a>
+  <a href="/gift.html"><i class="fa-solid fa-gift"></i><span>Gift</span></a>
 </div>
-
-<main style="padding-bottom: 80px;"><!-- Content goes here --></main>
-
-<script>
-function updateUserProfile() {
-  const loggedIn = localStorage.getItem("loggedIn") === "true";
-  const userId = localStorage.getItem("currentUserId");
-
-  if (!loggedIn || !userId) {
-    document.querySelectorAll("#userSection, #userSectionMobile").forEach(el => {
-      if (el) el.innerHTML = `<a href="/login.html" style="color:#4a9eff;font-weight:bold;">Login</a>`;
-    });
-    return;
-  }
-
-  const user = JSON.parse(localStorage.getItem(`user_${userId}`)) || {};
-  const pfp = user.profilePicture || "/users/default/pfp.jpg";
-  const username = user.username || "User";
-
-  // Desktop
-  const desk = document.getElementById("userSection");
-  if (desk) {
-    desk.innerHTML = `
-      <a href="/users/${userId}/profile.html" style="display:flex;align-items:center;gap:10px;color:white;text-decoration:none;">
-        <img src="${pfp}" alt="${username}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #fff;">
-        <span style="font-weight:bold;">${username}</span>
-      </a>`;
-  }
-
-  // Mobile – perfect circle, sharp on retina
-  const mob = document.getElementById("userSectionMobile");
-  if (mob) {
-    mob.innerHTML = `
-      <a href="/users/${userId}/profile.html">
-        <img src="${pfp}" alt="${username}" loading="lazy">
-      </a>`;
-  }
-}
-
-// Run on load + when login changes
-document.addEventListener("DOMContentLoaded", updateUserProfile);
-window.addEventListener("storage", updateUserProfile);
-
-// Hide header on scroll down
-let lastScroll = 0;
-window.addEventListener("scroll", () => {
-  const current = window.scrollY;
-  const hide = current > lastScroll && current > 60;
-  document.getElementById("desktopHeader")?.classList.toggle("hidden", hide);
-  document.getElementById("mobileTop")?.classList.toggle("hidden", hide);
-  lastScroll = current;
-});
-</script>
-
-</body>
-</html>

@@ -1,0 +1,266 @@
+{
+  "board": "BeeSid",
+  "boardNote": {
+    "title": "Chipper Game Board",
+    "body": "In-game posts from Chipper levels land here. Drawings, fails, boss tears, and bee conspiracy theories welcome.",
+    "icon": "fa-solid fa-gamepad"
+  },
+  "posts": [
+    {
+      "id": "mv-01",
+      "n": 1,
+      "username": "Chipper",
+      "text": "CHIPPER GAME BOARD \u2014 posts from inside BeeSid's lair show up here. Draw, fail loudly, trade bee tips. (Not a regular chill board.)",
+      "media": null,
+      "yeahs": 40,
+      "views": 512,
+      "url": "https://coolbrador.com/b/BeeSid/post/1/comments",
+      "tags": [
+        "chipper",
+        "game"
+      ],
+      "pinned": true,
+      "isGameBoardNote": true
+    },
+    {
+      "id": "mv-02",
+      "n": 2,
+      "username": "BeeSid",
+      "text": "drew my lair but the shipping containers ate my crayon. 10/10 stuck again",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Checkpoint.jpg"
+      },
+      "yeahs": 14,
+      "views": 128,
+      "url": "https://coolbrador.com/b/BeeSid/post/2/comments",
+      "tags": [
+        "drawing",
+        "lair"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-03",
+      "n": 3,
+      "username": "GyattToad",
+      "text": "TIP: if you hear buzzing, do NOT make friends. i made friends. i regret everything",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Cannot%20Pass.jpg"
+      },
+      "yeahs": 22,
+      "views": 210,
+      "url": "https://coolbrador.com/b/BeeSid/post/3/comments",
+      "tags": [
+        "tip",
+        "bee"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-04",
+      "n": 4,
+      "username": "Cardbrador",
+      "text": "stock chart went UP so i jumped UP. physics disagreed. currently inside a rhombus",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Broke%20and%20Poor.jpg"
+      },
+      "yeahs": 9,
+      "views": 97,
+      "url": "https://coolbrador.com/b/BeeSid/post/4/comments",
+      "tags": [
+        "stocks",
+        "fail"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-05",
+      "n": 5,
+      "username": "Miguel",
+      "text": "selfie with Metal Lab before he noticed. if this posts i am either brave or deleted",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Eat%20Slop.jpg"
+      },
+      "yeahs": 31,
+      "views": 402,
+      "url": "https://coolbrador.com/b/BeeSid/post/5/comments",
+      "tags": [
+        "boss",
+        "selfie"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-06",
+      "n": 6,
+      "username": "CoolDog",
+      "text": "fan knocked me into another fan. performance art. title: Wind Tunnel of Friendship",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Checkpoint.jpg"
+      },
+      "yeahs": 17,
+      "views": 188,
+      "url": "https://coolbrador.com/b/BeeSid/post/6/comments",
+      "tags": [
+        "fail",
+        "fan"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-07",
+      "n": 7,
+      "username": "NerdDog",
+      "text": "hypothesis: bees are just spicy floating dogs. peer review welcome. grant money optional",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Cannot%20Pass.jpg"
+      },
+      "yeahs": 11,
+      "views": 156,
+      "url": "https://coolbrador.com/b/BeeSid/post/7/comments",
+      "tags": [
+        "theory"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-08",
+      "n": 8,
+      "username": "AnthonySpade",
+      "text": "speedrun any% but i softlocked in the tutorial crate. ETA: forever",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Broke%20and%20Poor.jpg"
+      },
+      "yeahs": 19,
+      "views": 240,
+      "url": "https://coolbrador.com/b/BeeSid/post/8/comments",
+      "tags": [
+        "speedrun"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-09",
+      "n": 9,
+      "username": "BeeSid",
+      "text": "bee tip #47: honey makes platforms sticky. sticky is a lifestyle not a bug",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Eat%20Slop.jpg"
+      },
+      "yeahs": 28,
+      "views": 319,
+      "url": "https://coolbrador.com/b/BeeSid/post/9/comments",
+      "tags": [
+        "bee",
+        "tip"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-10",
+      "n": 10,
+      "username": "LabPuppy",
+      "text": "my first miiverse drawing of a bee that is definitely not a dog in a costume",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Checkpoint.jpg"
+      },
+      "yeahs": 16,
+      "views": 144,
+      "url": "https://coolbrador.com/b/BeeSid/post/10/comments",
+      "tags": [
+        "drawing"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-11",
+      "n": 11,
+      "username": "MetalLabFan",
+      "text": "died to the same laser 12 times. drawing of me yelling at a rectangle enclosed",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Cannot%20Pass.jpg"
+      },
+      "yeahs": 25,
+      "views": 277,
+      "url": "https://coolbrador.com/b/BeeSid/post/11/comments",
+      "tags": [
+        "fail",
+        "boss"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-12",
+      "n": 12,
+      "username": "BeeSid",
+      "text": "welcome to the Chipper Game Board. post fails. post tips. post bees. no boring allowed",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Eat%20Slop.jpg"
+      },
+      "yeahs": 55,
+      "views": 890,
+      "url": "https://coolbrador.com/b/BeeSid/post/12/comments",
+      "tags": [
+        "welcome",
+        "chipper"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-13",
+      "n": 13,
+      "username": "PollenPete",
+      "text": "smuggled a picnic into the boss arena. he joined. we are friends now. run.",
+      "media": {
+        "type": "image",
+        "url": "/shared/TestImages/Broke%20and%20Poor.jpg"
+      },
+      "yeahs": 33,
+      "views": 361,
+      "url": "https://coolbrador.com/b/BeeSid/post/13/comments",
+      "tags": [
+        "boss",
+        "picnic"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    },
+    {
+      "id": "mv-14",
+      "n": 14,
+      "username": "CrateKid",
+      "text": "why do crates have better hitboxes than me. asking for a friend (the crate)",
+      "media": null,
+      "yeahs": 12,
+      "views": 99,
+      "url": "https://coolbrador.com/b/BeeSid/post/14/comments",
+      "tags": [
+        "crate"
+      ],
+      "pinned": false,
+      "isGameBoardNote": false
+    }
+  ]
+}

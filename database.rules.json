@@ -1,0 +1,16 @@
+﻿{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "chipper": {
+      "feed": {
+        ".read": true,
+        ".write": true
+      },
+      "board": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}

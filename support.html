@@ -1,28 +1,37 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Adventure with Chipper!</title>
-        <link rel="stylesheet" href="styles.css"/>
-    </head>
-    <body>
-    <div id="shared-header"></div>
-            <div class="bodytext-section container">
-                <h1 class="section-header">Just use support@coolbrador.com, brah</h1>
-            </div>
-
-			<script>
-			document.addEventListener("DOMContentLoaded", function () {
-			  // Load header
-			  fetch("../shared/header.html")
-				.then(r => r.text())
-				.then(d => document.getElementById("shared-header").innerHTML = d);
-
-			  // Load footer
-			  fetch("../shared/footer.html")
-				.then(r => r.text())
-				.then(d => document.getElementById("shared-footer").innerHTML = d)
-				.catch(err => console.error("Footer failed to load:", err));
-			});
-			</script>
-    </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
+  <title>Support - Coolbrador</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div id="shared-header"></div>
+<script src="/js/shell-boot.js"></script>
+  <main class="support-page">
+    <h1 class="section-header">Support</h1>
+    <p class="support-lede">Lost in the stars? We got you, casually. Coolbrador support is for Labradors first.</p>
+    <div class="support-card">
+      <h2>Email</h2>
+      <p>Hit <a href="mailto:support@coolbrador.com">support@coolbrador.com</a> and tell us what broke. Screenshots welcome.</p>
+      <h2>Quick links</h2>
+      <ul class="support-list">
+        <li><a href="/login.html">Login / account issues</a></li>
+        <li><a href="/settings.html">Settings and profile</a></li>
+        <li><a href="/polls.html">Report an Issue or start a Mutiny</a></li>
+        <li><a href="/community.html">Ask the community</a></li>
+        <li><a href="/games/chipper.html">Chipper game page</a></li>
+        <li><a href="/gift.html">Gift / giveaway questions</a></li>
+      </ul>
+      <h2>FAQ (tiny)</h2>
+      <p><strong>Where are my posts?</strong> Local demo data lives in your browser (localStorage). Clearing site data clears posts.</p>
+      <p><strong>Payments?</strong> Donate buttons on Gift are placeholders. No real charges.</p>
+      <p><strong>People?</strong> Around here, people means Labradors.</p>
+    </div>
+  </main>
+  <div id="shared-footer"></div>
+  <script src="/js/layout.js"></script>
+</body>
 </html>

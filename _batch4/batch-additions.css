@@ -1,0 +1,499 @@
+
+/* === batch4: messages exact height (user CSS) === */
+body.messages-page {
+  overflow: hidden !important;
+  height: calc(100vh - 200px) !important;
+  max-height: calc(100vh - 200px) !important;
+}
+body.messages-page .cb-msg-shell {
+  height: 100% !important;
+  max-height: 100% !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* === batch4: custom media player (CSS vars, YT-like) === */
+.cb-player {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--cb-navy, #00001c) 92%, #000);
+  border: 1px solid color-mix(in srgb, var(--cb-accent) 25%, transparent);
+}
+.cb-player-video video.post-media,
+.cb-player video {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  background: #000;
+  cursor: pointer;
+}
+.cb-player-audio {
+  padding: 10px 12px 8px;
+}
+.cb-player-audio audio {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.cb-player-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--cb-navy, #00001c) 88%, transparent);
+}
+.cb-player-video .cb-player-bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  background: linear-gradient(transparent, color-mix(in srgb, var(--cb-navy, #00001c) 92%, #000));
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.cb-player-video:hover .cb-player-bar,
+.cb-player-video.is-paused .cb-player-bar,
+.cb-player-video:focus-within .cb-player-bar { opacity: 1; }
+.cb-player-play,
+.cb-player-mute {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--cb-text, #fff);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.cb-player-play:hover,
+.cb-player-mute:hover {
+  background: color-mix(in srgb, var(--cb-accent) 22%, transparent);
+}
+.cb-player-seek,
+.cb-player-vol {
+  position: relative;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cb-text, #fff) 18%, transparent);
+  cursor: pointer;
+  flex: 1;
+}
+.cb-player-vol { flex: 0 0 72px; }
+.cb-player-seek-fill,
+.cb-player-vol-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0;
+  border-radius: inherit;
+  background: var(--cb-accent);
+}
+.cb-player-seek-fill::after,
+.cb-player-vol-fill::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: var(--cb-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--cb-navy, #00001c) 70%, transparent);
+}
+.cb-player-time {
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--cb-text, #fff) 75%, transparent);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* === batch4: shared scrub chart === */
+.cb-scrub-chart { width: 100%; }
+.cb-scrub-readout {
+  min-height: 1.1em;
+  font-size: 0.8rem;
+  color: var(--cb-muted, #8b95a5);
+  margin-bottom: 4px;
+}
+.cb-scrub-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-bottom: 6px;
+}
+.cb-scrub-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+.cb-scrub-legend-item i {
+  width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+}
+.cb-scrub-legend-item em { font-style: normal; color: var(--cb-muted, #8b95a5); }
+.cb-scrub-legend-item b { font-weight: 800; color: var(--cb-text, #fff); }
+.cb-scrub-svg { display: block; width: 100%; height: auto; }
+.cb-scrub-cursor {
+  stroke: color-mix(in srgb, var(--cb-text, #fff) 40%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.cb-scrub-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--cb-muted, #8b95a5);
+  margin-top: 4px;
+  padding: 0 4px;
+}
+
+/* === batch4: board tabs = chipper/profile style === */
+.cb-board-tabs {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 16px;
+  padding: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--cb-text, #fff) 12%, transparent);
+  background: transparent;
+  gap: 0;
+}
+.cb-board-tabs-inner,
+.cb-board-tabs {
+  /* allow either wrapper or direct tabs */
+}
+.cb-board-tab {
+  appearance: none;
+  border: 0 !important;
+  background: transparent !important;
+  color: color-mix(in srgb, var(--cb-text, #fff) 70%, transparent);
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.85rem 1.25rem;
+  cursor: pointer;
+  position: relative;
+  clip-path: none !important;
+  border-radius: 0 !important;
+}
+.cb-board-tab.is-active,
+.cb-board-tab[aria-selected="true"] {
+  color: var(--cb-text, #fff) !important;
+  background: transparent !important;
+}
+.cb-board-tab.is-active::after,
+.cb-board-tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 0;
+  height: 3px;
+  background: var(--cb-accent);
+  border-radius: 2px 2px 0 0;
+}
+
+/* === batch4: Kalshi-style mod cards === */
+.cb-mod-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 720px) {
+  .cb-mod-grid { grid-template-columns: 1fr; }
+}
+.cb-kalshi-card {
+  background: color-mix(in srgb, var(--cb-navy, #00001c) 90%, #fff 3%);
+  border: 1px solid color-mix(in srgb, var(--cb-text, #fff) 10%, transparent);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cb-kalshi-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cb-kalshi-head img {
+  width: 36px; height: 36px; border-radius: 10px; object-fit: cover;
+}
+.cb-kalshi-cat {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cb-muted, #8b95a5);
+  font-weight: 700;
+}
+.cb-kalshi-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--cb-text, #fff);
+}
+.cb-kalshi-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+}
+.cb-kalshi-row-label { font-weight: 700; font-size: 0.9rem; }
+.cb-kalshi-row-bar {
+  height: 3px;
+  width: 100%;
+  max-width: 72px;
+  border-radius: 999px;
+  background: var(--cb-accent);
+  margin-top: 4px;
+}
+.cb-kalshi-mult {
+  color: var(--cb-muted, #8b95a5);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.cb-kalshi-pill {
+  min-width: 52px;
+  text-align: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--cb-success, #00c805);
+  color: var(--cb-text, #fff);
+  font-weight: 800;
+  font-size: 0.9rem;
+  background: transparent;
+}
+.cb-kalshi-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--cb-muted, #8b95a5);
+}
+.cb-kalshi-chart { margin-top: 4px; min-height: 120px; }
+
+/* debates board-specific */
+.cb-board-debate-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cb-board-debate-link .cb-debate-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--cb-accent) 18%, transparent);
+  color: var(--cb-accent);
+  flex: 0 0 auto;
+}
+
+/* === batch4: community notes IG-like === */
+.cb-community-notes {
+  margin: 14px 0 0 !important;
+  padding: 0 !important;
+}
+.cb-community-note {
+  margin: 0 !important;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--cb-accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cb-accent) 28%, transparent);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+.cb-community-note-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+.cb-community-note-head i { color: var(--cb-accent); }
+.cb-community-note-body { color: var(--cb-text, #fff); }
+.cb-community-note-meta {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--cb-muted, #8b95a5);
+}
+.cb-community-note-vote {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  border-radius: 6px;
+}
+.cb-community-note-vote:hover,
+.cb-community-note-vote.is-on {
+  color: var(--cb-accent);
+  background: color-mix(in srgb, var(--cb-accent) 14%, transparent);
+}
+
+/* === batch4: reposted comment context (Twitter-like) === */
+.cb-repost-quote {
+  margin: 8px 0 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--cb-text, #fff) 12%, transparent);
+  background: color-mix(in srgb, var(--cb-navy, #00001c) 70%, #000 30%);
+  opacity: 0.92;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transform: scale(0.97);
+  transform-origin: top left;
+}
+.cb-repost-quote:hover {
+  border-color: color-mix(in srgb, var(--cb-accent) 40%, transparent);
+}
+.cb-repost-quote-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 0.82rem;
+  color: var(--cb-muted, #8b95a5);
+}
+.cb-repost-quote-head img {
+  width: 20px; height: 20px; border-radius: 50%; object-fit: cover;
+}
+.cb-repost-quote-text {
+  font-size: 0.88rem;
+  color: color-mix(in srgb, var(--cb-text, #fff) 82%, transparent);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* polls board carousel */
+.cb-polls-board-carousel {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 2px 14px;
+  scrollbar-width: thin;
+}
+.cb-polls-board-chip {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--cb-text, #fff) 14%, transparent);
+  background: color-mix(in srgb, var(--cb-navy, #00001c) 85%, transparent);
+  color: var(--cb-text, #fff);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.cb-polls-board-chip.is-active {
+  border-color: var(--cb-accent);
+  background: color-mix(in srgb, var(--cb-accent) 22%, transparent);
+}
+
+/* === batch4b: Kalshi scrub chrome (from demo video) === */
+.cb-scrub-chart { position: relative; width: 100%; }
+.cb-scrub-stage { position: relative; width: 100%; }
+.cb-scrub-svg { display: block; width: 100%; height: auto; touch-action: none; }
+.cb-scrub-grid {
+  stroke: color-mix(in srgb, var(--cb-text, #fff) 10%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+}
+.cb-scrub-yaxis {
+  fill: var(--cb-muted, #8b95a5);
+  font-size: 10px;
+}
+.cb-scrub-line-muted { opacity: 0.28; }
+.cb-scrub-line-bright { opacity: 1; }
+.cb-scrub-cursor {
+  stroke: color-mix(in srgb, var(--cb-text, #fff) 45%, transparent);
+  stroke-width: 1.25;
+  stroke-dasharray: 4 4;
+  pointer-events: none;
+}
+.cb-scrub-stamp {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  z-index: 3;
+  display: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cb-muted, #8b95a5);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.cb-scrub-floats { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+.cb-scrub-float {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  pointer-events: none;
+}
+.cb-scrub-float-ticker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--cb-muted, #8b95a5);
+  text-transform: uppercase;
+}
+.cb-scrub-float-pct {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: inherit;
+}
+.cb-scrub-edge {
+  position: absolute;
+  right: 2px;
+  top: 0;
+  bottom: 0;
+  width: 52px;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 0.12s ease;
+}
+.cb-scrub-edge-label {
+  position: absolute;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.05;
+}
+.cb-scrub-edge-ticker {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--cb-muted, #8b95a5);
+  text-transform: uppercase;
+}
+.cb-scrub-edge-pct {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: inherit;
+}
+.cb-scrub-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--cb-muted, #8b95a5);
+  margin-top: 4px;
+  padding: 0 4px 0 8px;
+}
+.cb-scrub-chart.is-scrubbing .cb-scrub-end { opacity: 0.35; }

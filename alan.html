@@ -6,6 +6,7 @@
     </head>
     <body>
         <div id="shared-header"></div>
+<script src="/js/shell-boot.js"></script>
         
 			<img src="secret/alan.png" alt="Alan" style="max-width:100%;height:auto;border-radius:8px;">
 
@@ -18,7 +19,7 @@
 
 	  if (!loggedIn || !userId) {
 		document.querySelectorAll("#userSection, #userSectionMobile").forEach(el => {
-		  if (el) el.innerHTML = `<a href="/login.html" style="color:#4a9eff;font-weight:bold;">Login</a>`;
+		  if (el) el.innerHTML = `<a href="/login.html" style="color:var(--cb-accent);font-weight:bold;">Login</a>`;
 		});
 		return;
 	  }
@@ -64,5 +65,6 @@
 	  window.addEventListener("storage", updateUserProfile);
 	});
 </script>
-    </body>
+      <script src="/js/layout.js"></script>
+</body>
 </html>

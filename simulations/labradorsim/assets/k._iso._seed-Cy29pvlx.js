@@ -1,0 +1,1 @@
+import{pt as e}from"./currency-DjpM7FsB.js";import{i as t,t as n}from"./index-B19r3pgH.js";var r=e();function i(){let{iso:e,seed:i}=n.useParams(),a=Math.max(1,Math.min(99,Number(i)||1));return(0,r.jsx)(t,{iso:e,seed:a})}export{i as component};

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
+  <title>Simulations - Coolbrador</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* Democracy-lab framing only; carousel/cards reuse .hub-* from styles.css */
+    body.simulations-page .sim-hub {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 18px 64px;
+    }
+    body.simulations-page .sim-hub-hero {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    body.simulations-page .sim-hub-eyebrow {
+      margin: 0;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cb-accent);
+    }
+    body.simulations-page .sim-hub-hero h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      color: var(--cb-text, #fff);
+    }
+    body.simulations-page .sim-hub-hero p {
+      margin: 0;
+      max-width: 46rem;
+      line-height: 1.55;
+      color: var(--cb-muted);
+    }
+    body.simulations-page #rowSims .hub-card {
+      flex: 0 0 min(260px, 78vw);
+      min-height: 200px;
+    }
+    body.simulations-page #rowSims .hub-card-thumb { height: 124px; }
+  </style>
+</head>
+<body class="simulations-page" data-page="simulations">
+  <div id="shared-header"></div>
+<script src="/js/shell-boot.js"></script>
+  <div class="test-watermark">Demo data</div>
+  <main class="sim-hub hub">
+    <header class="sim-hub-hero">
+      <p class="sim-hub-eyebrow">Democracy 2.0 / Coolbrador</p>
+      <h1>The kennel decides. LabradorSim rehearses it.</h1>
+      <p>
+        Coolbrador is a kennel with democracy: Labradors propose, poll, and steer what the site becomes
+        (features, moderation norms, experiments) while AI helps evolve the product from what wins.
+        LabradorSim is the civic lab next door: stress-test scenarios before they hit the live kennel.
+      </p>
+    </header>
+
+    <section class="hub-row" id="rowSims">
+      <div class="hub-row-head">
+        <h2>Simulations</h2>
+        <a href="/polls.html">Open Polls</a>
+      </div>
+      <div class="hub-carousel" id="simsCarousel">
+        <button type="button" class="hub-carousel-btn prev" aria-label="Previous simulations" title="Previous">
+          <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
+        <div class="hub-carousel-track" id="simsScroller"></div>
+        <button type="button" class="hub-carousel-btn next" aria-label="Next simulations" title="Next">
+          <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </section>
+  </main>
+  <div id="shared-footer"></div>
+  <script src="/js/layout.js"></script>
+  <script src="/js/simulations.js"></script>
+</body>
+</html>

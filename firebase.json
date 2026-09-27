@@ -1,0 +1,183 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/*.py",
+      "**/_patch*",
+      "**/_probe*",
+      "**/_fix*",
+      "**/_verify*"
+    ],
+    "headers": [
+      {
+        "source": "**/*.json",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public,max-age=60,must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/data/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public,max-age=60,must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(js|css)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public,max-age=300"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(html)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public,max-age=60"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/data/chipper_game_board_feed.json",
+        "function": "getChipperFeed"
+      },
+      {
+        "source": "/data/chipper-miiverse.json",
+        "function": "getChipperFeed"
+      },
+      {
+        "source": "/data/boards/BeeSid.json",
+        "function": "getBeeSidBoard"
+      },
+      {
+        "source": "/api/chipper-game-board-feed",
+        "function": "getChipperFeed"
+      },
+      {
+        "source": "/api/chipper-miiverse",
+        "function": "getChipperFeed"
+      },
+      {
+        "source": "/api/beesid-board",
+        "function": "getBeeSidBoard"
+      },
+      {
+        "source": "/api/media-scan",
+        "function": "mediaScan"
+      },
+      {
+        "source": "/notifications",
+        "destination": "/notifications.html"
+      },
+      {
+        "source": "/notifications/**",
+        "destination": "/notifications.html"
+      },
+      {
+        "source": "/messages",
+        "destination": "/messages.html"
+      },
+      {
+        "source": "/messages/**",
+        "destination": "/messages.html"
+      },
+      {
+        "source": "/polls",
+        "destination": "/polls.html"
+      },
+      {
+        "source": "/polls/**",
+        "destination": "/polls.html"
+      },
+      {
+        "source": "/settings",
+        "destination": "/settings.html"
+      },
+      {
+        "source": "/settings/**",
+        "destination": "/settings.html"
+      },
+      {
+        "source": "/users/*/card",
+        "destination": "/users/profile/index.html"
+      },
+      {
+        "source": "/users/*/card/**",
+        "destination": "/users/profile/index.html"
+      },
+      {
+        "source": "/users/*/links",
+        "destination": "/users/profile/index.html"
+      },
+      {
+        "source": "/users/*/links/**",
+        "destination": "/users/profile/index.html"
+      },
+      {
+        "source": "/users/*/profile",
+        "destination": "/users/profile/index.html"
+      },
+      {
+        "source": "/users/**",
+        "destination": "/users/profile/index.html"
+      },
+      {
+        "source": "/b/*/post/*/comments",
+        "destination": "/b/post-thread.html"
+      },
+      {
+        "source": "/b/*/post/*/comments/",
+        "destination": "/b/post-thread.html"
+      }
+    ],
+    "redirects": [
+      {
+        "source": "/simulations/labradorsim",
+        "destination": "https://labradorsim.vercel.app/",
+        "type": 302
+      },
+      {
+        "source": "/simulations/labradorsim/",
+        "destination": "https://labradorsim.vercel.app/",
+        "type": 302
+      },
+      {
+        "source": "/simulations/labradorsim/:path*",
+        "destination": "https://labradorsim.vercel.app/:path*",
+        "type": 302
+      }
+    ]
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

@@ -1,77 +1,194 @@
 <!DOCTYPE html>
-<html lang="en">
+<html data-cb-context="chipper" lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Chipper - Coolbrador</title>
-    <link rel="stylesheet" href="../styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
+  <title>Chipper - Coolbrador</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="importmap">
+  {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/"}}
+  </script>
 </head>
 <body>
-
-    <div id="shared-header"></div>
-
-    <div class="bodytext-section container">
-        <h1 class="section-header">Chipper</h1>
-        <h2>Site is currently getting an overhaul</h2>
+  <div id="shared-header"></div>
+<script src="/js/shell-boot.js"></script>
+  <div id="container3D">
+    <div class="hero-logo-wrap">
+      <img class="hero-logo" src="/img/Chipper%20Masterlogo.png" alt="Chipper">
     </div>
+    <div class="button-group">
+      <button class="downloadbutton" type="button"><a href="#chipper-draft">Not out yet</a></button>
+      <button class="downloadbutton" type="button"><a id="robloxLink" href="https://www.roblox.com/communities/323609233/Coolbrador#!/about" target="_blank" rel="noopener">Roblox group</a></button>
+    </div>
+  </div>
+  <div class="chipper-page" id="chipper-draft">
+    <nav class="chipper-tabs" aria-label="Chipper sections">
+      <div class="chipper-tabs-inner">
+        <button type="button" class="chipper-tab is-active" data-tab="about">About</button>
+        <button type="button" class="chipper-tab" data-tab="story">Story</button>
+        <button type="button" class="chipper-tab" data-tab="downloads">Downloads</button>
+      </div>
+    </nav>
 
-    <section class="container bodytext-section">
-        <h1>This is going to be the page for Chipper</h1>
-    </section>
+    <div class="chipper-panel">
+      <div class="chipper-panel-inner">
+        <section class="chipper-tab-pane is-active" id="chipper-tab-about" data-pane="about">
+          <h2 class="chipper-panel-title">DIG. EAT. CAPTURE.</h2>
+          <div class="chipper-about-grid">
+            <div class="chipper-about-art">
+              <img src="/img/ChipperRenderSaturated.png" alt="Chipper character art">
+            </div>
+            <div class="chipper-about-copy">
+              <h3>Chipper is THE BEST kicks-and-giggles 3D platformer where you "commit COUNTLESS selfless acts to SAVE the world"…</h3>
+              <hr class="chipper-rule">
+              <p>Dig. Eat. Capture butterflies. Make the world a "better place."</p>
 
-			<div id="shared-footer"></div>
+              <div class="chipper-reviews" aria-label="Reviews">
+                <div class="chipper-reviews-head">
+                  <span class="chipper-reviews-star" aria-hidden="true">★</span>
+                  <h4>Reviews</h4>
+                </div>
+                <ul class="chipper-review-list">
+                  <li class="chipper-review">
+                    <div class="chipper-review-top">
+                      <span class="chipper-review-stars" aria-label="5 out of 5 stars">★★★★★</span>
+                    </div>
+                    <blockquote>“Best 3D-Platformer.”</blockquote>
+                    <cite>(According to its protagonist)</cite>
+                  </li>
+                  <li class="chipper-review">
+                    <div class="chipper-review-top">
+                      <span class="chipper-review-stars" aria-label="5 out of 5 stars">★★★★★</span>
+                      <span class="chipper-review-score">100/10</span>
+                    </div>
+                    <blockquote>“cuz I said so”</blockquote>
+                    <cite>Alan Paul Lopez Rosas</cite>
+                  </li>
+                </ul>
+              </div>
+
+              <a class="chipper-skew-btn" href="#chipper-tab-story" data-goto="story">Learn more</a>
+            </div>
+          </div>
+
+          <div class="chipper-section">
+            <h3 class="chipper-subhead">BE a HERO!</h3>
+            <hr class="chipper-rule">
+            <p class="chipper-prose">SAVE the market from EVIL bees, PUT an END to EVIL above-ground pigs, KICK everyone's butt, SPEED around town, MAKE the HOT lady from TV your GF (she LOVES you), TAKE what's yours, IMPROVE the quality of life through your SELFLESS actions, GET STRONGER, TEACH people a lesson, USE your SUPER smarts for GOOD, USE your friends, TAKE MAGIC butterflies.</p>
+          </div>
+
+          <div class="chipper-section chipper-movie" id="chipper-movie">
+            <h3 class="chipper-subhead">Movie</h3>
+            <hr class="chipper-rule">
+            <div class="chipper-movie-frame">
+              <img src="/img/PlanetChipperHomepage.png" alt="Chipper trailer placeholder">
+              <div class="chipper-movie-hint">Trailer when it exists. Stare at the stars above for now.</div>
+            </div>
+          </div>
+
+          <div class="chipper-section">
+            <h3 class="chipper-subhead">FOR THE BROS</h3>
+            <hr class="chipper-rule">
+            <p class="chipper-prose">This game has an emphasis on its community, you get what YOU want (and deserve). The second I stop caring is the second this page is getting deleted.</p>
+          </div>
+        </section>
+
+        <section class="chipper-tab-pane" id="chipper-tab-story" data-pane="story" hidden>
+          <h2 class="chipper-panel-title">PLAY as a Labrador Retriever!</h2>
+          <div class="chipper-about-grid">
+            <div class="chipper-about-art">
+              <img src="/img/ChipperScreenshot1.png" alt="Chipper gameplay screenshot">
+            </div>
+            <div class="chipper-about-copy">
+              <h3>ONE MAGIC BUTTERFLY. ONE TV-AD DOG TOY. DESTINY.</h3>
+              <hr class="chipper-rule">
+              <p>You PLAY as an AWESOME Labrador Retriever from the island town of Labradoria who notices an ad on TV about a SUPER COOL dog toy, where the price is just ONE of those MAGIC butterflies!</p>
+              <p>USE SUPER COOL tools that can DIG up shovels, EAT furniture, CAPTURE MAGIC butterflies and who knows what else!</p>
+            </div>
+          </div>
+
+          <div class="chipper-section">
+            <h3 class="chipper-subhead">EVERY MISSION IS UNIQUE</h3>
+            <hr class="chipper-rule">
+            <p class="chipper-prose">You will be traveling and even through different times encountering all sorts of enemies, from a metallic Labrador who is completely overpowered, bought by a Utah man controlling the bidding market, to a self-proclaimed superintellegent middleground pig who... well, I can't tell you what he does yet but BEWARE OF HIM!!</p>
+          </div>
+
+          <div class="chipper-section chipper-characters" id="chipper-characters">
+            <h3 class="chipper-subhead">Characters</h3>
+            <hr class="chipper-rule">
+            <div class="chipper-char-grid">
+              <article class="chipper-char">
+                <div class="chipper-char-art"><img src="/img/ChipperRenderSaturated.png" alt="Chipper"></div>
+                <h4>Chipper</h4>
+                <p>AWESOME Labrador Retriever from Labradoria. Digs. Eats. Captures. Makes the world a "better place."</p>
+              </article>
+              <article class="chipper-char">
+                <h4>The HOT lady from TV</h4>
+                <p>She LOVES you. Commercial dog. Or does she?</p>
+              </article>
+              <article class="chipper-char">
+                <h4>Metallic Labrador</h4>
+                <p>Completely overpowered. Bought by a Utah man controlling the bidding market.</p>
+              </article>
+              <article class="chipper-char">
+                <h4>Self-proclaimed superintellegent middleground pig</h4>
+                <p>Not actually that smart - just drops nerdy lines to look clever. Can't tell you what he does yet... but BEWARE OF HIM!!</p>
+              </article>
+              <article class="chipper-char">
+                <h4>EVIL bees</h4>
+                <p>They buzz with malice. You bark with justice. SAVE the market.</p>
+              </article>
+              <article class="chipper-char">
+                <h4>Above-ground pigs</h4>
+                <p>Some are ugly. Some are problems. PUT an END to the EVIL ones.</p>
+              </article>
+              <article class="chipper-char">
+                <h4>Below-Ground Pigs</h4>
+                <p>The good ones. Loyal tunnel neighbors, solid group. Better than those loser Above-Grounds. Chipper's kind of pig.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="chipper-tab-pane" id="chipper-tab-downloads" data-pane="downloads" hidden>
+          <h2 class="chipper-panel-title">Downloads</h2>
+          <div class="chipper-downloads">
+            <p class="chipper-prose chipper-downloads-msg">The game is not available yet.</p>
+            <p class="chipper-links-line"><a href="/polls.html">Pitch an idea</a> · <a href="/community.html">Yell on boards</a> · <a href="/">Back to hub</a></p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+<div id="shared-footer"></div>
+  <script src="/js/cb-sensitive-filter.js"></script>
+  <script src="/js/layout.js"></script>
+<script type="module" src="/js/StarrySky.js"></script>
 
 <script>
-	function updateUserProfile() {
-	  const loggedIn = localStorage.getItem("loggedIn") === "true";
-	  const userId = localStorage.getItem("currentUserId");
-
-	  if (!loggedIn || !userId) {
-		document.querySelectorAll("#userSection, #userSectionMobile").forEach(el => {
-		  if (el) el.innerHTML = `<a href="/login.html" style="color:#4a9eff;font-weight:bold;">Login</a>`;
-		});
-		return;
-	  }
-
-	  const user = JSON.parse(localStorage.getItem(`user_${userId}`)) || {};
-	  const pfp = user.profilePicture || "/users/default/pfp.jpg";
-	  const username = user.username || "User";
-
-	  // Desktop
-	  const desk = document.getElementById("userSection");
-	  if (desk) {
-		desk.innerHTML = `
-		  <a href="/users/${userId}/profile.html" style="display:flex;align-items:center;gap:10px;color:white;text-decoration:none;">
-			<img src="${pfp}" alt="${username}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:0px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-			<span style="font-weight:bold;">${username}</span>
-		  </a>`;
-	  }
-
-	  // Mobile
-	  const mob = document.getElementById("userSectionMobile");
-	  if (mob) {
-		mob.innerHTML = `
-		  <a href="/users/${userId}/profile.html">
-			<img src="${pfp}" alt="${username}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:0px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.4);">
-		  </a>`;
-	  }
-	}
-
-	// Load header + footer, then update profile
-	document.addEventListener("DOMContentLoaded", () => {
-	  fetch("../shared/header.html")
-		.then(r => r.text())
-		.then(html => {
-		  document.getElementById("shared-header").innerHTML = html;
-		  updateUserProfile(); // ← runs after header loads
-		});
-
-	  fetch("../shared/footer.html")
-		.then(r => r.text())
-		.then(html => document.getElementById("shared-footer").innerHTML = html);
-
-	  // Keep updated across tabs
-	  window.addEventListener("storage", updateUserProfile);
-	});
+(function () {
+  var root = document.getElementById('chipper-draft');
+  if (!root) return;
+  function activate(name) {
+    root.querySelectorAll('.chipper-tab').forEach(function (b) {
+      b.classList.toggle('is-active', b.getAttribute('data-tab') === name);
+    });
+    root.querySelectorAll('.chipper-tab-pane').forEach(function (p) {
+      var on = p.getAttribute('data-pane') === name;
+      p.classList.toggle('is-active', on);
+      if (on) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
+    });
+  }
+  root.addEventListener('click', function (e) {
+    var tab = e.target.closest('.chipper-tab');
+    if (tab) { activate(tab.getAttribute('data-tab')); return; }
+    var go = e.target.closest('[data-goto]');
+    if (go) { e.preventDefault(); activate(go.getAttribute('data-goto')); }
+  });
+})();
 </script>
-	</body>
+
+</body>
 </html>

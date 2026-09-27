@@ -1,0 +1,65 @@
+{
+  card: {
+        width: "880px",
+        height: "680px"
+    },
+    sections: [
+      {
+        left: "140px",
+        top: "40px",
+        width: "200px",
+        height: "200px",
+        type: "image",
+        locked: true,
+        background: "",
+        borderColor: "",
+        imageSrc: "/users/default/pfp.jpg",
+        imageStyle: "50%"
+      },
+      {
+        left: "80px",
+        top: "260px",
+        width: "400px",
+        height: "80px",
+        type: "text",
+        locked: true,
+        background: "",
+        borderColor: "",
+        text: "Chipper",
+        fontSize: "2.8rem",
+        color: "",
+        fontWeight: "",
+        fontStyle: ""
+      },
+      {
+        left: "140px",
+        top: "340px",
+        width: "280px",
+        height: "60px",
+        type: "text",
+        locked: true,
+        background: "",
+        borderColor: "",
+        text: "@Coolbrador",
+        fontSize: "1.35rem",
+        color: "#aaa",
+        fontWeight: "",
+        fontStyle: ""
+      },
+      {
+        left: "100px",
+        top: "400px",
+        width: "360px",
+        height: "50px",
+        type: "text",
+        locked: true,
+        background: "",
+        borderColor: "",
+        text: "Member since July 26, 2007",
+        fontSize: "1rem",
+        color: "#999",
+        fontWeight: "",
+        fontStyle: ""
+      }
+  ]
+}

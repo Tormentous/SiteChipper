@@ -1,0 +1,5 @@
+# Prefer static OG stubs when present; otherwise SPA thread shell
+/b/:board/post/:n/comments /b/:board/post/:n/comments/index.html 200
+/b/:board/post/:n/comments/ /b/:board/post/:n/comments/index.html 200
+/b/*/post/*/comments /b/post-thread.html 200
+/b/*/post/*/comments/ /b/post-thread.html 200

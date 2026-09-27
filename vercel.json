@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/b/:board/post/:n/comments",
+      "destination": "/b/:board/post/:n/comments/index.html"
+    },
+    {
+      "source": "/b/:board/post/:n/comments/",
+      "destination": "/b/:board/post/:n/comments/index.html"
+    },
+    {
+      "source": "/b/:board/post/:n/comments",
+      "destination": "/b/post-thread.html"
+    }
+  ]
+}

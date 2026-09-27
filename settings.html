@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Coolbrador</title>
+  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/js/theme-rice.js"></script>
+  <script>
+    (function () {
+      try {
+        if (window.CoolbradorRice) window.CoolbradorRice.earlyBoot();
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    .settings-page .settings-wrap {
+      width: min(960px, calc(100% - 32px));
+      margin: 28px auto 100px;
+    }
+    .settings-page h1 { margin: 0 0 8px; font-size: 1.8rem; }
+    .settings-page .settings-sub { color: var(--cb-muted); margin: 0 0 22px; }
+    .settings-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+    html[data-mode="light"] .settings-card {
+      background: var(--cb-surface);
+      border-color: rgba(15,23,42,0.1);
+    }
+    .settings-card h2 { margin: 0 0 6px; font-size: 1.15rem; }
+    .settings-card p { margin: 0 0 14px; color: var(--cb-muted); font-size: 0.95rem; }
+    .theme-options, .mode-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .mode-options { grid-template-columns: repeat(2, minmax(140px, 220px)); margin-bottom: 4px; }
+    .theme-option, .mode-option {
+      display: block;
+      text-align: left;
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 14px;
+      background: rgba(0,0,0,0.25);
+      color: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    html[data-mode="light"] .theme-option,
+    html[data-mode="light"] .mode-option {
+      background: rgba(15,23,42,0.04);
+      border-color: rgba(15,23,42,0.12);
+    }
+    .theme-option:hover, .mode-option:hover { border-color: rgba(255,255,255,0.28); }
+    .theme-option.selected, .mode-option.selected {
+      border-color: var(--cb-accent);
+      box-shadow: 0 0 0 2px rgba(var(--cb-accent-rgb),0.25);
+    }
+    .theme-option .swatch-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .theme-option .swatch {
+      width: 28px; height: 28px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .theme-option strong, .mode-option strong { display: block; margin-bottom: 4px; }
+    .theme-option span, .mode-option span { color: var(--cb-muted); font-size: 0.85rem; }
+    .settings-note { margin-top: 10px; color: var(--cb-muted); font-size: 0.85rem; }
+    .rice-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .rice-field label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--cb-muted);
+      margin-bottom: 6px;
+    }
+    .rice-field input[type="color"] {
+      width: 100%;
+      height: 42px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      background: transparent;
+      padding: 4px;
+      cursor: pointer;
+    }
+    .rice-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .rice-actions button, .rice-file-btn {
+      background: var(--cb-accent);
+      color: #fff !important;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .rice-actions button.ghost {
+      background: transparent;
+      border: 1px solid rgba(var(--cb-accent-rgb),0.45);
+      color: var(--cb-text) !important;
+    }
+    .wallpaper-preview {
+      width: 100%;
+      min-height: 120px;
+      border-radius: 12px;
+      border: 1px dashed rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.25) center/cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cb-muted);
+      margin-bottom: 12px;
+    }
+    .wallpaper-preview.has-image { border-style: solid; color: transparent; }
+    .rice-sliders label { display: flex; justify-content: space-between; margin-top: 8px; }
+    .rice-sliders input[type="range"] { width: 100%; }
+
+    .chipper-link-pre {
+      white-space: pre-wrap; word-break: break-word;
+      background: rgba(0,0,0,0.35); border-radius: 10px; padding: 12px;
+      font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.08);
+      max-height: 220px; overflow: auto;
+    }
+    .chipper-connect-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .settings-btn {
+      border: 0; border-radius: 10px; padding: 10px 14px; cursor: pointer;
+      background: var(--cb-accent); color: #fff; font-weight: 700; text-decoration: none;
+      display: inline-flex; align-items: center;
+    }
+    .settings-btn-secondary { background: rgba(255,255,255,0.12); color: var(--cb-text); }
+    .rice-actions button#resetCustomColors {
+      background: transparent;
+      border: 1px solid rgba(var(--cb-accent-rgb),0.45);
+      color: var(--cb-text);
+    }
+  </style>
+</head>
+<body class="settings-page">
+  <div id="shared-header"></div>
+<script src="/js/shell-boot.js"></script>
+  <main class="settings-wrap">
+    <h1>Settings</h1>
+    <p class="settings-sub">Customize how Coolbrador looks on this device — palette, light/dark, and background.</p>
+
+    <section class="settings-card">
+      <h2>Mode</h2>
+      <p>Light keeps the same accent colors as your palette. Only the chrome goes day-mode.</p>
+      <div class="mode-options" role="listbox" aria-label="Site mode">
+        <button type="button" class="mode-option" data-mode="dark" id="modeDark">
+          <strong>Dark</strong>
+          <span>Night cosmos</span>
+        </button>
+        <button type="button" class="mode-option" data-mode="light" id="modeLight">
+          <strong>Light</strong>
+          <span>Same accents, bright chrome</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="settings-card">
+      <h2>Palette</h2>
+      <p>Pick a sitewide color family. Works in both Dark and Light mode.</p>
+      <div class="theme-options" role="listbox" aria-label="Site palette">
+        <button type="button" class="theme-option" data-theme="default" id="themeDefault">
+          <div class="swatch-row">
+            <span class="swatch" style="background:#00001c"></span>
+            <span class="swatch" style="background:#080223"></span>
+            <span class="swatch" style="background:#0f053f"></span>
+            <span class="swatch" style="background:#4a9eff"></span>
+          </div>
+          <strong>Coolbrador</strong>
+          <span>Blue cosmos</span>
+        </button>
+        <button type="button" class="theme-option" data-theme="green" id="themeGreen">
+          <div class="swatch-row">
+            <span class="swatch" style="background:#06130d"></span>
+            <span class="swatch" style="background:#08140e"></span>
+            <span class="swatch" style="background:#102418"></span>
+            <span class="swatch" style="background:#54a36e"></span>
+          </div>
+          <strong>Green</strong>
+          <span>Dark pine accents</span>
+        </button>
+        <button type="button" class="theme-option" data-theme="ember" id="themeEmber">
+          <div class="swatch-row">
+            <span class="swatch" style="background:#1a0a08"></span>
+            <span class="swatch" style="background:#2a1210"></span>
+            <span class="swatch" style="background:#3d1a12"></span>
+            <span class="swatch" style="background:#ff7a45"></span>
+          </div>
+          <strong>Ember</strong>
+          <span>Charcoal + orange</span>
+        </button>
+        <button type="button" class="theme-option" data-theme="violet" id="themeViolet">
+          <div class="swatch-row">
+            <span class="swatch" style="background:#12081c"></span>
+            <span class="swatch" style="background:#1c0f2e"></span>
+            <span class="swatch" style="background:#2a1644"></span>
+            <span class="swatch" style="background:#b388ff"></span>
+          </div>
+          <strong>Violet</strong>
+          <span>Purple night</span>
+        </button>
+        <button type="button" class="theme-option" data-theme="ocean" id="themeOcean">
+          <div class="swatch-row">
+            <span class="swatch" style="background:#061418"></span>
+            <span class="swatch" style="background:#0a1f24"></span>
+            <span class="swatch" style="background:#0f2c33"></span>
+            <span class="swatch" style="background:#2ec4b6"></span>
+          </div>
+          <strong>Ocean</strong>
+          <span>Teal depth</span>
+        </button>
+        <button type="button" class="theme-option" data-theme="rose" id="themeRose">
+          <div class="swatch-row">
+            <span class="swatch" style="background:#16080e"></span>
+            <span class="swatch" style="background:#241018"></span>
+            <span class="swatch" style="background:#3a1824"></span>
+            <span class="swatch" style="background:#ff6b9d"></span>
+          </div>
+          <strong>Rose</strong>
+          <span>Wine accents</span>
+        </button>
+        <button type="button" class="theme-option" data-theme="slate" id="themeSlate">
+          <div class="swatch-row">
+            <span class="swatch" style="background:#0c0e12"></span>
+            <span class="swatch" style="background:#141820"></span>
+            <span class="swatch" style="background:#1c2230"></span>
+            <span class="swatch" style="background:#94a3b8"></span>
+          </div>
+          <strong>Slate</strong>
+          <span>Neutral grey</span>
+        </button>
+      </div>
+      <p class="settings-note" id="themeStatus">Theme applies immediately across Coolbrador.</p>
+    </section>
+<section class="settings-card">
+      <h2>Wallpaper</h2>
+      <p>Upload a background image. A color wash from your theme sits on top so text stays readable.</p>
+      <div class="wallpaper-preview" id="wallpaperPreview">No wallpaper</div>
+      <div class="rice-actions" style="margin-bottom:12px;">
+        <label class="rice-file-btn" for="wallpaperFile">Import image</label>
+        <input type="file" id="wallpaperFile" accept="image/*" hidden>
+        <button type="button" class="ghost" id="clearWallpaper">Remove</button>
+      </div>
+      <div class="rice-sliders">
+        <label for="wallpaperTint">Theme tint <span id="wallpaperTintVal">55%</span></label>
+        <input type="range" id="wallpaperTint" min="0" max="90" value="55">
+        <label for="wallpaperBlur">Blur <span id="wallpaperBlurVal">0px</span></label>
+        <input type="range" id="wallpaperBlur" min="0" max="20" value="0">
+      </div>
+      <p class="settings-note" id="wallpaperStatus">Images are compressed and saved on this device only.</p>
+    </section>
+    <section class="settings-card" id="chipper">
+      <h2>Connect to Chipper</h2>
+      <p>Link this Coolbrador account to Chipper in-game. Chipper gets a one-shot profile payload only (no refresh tokens).</p>
+      <div class="chipper-connect-box">
+        <pre id="chipperLinkJson" class="chipper-link-pre">Sign in to generate a link.</pre>
+        <div class="chipper-connect-actions">
+          <button type="button" id="chipperCopyBtn" class="settings-btn">Copy link JSON</button>
+          <button type="button" id="chipperRegenBtn" class="settings-btn settings-btn-secondary">New one-shot code</button>
+          <a id="chipperOpenLink" class="settings-btn settings-btn-secondary" href="/chipper-link.html">Open link page</a>
+        </div>
+        <p class="settings-note" id="chipperLinkStatus">Payload fields: userId, handle, displayName, avatarUrl, openUrl.</p>
+      </div>
+    </section>
+  
+    <section class="settings-card">
+      <h2>Moderation</h2>
+      <p>Edit any username, display name, profile picture, or post text.</p>
+      <p><a href="/mod.html">Open mod panel</a></p>
+    </section>
+</main>
+  <div id="shared-footer"></div>
+  <script src="/js/layout.js"></script>
+  <script src="/js/chipper-link.js"></script>
+  <script src="/js/settings.js"></script>
+</body>
+</html>

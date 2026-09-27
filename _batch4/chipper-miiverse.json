@@ -1,0 +1,106 @@
+{
+  "board": "BeeSid",
+  "boardNote": {
+    "title": "Chipper Game Board",
+    "body": "In-game posts from Chipper levels land here. Drawings, fails, boss tears, and bee conspiracy theories welcome.",
+    "icon": "fa-solid fa-gamepad"
+  },
+  "posts": [
+    {
+      "id": "mv-01",
+      "username": "BeeSid",
+      "text": "drew my lair but the shipping containers keep eating my crayon. 10/10 would get stuck again",
+      "media": { "type": "image", "url": "/shared/TestImages/Checkpoint.jpg", "label": "crayon lair map" },
+      "yeahs": 14,
+      "tags": ["drawing", "lair"]
+    },
+    {
+      "id": "mv-02",
+      "username": "GyattToad",
+      "text": "TIP: if you hear buzzing, do NOT make friends. i made friends. i regret everything",
+      "media": { "type": "image", "url": "/shared/TestImages/Cannot%20Pass.jpg", "label": "do not pass" },
+      "yeahs": 22,
+      "tags": ["tip", "bee"]
+    },
+    {
+      "id": "mv-03",
+      "username": "Cardbrador",
+      "text": "stock chart went UP so i jumped UP. physics disagreed. currently inside a rhombus",
+      "media": { "type": "image", "url": "/shared/TestImages/Broke%20and%20Poor.jpg", "label": "portfolio" },
+      "yeahs": 9,
+      "tags": ["stocks", "fail"]
+    },
+    {
+      "id": "mv-04",
+      "username": "Miguel",
+      "text": "selfie with Metal Lab before he noticed. if this posts i am either brave or deleted",
+      "media": { "type": "image", "url": "/shared/TestImages/Eat%20Slop.jpg", "label": "brave selfie" },
+      "yeahs": 31,
+      "tags": ["boss", "selfie"]
+    },
+    {
+      "id": "mv-05",
+      "username": "CoolDog",
+      "text": "fan knocked me into another fan. this is performance art. title: Wind Tunnel of Friendship",
+      "media": { "type": "video", "url": "/shared/TestImages/Dancing.mp4", "label": "fan ballet" },
+      "yeahs": 17,
+      "tags": ["fail", "fan"]
+    },
+    {
+      "id": "mv-06",
+      "username": "NerdDog",
+      "text": "hypothesis: bees are just spicy floating dogs. peer review welcome. peer review denied by bees",
+      "media": { "type": "image", "url": "/shared/TestImages/Electricity.jpg", "label": "science" },
+      "yeahs": 11,
+      "tags": ["theory"]
+    },
+    {
+      "id": "mv-07",
+      "username": "AnthonySpade",
+      "text": "found a trap door labeled FREE SNACKS. it was not snacks. it was spikes. spicy snacks?",
+      "media": { "type": "image", "url": "/shared/TestImages/Fake%20Friends.jpg", "label": "trap" },
+      "yeahs": 19,
+      "tags": ["trap", "lair"]
+    },
+    {
+      "id": "mv-08",
+      "username": "BeeSid",
+      "text": "official BeeSid tip: buy high, buzz higher. this is not financial advice. this is bee advice",
+      "media": { "type": "image", "url": "/shared/TestImages/World%20Leaders.jpg", "label": "bee tips" },
+      "yeahs": 27,
+      "tags": ["bee", "stocks"]
+    },
+    {
+      "id": "mv-09",
+      "username": "Hamlet",
+      "text": "from below ground: your ceiling is my floor and your floor is my gym. stop stomping",
+      "media": { "type": "image", "url": "/shared/TestImages/Checkpoint.jpg", "label": "pig mail" },
+      "yeahs": 8,
+      "tags": ["pig"]
+    },
+    {
+      "id": "mv-10",
+      "username": "GyattToad",
+      "text": "speedrun any% got interrupted by a squirrel with a briefcase. law has entered the chat",
+      "media": { "type": "video", "url": "/shared/TestImages/Cat%20Massage.mp4", "label": "squirrel counsel" },
+      "yeahs": 15,
+      "tags": ["speedrun"]
+    },
+    {
+      "id": "mv-11",
+      "username": "Cardbrador",
+      "text": "Miiverse nostalgia hit so hard I drew Chipper as a stamp. collect them all (there is one)",
+      "media": { "type": "image", "url": "/shared/TestImages/Propaganda.jpg", "label": "stamp" },
+      "yeahs": 24,
+      "tags": ["drawing", "chipper"]
+    },
+    {
+      "id": "mv-12",
+      "username": "CoolDog",
+      "text": "balloon cart stole my lunch. i respect the hustle. i do not respect the altitude",
+      "media": { "type": "image", "url": "/shared/TestImages/Broke%20and%20Poor.jpg", "label": "lunch theft" },
+      "yeahs": 13,
+      "tags": ["balloon"]
+    }
+  ]
+}

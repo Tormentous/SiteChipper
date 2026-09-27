@@ -1,0 +1,106 @@
+{
+  "rewrites": [
+    {
+      "source": "/notifications",
+      "destination": "/notifications.html"
+    },
+    {
+      "source": "/notifications/",
+      "destination": "/notifications.html"
+    },
+    {
+      "source": "/notifications/:n",
+      "destination": "/notifications.html"
+    },
+    {
+      "source": "/messages",
+      "destination": "/messages.html"
+    },
+    {
+      "source": "/messages/",
+      "destination": "/messages.html"
+    },
+    {
+      "source": "/messages/:n",
+      "destination": "/messages.html"
+    },
+    {
+      "source": "/messages/:n/",
+      "destination": "/messages.html"
+    },
+    {
+      "source": "/polls",
+      "destination": "/polls.html"
+    },
+    {
+      "source": "/polls/",
+      "destination": "/polls.html"
+    },
+    {
+      "source": "/polls/:type/:id",
+      "destination": "/polls.html"
+    },
+    {
+      "source": "/polls/:type/:id/",
+      "destination": "/polls.html"
+    },
+    {
+      "source": "/settings",
+      "destination": "/settings.html"
+    },
+    {
+      "source": "/settings/",
+      "destination": "/settings.html"
+    },
+    {
+      "source": "/users/:id/card",
+      "destination": "/users/profile/index.html"
+    },
+    {
+      "source": "/users/:id/card/",
+      "destination": "/users/profile/index.html"
+    },
+    {
+      "source": "/users/:id/links",
+      "destination": "/users/profile/index.html"
+    },
+    {
+      "source": "/users/:id/links/",
+      "destination": "/users/profile/index.html"
+    },
+    {
+      "source": "/users/:id/profile",
+      "destination": "/users/profile/index.html"
+    },
+    {
+      "source": "/users/:id/profile/",
+      "destination": "/users/profile/index.html"
+    },
+    {
+      "source": "/users/:id",
+      "destination": "/users/profile/index.html"
+    },
+    {
+      "source": "/users/:id/",
+      "destination": "/users/profile/index.html"
+    }
+  ],
+  "directoryListing": false,
+  "redirects": [
+    {
+      "source": "/simulations/labradorsim",
+      "destination": "https://labradorsim.vercel.app/",
+      "type": 302
+    },
+    {
+      "source": "/simulations/labradorsim/",
+      "destination": "https://labradorsim.vercel.app/",
+      "type": 302
+    },
+    {
+      "source": "/simulations/labradorsim/**",
+      "destination": "https://labradorsim.vercel.app/:splat",
+      "type": 302
+    }
+  ]
+}

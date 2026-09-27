@@ -1,0 +1,2407 @@
+=== styles.css ===
+@418
+416|}
+417|
+418|.chipper-tabs-inner {
+419|  display: flex;
+420|  align-items: stretch;
+421|  gap: 0.25rem;
+422|  margin: 0 auto;
+423|  flex: 1;
+424|  justify-content: center;
+425|}
+426|
+427|.chipper-tab {
+428|  appearance: none;
+429|  border: 0;
+430|  background: transparent;
+431|  color: #fff;
+432|  font-weight: 800;
+433|  font-size: 1rem;
+434|  letter-spacing: 0.06em;
+435|  text-transform: uppercase;
+436|  padding: 0.95rem 1.35rem;
+437|  cursor: pointer;
+438|  position: relative;
+439|}
+440|
+441|.chipper-tab.is-active {
+442|  color: #fff;
+443|}
+444|
+445|.chipper-tab.is-active::after {
+446|  content: "";
+447|  position: absolute;
+448|  left: 12%;
+449|  right: 12%;
+450|  bottom: 0;
+451|  height: 4px;
+452|  background: #fff;
+453|}
+454|
+455|
+456|
+457|.chipper-panel {
+---
+@4011
+4009|}
+4010|/* === Messages (two-pane inbox) === */
+4011|body.messages-page {
+4012|  overflow: hidden;
+4013|  height: calc(100vh - 200px);
+4014|  max-height: calc(100vh - 200px);
+4015|}
+4016|body.messages-page.has-cb-sidebar .cb-msg-shell {
+4017|  width: calc(100% - 24px);
+4018|  max-width: none;
+4019|  margin-left: 12px;
+4020|  margin-right: 12px;
+4021|}
+4022|
+4023|.cb-msg-group-edit-btn {
+4024|  appearance: none;
+4025|  background: transparent;
+4026|  border: none;
+4027|  color: var(--cb-accent);
+4028|  font: inherit;
+4029|  font-weight: 700;
+4030|  cursor: pointer;
+4031|  padding: 0;
+4032|  text-decoration: underline;
+4033|}
+4034|.cb-msg-group-edit-btn:hover { color: var(--cb-accent-text, #fff); }
+4035|
+4036|body.messages-page .cb-msg-shell {
+4037|  display: grid !important;
+4038|  grid-template-columns: 320px minmax(0, 1fr) !important;
+4039|  gap: 0;
+4040|  width: calc(100% - 24px);
+4041|  max-width: 1200px;
+4042|  height: calc(100vh - 200px);
+4043|  margin: 12px auto 24px;
+4044|  border: 1px solid rgba(255,255,255,0.08);
+4045|  border-radius: 16px;
+4046|  overflow: hidden;
+4047|  background: var(--cb-surface);
+4048|  text-align: left;
+4049|}
+4050|body.messages-page .cb-msg-pane {
+---
+@4016
+4014|  max-height: calc(100vh - 200px);
+4015|}
+4016|body.messages-page.has-cb-sidebar .cb-msg-shell {
+4017|  width: calc(100% - 24px);
+4018|  max-width: none;
+4019|  margin-left: 12px;
+4020|  margin-right: 12px;
+4021|}
+4022|
+4023|.cb-msg-group-edit-btn {
+4024|  appearance: none;
+4025|  background: transparent;
+4026|  border: none;
+4027|  color: var(--cb-accent);
+4028|  font: inherit;
+4029|  font-weight: 700;
+4030|  cursor: pointer;
+4031|  padding: 0;
+4032|  text-decoration: underline;
+4033|}
+4034|.cb-msg-group-edit-btn:hover { color: var(--cb-accent-text, #fff); }
+4035|
+4036|body.messages-page .cb-msg-shell {
+4037|  display: grid !important;
+4038|  grid-template-columns: 320px minmax(0, 1fr) !important;
+4039|  gap: 0;
+4040|  width: calc(100% - 24px);
+4041|  max-width: 1200px;
+4042|  height: calc(100vh - 200px);
+4043|  margin: 12px auto 24px;
+4044|  border: 1px solid rgba(255,255,255,0.08);
+4045|  border-radius: 16px;
+4046|  overflow: hidden;
+4047|  background: var(--cb-surface);
+4048|  text-align: left;
+4049|}
+4050|body.messages-page .cb-msg-pane {
+4051|  display: flex !important;
+4052|  visibility: visible !important;
+4053|  min-width: 280px;
+4054|}
+4055|body.messages-page #shared-footer { display: none; }
+---
+@4036
+4034|.cb-msg-group-edit-btn:hover { color: var(--cb-accent-text, #fff); }
+4035|
+4036|body.messages-page .cb-msg-shell {
+4037|  display: grid !important;
+4038|  grid-template-columns: 320px minmax(0, 1fr) !important;
+4039|  gap: 0;
+4040|  width: calc(100% - 24px);
+4041|  max-width: 1200px;
+4042|  height: calc(100vh - 200px);
+4043|  margin: 12px auto 24px;
+4044|  border: 1px solid rgba(255,255,255,0.08);
+4045|  border-radius: 16px;
+4046|  overflow: hidden;
+4047|  background: var(--cb-surface);
+4048|  text-align: left;
+4049|}
+4050|body.messages-page .cb-msg-pane {
+4051|  display: flex !important;
+4052|  visibility: visible !important;
+4053|  min-width: 280px;
+4054|}
+4055|body.messages-page #shared-footer { display: none; }
+4056|.cb-msg-sidebar {
+4057|  display: flex;
+4058|  flex-direction: column;
+4059|  border-right: 1px solid rgba(255,255,255,0.08);
+4060|  background: var(--cb-surface);
+4061|  min-height: 0;
+4062|}
+4063|.cb-msg-side-head {
+4064|  display: flex;
+4065|  align-items: center;
+4066|  justify-content: space-between;
+4067|  gap: 10px;
+4068|  padding: 16px 14px 10px;
+4069|}
+4070|.cb-msg-side-head h1 {
+4071|  margin: 0;
+4072|  font-size: 1.25rem;
+4073|}
+4074|.cb-msg-search-wrap { padding: 0 12px 10px; }
+4075|.cb-msg-search {
+---
+@4050
+4048|  text-align: left;
+4049|}
+4050|body.messages-page .cb-msg-pane {
+4051|  display: flex !important;
+4052|  visibility: visible !important;
+4053|  min-width: 280px;
+4054|}
+4055|body.messages-page #shared-footer { display: none; }
+4056|.cb-msg-sidebar {
+4057|  display: flex;
+4058|  flex-direction: column;
+4059|  border-right: 1px solid rgba(255,255,255,0.08);
+4060|  background: var(--cb-surface);
+4061|  min-height: 0;
+4062|}
+4063|.cb-msg-side-head {
+4064|  display: flex;
+4065|  align-items: center;
+4066|  justify-content: space-between;
+4067|  gap: 10px;
+4068|  padding: 16px 14px 10px;
+4069|}
+4070|.cb-msg-side-head h1 {
+4071|  margin: 0;
+4072|  font-size: 1.25rem;
+4073|}
+4074|.cb-msg-search-wrap { padding: 0 12px 10px; }
+4075|.cb-msg-search {
+4076|  width: 100%;
+4077|  border: 0;
+4078|  border-radius: 999px;
+4079|  padding: 10px 14px;
+4080|  background: rgba(255,255,255,0.06);
+4081|  color: var(--cb-text);
+4082|  outline: none;
+4083|}
+4084|.cb-msg-search::placeholder { color: var(--cb-muted); }
+4085|.cb-msg-thread-list {
+4086|  flex: 1;
+4087|  overflow-y: auto;
+4088|  min-height: 0;
+4089|}
+---
+@4055
+4053|  min-width: 280px;
+4054|}
+4055|body.messages-page #shared-footer { display: none; }
+4056|.cb-msg-sidebar {
+4057|  display: flex;
+4058|  flex-direction: column;
+4059|  border-right: 1px solid rgba(255,255,255,0.08);
+4060|  background: var(--cb-surface);
+4061|  min-height: 0;
+4062|}
+4063|.cb-msg-side-head {
+4064|  display: flex;
+4065|  align-items: center;
+4066|  justify-content: space-between;
+4067|  gap: 10px;
+4068|  padding: 16px 14px 10px;
+4069|}
+4070|.cb-msg-side-head h1 {
+4071|  margin: 0;
+4072|  font-size: 1.25rem;
+4073|}
+4074|.cb-msg-search-wrap { padding: 0 12px 10px; }
+4075|.cb-msg-search {
+4076|  width: 100%;
+4077|  border: 0;
+4078|  border-radius: 999px;
+4079|  padding: 10px 14px;
+4080|  background: rgba(255,255,255,0.06);
+4081|  color: var(--cb-text);
+4082|  outline: none;
+4083|}
+4084|.cb-msg-search::placeholder { color: var(--cb-muted); }
+4085|.cb-msg-thread-list {
+4086|  flex: 1;
+4087|  overflow-y: auto;
+4088|  min-height: 0;
+4089|}
+4090|.cb-msg-list-empty {
+4091|  padding: 20px 14px;
+4092|  color: var(--cb-muted);
+4093|}
+4094|.cb-msg-thread {
+---
+@4343
+4341|}
+4342|@media (max-width: 640px) {
+4343|  body.messages-page .cb-msg-shell {
+4344|    grid-template-columns: 1fr !important;
+4345|    height: calc(100vh - 140px);
+4346|    width: calc(100% - 16px);
+4347|  }
+4348|  body.messages-page .cb-msg-shell:not(.show-chat) .cb-msg-pane { display: none !important; }
+4349|  body.messages-page .cb-msg-shell.show-chat .cb-msg-sidebar { display: none !important; }
+4350|}
+4351|.cb-msg-thread {
+4352|  width: 100%;
+4353|  border: 0;
+4354|  background: transparent;
+4355|  cursor: pointer;
+4356|  font: inherit;
+4357|  text-align: left;
+4358|}
+4359|.cb-msg-profile-link {
+4360|  color: var(--cb-accent);
+4361|  text-decoration: none;
+4362|  font-weight: 600;
+4363|}
+4364|.cb-msg-profile-link:hover { text-decoration: underline; }
+4365|.cb-msg-typing {
+4366|  display: inline-flex;
+4367|  align-items: center;
+4368|  gap: 4px;
+4369|  min-width: 46px;
+4370|  padding-top: 12px;
+4371|  padding-bottom: 12px;
+4372|}
+4373|.cb-msg-typing span {
+4374|  width: 7px;
+4375|  height: 7px;
+4376|  border-radius: 50%;
+4377|  background: var(--cb-muted);
+4378|  opacity: 0.35;
+4379|  animation: cb-msg-dot 1s infinite ease-in-out;
+4380|}
+4381|.cb-msg-typing span:nth-child(2) { animation-delay: 0.15s; }
+4382|.cb-msg-typing span:nth-child(3) { animation-delay: 0.3s; }
+---
+@4348
+4346|    width: calc(100% - 16px);
+4347|  }
+4348|  body.messages-page .cb-msg-shell:not(.show-chat) .cb-msg-pane { display: none !important; }
+4349|  body.messages-page .cb-msg-shell.show-chat .cb-msg-sidebar { display: none !important; }
+4350|}
+4351|.cb-msg-thread {
+4352|  width: 100%;
+4353|  border: 0;
+4354|  background: transparent;
+4355|  cursor: pointer;
+4356|  font: inherit;
+4357|  text-align: left;
+4358|}
+4359|.cb-msg-profile-link {
+4360|  color: var(--cb-accent);
+4361|  text-decoration: none;
+4362|  font-weight: 600;
+4363|}
+4364|.cb-msg-profile-link:hover { text-decoration: underline; }
+4365|.cb-msg-typing {
+4366|  display: inline-flex;
+4367|  align-items: center;
+4368|  gap: 4px;
+4369|  min-width: 46px;
+4370|  padding-top: 12px;
+4371|  padding-bottom: 12px;
+4372|}
+4373|.cb-msg-typing span {
+4374|  width: 7px;
+4375|  height: 7px;
+4376|  border-radius: 50%;
+4377|  background: var(--cb-muted);
+4378|  opacity: 0.35;
+4379|  animation: cb-msg-dot 1s infinite ease-in-out;
+4380|}
+4381|.cb-msg-typing span:nth-child(2) { animation-delay: 0.15s; }
+4382|.cb-msg-typing span:nth-child(3) { animation-delay: 0.3s; }
+4383|@keyframes cb-msg-dot {
+4384|  0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+4385|  40% { opacity: 1; transform: translateY(-3px); }
+4386|}
+4387|.cb-msg-row-inner {
+
+
+=== js/posts.js ===
+@68
+66|    return (posts || []).filter(function (p) {
+67|      if (blocked.indexOf(String(p.userId || "")) !== -1) return false;
+68|      if (p && p._repost && blocked.indexOf(String(p._repost.userId || "")) !== -1) return false;
+69|      return true;
+70|    });
+71|  }
+72|
+73|
+74|  function escapeHtml(s) {
+75|    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+76|      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+77|    });
+78|  }
+79|
+80|  function timeAgo(date) {
+81|    if (date == null || date === "") return "";
+82|    var ms = typeof date === "number" ? date : Date.parse(date);
+83|    if (isNaN(ms)) return "";
+84|    var s = Math.floor((Date.now() - ms) / 1000);
+85|    var i = s / 31536000; if (i > 1) return Math.floor(i) + "y";
+86|    i = s / 2592000; if (i > 1) return Math.floor(i) + "mo";
+87|    i = s / 86400; if (i > 1) return Math.floor(i) + "d";
+88|    i = s / 3600; if (i > 1) return Math.floor(i) + "h";
+89|    i = s / 60; if (i > 1) return Math.floor(i) + "m";
+90|    return "now";
+91|  }
+92|
+93|  function getPfp(id) {
+94|    var key = String(id == null ? "" : id);
+95|    var fromUser = "";
+96|    var fromProf = "";
+97|    try {
+98|      var u = JSON.parse(localStorage.getItem("user_" + key) || "{}");
+99|      if (u && u.profilePicture) fromUser = u.profilePicture;
+100|    } catch (e) {}
+101|    try {
+102|      var p = JSON.parse(localStorage.getItem("profile_" + key) || "null");
+103|      if (p && p.avatar) fromProf = p.avatar;
+104|    } catch (e) {}
+105|    // Use id string as AVATARS key (roster is "2".."23"; do not n-1 remap).
+106|    return localStorage.getItem("pfp_" + key) || fromProf || fromUser ||
+107|      (global.CB_DEMO_AVATARS && global.CB_DEMO_AVATARS[key]) ||
+108|      DEMO_AVATARS[key] ||
+109|      "/users/default/pfp.jpg";
+110|  }
+111|
+112|  function profileUrl(userId) {
+113|    var id = String(userId == null ? "" : userId).trim();
+114|    // Only fall back to session for explicit self aliases — never remap a real id.
+115|    if (id === "me" || id === "self") id = sessionUserId() || "";
+116|    if (!id || id === "guest") return "/login.html";
+117|    return "/users/" + encodeURIComponent(id);
+---
+@273
+271|
+272|
+273|  var REPOSTS_PREFIX = "reposts_";
+274|  var _missingRepostToastOnce = false;
+275|
+276|  function loadUserSummary(userId) {
+277|    var id = String(userId || "");
+278|    // Canonical demo roster is already "1".."22". Only lift true legacy id "0".
+279|    if (/^\d+$/.test(id)) {
+280|      var n = parseInt(id, 10);
+281|      var base = (global.CB_DEMO_ID_BASE != null) ? Number(global.CB_DEMO_ID_BASE) : 2;
+282|      if (n >= 0 && n < base) id = String(base + n);
+283|    }
+284|    var u = {};
+285|    var p = {};
+286|    try { u = JSON.parse(localStorage.getItem("user_" + id) || "{}"); } catch (e) {}
+287|    try { p = JSON.parse(localStorage.getItem("profile_" + id) || "null") || {}; } catch (e) {}
+288|    // Stable roster names (SnackBandit=18, BarkBroker=23; DEMO_ID_BASE=2).
+289|    var seedNames = {
+290|      "2": "Cardbrador", "3": "BeeSid", "4": "Miguel", "5": "GyattToad",
+291|      "6": "AnthonySpade", "7": "Barcat", "8": "EvilRobot", "9": "AbovegroundBro",
+292|      "10": "NerdDog", "11": "OrangeTabby", "12": "EvilKid23", "13": "NoFilterBro",
+293|      "14": "CoolDog", "15": "ANIMEGIRL", "16": "PantsWetterLabrador", "17": "RhombusRex",
+294|      "18": "SnackBandit", "19": "BarTabby", "20": "PuddlePirate", "21": "TreatTaxer",
+295|      "22": "SofaThief", "23": "BarkBroker"
+296|    };
+297|    var displayName = (p && p.displayName) || u.displayName || u.username || seedNames[id] || (id ? ("Labrador " + id) : "Labrador");
+298|    var handle = (p && p.handle) || u.handle || u.username || String(displayName).toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 24) || (id ? ("lab" + id) : "lab");
+299|    handle = String(handle).replace(/^@/, "");
+300|    return {
+301|      id: id,
+302|      displayName: displayName,
+303|      handle: handle,
+304|      bio: (p && p.bio) || u.bio || "A Labrador on Coolbrador.",
+305|      avatar: getPfp(id),
+306|      posts: (function () {
+307|        var n = 0;
+308|        for (var i = 0; i < localStorage.length; i++) {
+309|          var key = localStorage.key(i);
+310|          if (!key || key.indexOf("posts_") !== 0) continue;
+311|          try {
+312|            var list = JSON.parse(localStorage.getItem(key) || "[]");
+313|            list.forEach(function (p2) { if (String(p2.userId) === id) n += 1; });
+314|          } catch (e) {}
+315|        }
+316|        return n;
+317|      })()
+318|    };
+319|  }
+320|
+321|  function loadBoardSummary(board) {
+322|    var clean = cleanBoardName(board);
+---
+@274
+272|
+273|  var REPOSTS_PREFIX = "reposts_";
+274|  var _missingRepostToastOnce = false;
+275|
+276|  function loadUserSummary(userId) {
+277|    var id = String(userId || "");
+278|    // Canonical demo roster is already "1".."22". Only lift true legacy id "0".
+279|    if (/^\d+$/.test(id)) {
+280|      var n = parseInt(id, 10);
+281|      var base = (global.CB_DEMO_ID_BASE != null) ? Number(global.CB_DEMO_ID_BASE) : 2;
+282|      if (n >= 0 && n < base) id = String(base + n);
+283|    }
+284|    var u = {};
+285|    var p = {};
+286|    try { u = JSON.parse(localStorage.getItem("user_" + id) || "{}"); } catch (e) {}
+287|    try { p = JSON.parse(localStorage.getItem("profile_" + id) || "null") || {}; } catch (e) {}
+288|    // Stable roster names (SnackBandit=18, BarkBroker=23; DEMO_ID_BASE=2).
+289|    var seedNames = {
+290|      "2": "Cardbrador", "3": "BeeSid", "4": "Miguel", "5": "GyattToad",
+291|      "6": "AnthonySpade", "7": "Barcat", "8": "EvilRobot", "9": "AbovegroundBro",
+292|      "10": "NerdDog", "11": "OrangeTabby", "12": "EvilKid23", "13": "NoFilterBro",
+293|      "14": "CoolDog", "15": "ANIMEGIRL", "16": "PantsWetterLabrador", "17": "RhombusRex",
+294|      "18": "SnackBandit", "19": "BarTabby", "20": "PuddlePirate", "21": "TreatTaxer",
+295|      "22": "SofaThief", "23": "BarkBroker"
+296|    };
+297|    var displayName = (p && p.displayName) || u.displayName || u.username || seedNames[id] || (id ? ("Labrador " + id) : "Labrador");
+298|    var handle = (p && p.handle) || u.handle || u.username || String(displayName).toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 24) || (id ? ("lab" + id) : "lab");
+299|    handle = String(handle).replace(/^@/, "");
+300|    return {
+301|      id: id,
+302|      displayName: displayName,
+303|      handle: handle,
+304|      bio: (p && p.bio) || u.bio || "A Labrador on Coolbrador.",
+305|      avatar: getPfp(id),
+306|      posts: (function () {
+307|        var n = 0;
+308|        for (var i = 0; i < localStorage.length; i++) {
+309|          var key = localStorage.key(i);
+310|          if (!key || key.indexOf("posts_") !== 0) continue;
+311|          try {
+312|            var list = JSON.parse(localStorage.getItem(key) || "[]");
+313|            list.forEach(function (p2) { if (String(p2.userId) === id) n += 1; });
+314|          } catch (e) {}
+315|        }
+316|        return n;
+317|      })()
+318|    };
+319|  }
+320|
+321|  function loadBoardSummary(board) {
+322|    var clean = cleanBoardName(board);
+323|    var meta = {};
+---
+@531
+529|  }
+530|
+531|  function getReposts(userId) {
+532|    var id = String(userId || sessionUserId() || "");
+533|    if (!id) return [];
+534|    try {
+535|      var raw = JSON.parse(localStorage.getItem(REPOSTS_PREFIX + id) || "[]");
+536|      return Array.isArray(raw) ? raw : [];
+537|    } catch (e) { return []; }
+538|  }
+539|
+540|  
+541|  function userHasReposted(post, userId) {
+542|    try {
+543|      userId = String(userId || "");
+544|      if (!userId || !post) return false;
+545|      var pid = String(post.id || post.postId || "");
+546|      var list = loadReposts(userId) || [];
+547|      return list.some(function (r) {
+548|        return String(r.originalPostId || r.postId || r.id || "") === pid;
+549|      });
+550|    } catch (_) { return false; }
+551|  }
+552|  function sessionUserIdSafe() {
+553|    try {
+554|      if (window.CoolbradorSession && window.CoolbradorSession.getSessionUserId) return String(window.CoolbradorSession.getSessionUserId() || "");
+555|    } catch (_) {}
+556|    try { return String(localStorage.getItem("currentUserId") || ""); } catch (_) { return ""; }
+557|  }
+558|
+559|function saveReposts(userId, list) {
+560|    localStorage.setItem(REPOSTS_PREFIX + String(userId), JSON.stringify(list || []));
+561|  }
+562|
+563|  function idsEqual(a, b) {
+564|    if (a == null || b == null) return false;
+565|    var sa = String(a).trim();
+566|    var sb = String(b).trim();
+567|    if (!sa || !sb) return false;
+568|    if (sa === sb) return true;
+569|    var na = Number(sa);
+570|    var nb = Number(sb);
+571|    return isFinite(na) && isFinite(nb) && na === nb;
+572|  }
+573|
+574|  function recordMatchesId(rec, postId) {
+575|    if (!rec) return false;
+576|    return idsEqual(rec.id, postId) || idsEqual(rec.postId, postId);
+577|  }
+578|
+579|  function listBoardStorageKeys(board) {
+580|    var clean = cleanBoardName(board);
+---
+@535
+533|    if (!id) return [];
+534|    try {
+535|      var raw = JSON.parse(localStorage.getItem(REPOSTS_PREFIX + id) || "[]");
+536|      return Array.isArray(raw) ? raw : [];
+537|    } catch (e) { return []; }
+538|  }
+539|
+540|  
+541|  function userHasReposted(post, userId) {
+542|    try {
+543|      userId = String(userId || "");
+544|      if (!userId || !post) return false;
+545|      var pid = String(post.id || post.postId || "");
+546|      var list = loadReposts(userId) || [];
+547|      return list.some(function (r) {
+548|        return String(r.originalPostId || r.postId || r.id || "") === pid;
+549|      });
+550|    } catch (_) { return false; }
+551|  }
+552|  function sessionUserIdSafe() {
+553|    try {
+554|      if (window.CoolbradorSession && window.CoolbradorSession.getSessionUserId) return String(window.CoolbradorSession.getSessionUserId() || "");
+555|    } catch (_) {}
+556|    try { return String(localStorage.getItem("currentUserId") || ""); } catch (_) { return ""; }
+557|  }
+558|
+559|function saveReposts(userId, list) {
+560|    localStorage.setItem(REPOSTS_PREFIX + String(userId), JSON.stringify(list || []));
+561|  }
+562|
+563|  function idsEqual(a, b) {
+564|    if (a == null || b == null) return false;
+565|    var sa = String(a).trim();
+566|    var sb = String(b).trim();
+567|    if (!sa || !sb) return false;
+568|    if (sa === sb) return true;
+569|    var na = Number(sa);
+570|    var nb = Number(sb);
+571|    return isFinite(na) && isFinite(nb) && na === nb;
+572|  }
+573|
+574|  function recordMatchesId(rec, postId) {
+575|    if (!rec) return false;
+576|    return idsEqual(rec.id, postId) || idsEqual(rec.postId, postId);
+577|  }
+578|
+579|  function listBoardStorageKeys(board) {
+580|    var clean = cleanBoardName(board);
+581|    var seen = {};
+582|    var out = [];
+583|    function add(k) {
+584|      if (!k || seen[k]) return;
+---
+@541
+539|
+540|  
+541|  function userHasReposted(post, userId) {
+542|    try {
+543|      userId = String(userId || "");
+544|      if (!userId || !post) return false;
+545|      var pid = String(post.id || post.postId || "");
+546|      var list = loadReposts(userId) || [];
+547|      return list.some(function (r) {
+548|        return String(r.originalPostId || r.postId || r.id || "") === pid;
+549|      });
+550|    } catch (_) { return false; }
+551|  }
+552|  function sessionUserIdSafe() {
+553|    try {
+554|      if (window.CoolbradorSession && window.CoolbradorSession.getSessionUserId) return String(window.CoolbradorSession.getSessionUserId() || "");
+555|    } catch (_) {}
+556|    try { return String(localStorage.getItem("currentUserId") || ""); } catch (_) { return ""; }
+557|  }
+558|
+559|function saveReposts(userId, list) {
+560|    localStorage.setItem(REPOSTS_PREFIX + String(userId), JSON.stringify(list || []));
+561|  }
+562|
+563|  function idsEqual(a, b) {
+564|    if (a == null || b == null) return false;
+565|    var sa = String(a).trim();
+566|    var sb = String(b).trim();
+567|    if (!sa || !sb) return false;
+568|    if (sa === sb) return true;
+569|    var na = Number(sa);
+570|    var nb = Number(sb);
+571|    return isFinite(na) && isFinite(nb) && na === nb;
+572|  }
+573|
+574|  function recordMatchesId(rec, postId) {
+575|    if (!rec) return false;
+576|    return idsEqual(rec.id, postId) || idsEqual(rec.postId, postId);
+577|  }
+578|
+579|  function listBoardStorageKeys(board) {
+580|    var clean = cleanBoardName(board);
+581|    var seen = {};
+582|    var out = [];
+583|    function add(k) {
+584|      if (!k || seen[k]) return;
+585|      seen[k] = true;
+586|      out.push(k);
+587|    }
+588|    if (clean) {
+589|      add(normalizeBoardKey(board));
+590|      add("posts_" + clean);
+---
+@546
+544|      if (!userId || !post) return false;
+545|      var pid = String(post.id || post.postId || "");
+546|      var list = loadReposts(userId) || [];
+547|      return list.some(function (r) {
+548|        return String(r.originalPostId || r.postId || r.id || "") === pid;
+549|      });
+550|    } catch (_) { return false; }
+551|  }
+552|  function sessionUserIdSafe() {
+553|    try {
+554|      if (window.CoolbradorSession && window.CoolbradorSession.getSessionUserId) return String(window.CoolbradorSession.getSessionUserId() || "");
+555|    } catch (_) {}
+556|    try { return String(localStorage.getItem("currentUserId") || ""); } catch (_) { return ""; }
+557|  }
+558|
+559|function saveReposts(userId, list) {
+560|    localStorage.setItem(REPOSTS_PREFIX + String(userId), JSON.stringify(list || []));
+561|  }
+562|
+563|  function idsEqual(a, b) {
+564|    if (a == null || b == null) return false;
+565|    var sa = String(a).trim();
+566|    var sb = String(b).trim();
+567|    if (!sa || !sb) return false;
+568|    if (sa === sb) return true;
+569|    var na = Number(sa);
+570|    var nb = Number(sb);
+571|    return isFinite(na) && isFinite(nb) && na === nb;
+572|  }
+573|
+574|  function recordMatchesId(rec, postId) {
+575|    if (!rec) return false;
+576|    return idsEqual(rec.id, postId) || idsEqual(rec.postId, postId);
+577|  }
+578|
+579|  function listBoardStorageKeys(board) {
+580|    var clean = cleanBoardName(board);
+581|    var seen = {};
+582|    var out = [];
+583|    function add(k) {
+584|      if (!k || seen[k]) return;
+585|      seen[k] = true;
+586|      out.push(k);
+587|    }
+588|    if (clean) {
+589|      add(normalizeBoardKey(board));
+590|      add("posts_" + clean);
+591|      add("posts_/b/" + clean);
+592|      add("posts_" + clean.toLowerCase());
+593|      add("posts_/b/" + clean.toLowerCase());
+594|    }
+595|    var cleanLower = String(clean || "").toLowerCase();
+---
+@559
+557|  }
+558|
+559|function saveReposts(userId, list) {
+560|    localStorage.setItem(REPOSTS_PREFIX + String(userId), JSON.stringify(list || []));
+561|  }
+562|
+563|  function idsEqual(a, b) {
+564|    if (a == null || b == null) return false;
+565|    var sa = String(a).trim();
+566|    var sb = String(b).trim();
+567|    if (!sa || !sb) return false;
+568|    if (sa === sb) return true;
+569|    var na = Number(sa);
+570|    var nb = Number(sb);
+571|    return isFinite(na) && isFinite(nb) && na === nb;
+572|  }
+573|
+574|  function recordMatchesId(rec, postId) {
+575|    if (!rec) return false;
+576|    return idsEqual(rec.id, postId) || idsEqual(rec.postId, postId);
+577|  }
+578|
+579|  function listBoardStorageKeys(board) {
+580|    var clean = cleanBoardName(board);
+581|    var seen = {};
+582|    var out = [];
+583|    function add(k) {
+584|      if (!k || seen[k]) return;
+585|      seen[k] = true;
+586|      out.push(k);
+587|    }
+588|    if (clean) {
+589|      add(normalizeBoardKey(board));
+590|      add("posts_" + clean);
+591|      add("posts_/b/" + clean);
+592|      add("posts_" + clean.toLowerCase());
+593|      add("posts_/b/" + clean.toLowerCase());
+594|    }
+595|    var cleanLower = String(clean || "").toLowerCase();
+596|    for (var i = 0; i < localStorage.length; i++) {
+597|      var k = localStorage.key(i);
+598|      if (!k || k.indexOf("posts_") !== 0) continue;
+599|      if (!cleanLower || cleanBoardName(k).toLowerCase() === cleanLower) add(k);
+600|    }
+601|    return out;
+602|  }
+603|
+604|  function searchPostsKey(key, postId, boardHint) {
+605|    if (!key) return null;
+606|    var list = [];
+607|    try { list = JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { return null; }
+608|    if (!Array.isArray(list)) return null;
+
+
+=== js/board-tabs.js ===
+@1
+1|(function () {
+2|  "use strict";
+3|
+4|  function boardFromPath() {
+5|    var parts = (location.pathname || "").split("/").filter(Boolean);
+6|    if (parts[0] === "b" && parts[1]) return decodeURIComponent(parts[1]);
+7|    return "";
+8|  }
+9|
+10|  function labelize(id) {
+11|    return String(id || "").replace(/[-_]/g, " ");
+12|  }
+13|
+14|  function seedMods(board) {
+15|    var key = "cb_board_mods_v1_" + board;
+16|    try {
+17|      var existing = JSON.parse(localStorage.getItem(key) || "null");
+18|      if (Array.isArray(existing) && existing.length) return existing;
+19|    } catch (_) {}
+20|    var demo = [
+21|      { id: "3", name: "BeeSid", handle: "beesid", favor: 72 },
+22|      { id: "4", name: "Miguel", handle: "miguel", favor: 61 },
+23|      { id: "6", name: "AnthonySpade", handle: "anthonyspade", favor: 54 }
+24|    ];
+25|    if (String(board).toLowerCase() === "beesid") {
+26|      demo = [
+27|        { id: "3", name: "BeeSid", handle: "beesid", favor: 88 },
+28|        { id: "12", name: "CoolDog", handle: "cooldog", favor: 57 },
+29|        { id: "5", name: "GyattToad", handle: "gyatttoad", favor: 41 }
+30|      ];
+31|    }
+32|    try { localStorage.setItem(key, JSON.stringify(demo)); } catch (_) {}
+33|    return demo;
+34|  }
+35|
+36|  function pfpFor(id) {
+37|    try {
+38|      if (window.CoolbradorPosts && CoolbradorPosts.getPfp) return CoolbradorPosts.getPfp(id);
+39|    } catch (_) {}
+40|    try { return localStorage.getItem("pfp_" + id) || "/users/default/pfp.jpg"; } catch (_) {
+41|      return "/users/default/pfp.jpg";
+42|    }
+43|  }
+44|
+45|  function favorChart(pct) {
+46|    pct = Math.max(0, Math.min(100, Number(pct) || 0));
+47|    var w = 160, h = 44;
+48|    var y = h - 6 - (pct / 100) * (h - 12);
+49|    return (
+50|      '<svg class="cb-mod-favor-chart" viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" aria-label="Favor ' + pct + '%">' +
+51|        '<polyline fill="none" stroke="var(--cb-accent)" stroke-width="2" points="0,' + (h - 6) + " " + (w * 0.35) + "," + (h - 6 - pct * 0.15) + " " + (w * 0.7) + "," + (h - 6 - pct * 0.4) + " " + w + "," + y + '"></polyline>' +
+52|        '<circle cx="' + w + '" cy="' + y + '" r="3.5" fill="var(--cb-accent)"></circle>' +
+53|      "</svg>"
+54|    );
+55|  }
+56|
+57|  function renderMods(board) {
+58|    var host = document.getElementById("boardMods");
+59|    if (!host) return;
+60|    var mods = seedMods(board);
+61|    host.innerHTML = mods.map(function (m) {
+62|      return (
+63|        '<article class="cb-mod-card">' +
+64|          '<a class="cb-mod-avatar" href="/users/' + encodeURIComponent(m.id) + '"><img src="' + pfpFor(m.id) + '" alt=""></a>' +
+65|          '<div class="cb-mod-meta">' +
+66|            '<a href="/users/' + encodeURIComponent(m.id) + '"><strong>' + (m.name || "Lab") + "</strong></a>" +
+67|            '<div class="cb-muted">@' + (m.handle || "lab") + "</div>" +
+68|            '<div class="cb-mod-favor-label">Favor ' + m.favor + "%</div>" +
+69|            favorChart(m.favor) +
+70|            '<button type="button" class="cb-mod-replace-btn" data-mod-id="' + m.id + '">Vote to replace</button>' +
+71|          "</div>" +
+72|        "</article>"
+73|      );
+74|    }).join("") || '<p class="cb-muted">No moderators yet.</p>';
+75|  }
+76|
+77|  function renderDebates(board) {
+78|    var host = document.getElementById("boardDebates");
+79|    if (!host) return;
+80|    var polls = {};
+81|    try { polls = JSON.parse(localStorage.getItem("coolbrador_polls_v1") || "{}"); } catch (_) { polls = {}; }
+82|    var flat = [];
+83|    ["issues", "mutinies", "ideas"].forEach(function (t) {
+84|      (polls[t] || []).forEach(function (p) {
+85|        var b = String((p && (p.board || p.community || "")) || "").toLowerCase();
+86|        if (!b || b === String(board).toLowerCase() || b === "general") {
+87|          flat.push({ title: (p && p.title) || "Untitled debate", type: t });
+88|        }
+89|      });
+90|    });
+91|    if (!flat.length) {
+92|      flat = [
+93|        { title: "What should " + labelize(board) + " focus on next?", type: "ideas" },
+94|        { title: "Best flair for " + labelize(board) + "?", type: "issues" }
+95|      ];
+96|    }
+97|    host.innerHTML = flat.slice(0, 8).map(function (d) {
+98|      return '<a class="cb-board-debate-link" href="/polls.html">' + d.title + "<span>" + d.type + "</span></a>";
+99|    }).join("");
+100|  }
+101|
+102|  function activate(tab) {
+103|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+104|      var on = btn.getAttribute("data-board-tab") === tab;
+105|      btn.classList.toggle("is-active", on);
+106|      btn.setAttribute("aria-selected", on ? "true" : "false");
+107|    });
+108|    document.querySelectorAll(".cb-board-panel").forEach(function (panel) {
+109|      var on = panel.getAttribute("data-board-panel") === tab;
+110|      panel.classList.toggle("is-active", on);
+111|      panel.hidden = !on;
+112|    });
+113|  }
+114|
+115|  function boot() {
+116|    var board = boardFromPath();
+117|    if (!board) return;
+118|    try {
+119|      document.body.dataset.cbBoard = board;
+120|      window.__cbCurrentBoard = board;
+121|    } catch (_) {}
+122|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+123|      btn.addEventListener("click", function () {
+124|        activate(btn.getAttribute("data-board-tab"));
+125|      });
+126|    });
+127|    renderDebates(board);
+128|    renderMods(board);
+129|    if (location.hash === "#debates") activate("debates");
+130|    if (location.hash === "#mods") activate("mods");
+131|  }
+132|
+133|  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+134|  else boot();
+135|})();
+---
+@2
+1|(function () {
+2|  "use strict";
+3|
+4|  function boardFromPath() {
+5|    var parts = (location.pathname || "").split("/").filter(Boolean);
+6|    if (parts[0] === "b" && parts[1]) return decodeURIComponent(parts[1]);
+7|    return "";
+8|  }
+9|
+10|  function labelize(id) {
+11|    return String(id || "").replace(/[-_]/g, " ");
+12|  }
+13|
+14|  function seedMods(board) {
+15|    var key = "cb_board_mods_v1_" + board;
+16|    try {
+17|      var existing = JSON.parse(localStorage.getItem(key) || "null");
+18|      if (Array.isArray(existing) && existing.length) return existing;
+19|    } catch (_) {}
+20|    var demo = [
+21|      { id: "3", name: "BeeSid", handle: "beesid", favor: 72 },
+22|      { id: "4", name: "Miguel", handle: "miguel", favor: 61 },
+23|      { id: "6", name: "AnthonySpade", handle: "anthonyspade", favor: 54 }
+24|    ];
+25|    if (String(board).toLowerCase() === "beesid") {
+26|      demo = [
+27|        { id: "3", name: "BeeSid", handle: "beesid", favor: 88 },
+28|        { id: "12", name: "CoolDog", handle: "cooldog", favor: 57 },
+29|        { id: "5", name: "GyattToad", handle: "gyatttoad", favor: 41 }
+30|      ];
+31|    }
+32|    try { localStorage.setItem(key, JSON.stringify(demo)); } catch (_) {}
+33|    return demo;
+34|  }
+35|
+36|  function pfpFor(id) {
+37|    try {
+38|      if (window.CoolbradorPosts && CoolbradorPosts.getPfp) return CoolbradorPosts.getPfp(id);
+39|    } catch (_) {}
+40|    try { return localStorage.getItem("pfp_" + id) || "/users/default/pfp.jpg"; } catch (_) {
+41|      return "/users/default/pfp.jpg";
+42|    }
+43|  }
+44|
+45|  function favorChart(pct) {
+46|    pct = Math.max(0, Math.min(100, Number(pct) || 0));
+47|    var w = 160, h = 44;
+48|    var y = h - 6 - (pct / 100) * (h - 12);
+49|    return (
+50|      '<svg class="cb-mod-favor-chart" viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" aria-label="Favor ' + pct + '%">' +
+51|        '<polyline fill="none" stroke="var(--cb-accent)" stroke-width="2" points="0,' + (h - 6) + " " + (w * 0.35) + "," + (h - 6 - pct * 0.15) + " " + (w * 0.7) + "," + (h - 6 - pct * 0.4) + " " + w + "," + y + '"></polyline>' +
+52|        '<circle cx="' + w + '" cy="' + y + '" r="3.5" fill="var(--cb-accent)"></circle>' +
+53|      "</svg>"
+54|    );
+55|  }
+56|
+57|  function renderMods(board) {
+58|    var host = document.getElementById("boardMods");
+59|    if (!host) return;
+60|    var mods = seedMods(board);
+61|    host.innerHTML = mods.map(function (m) {
+62|      return (
+63|        '<article class="cb-mod-card">' +
+64|          '<a class="cb-mod-avatar" href="/users/' + encodeURIComponent(m.id) + '"><img src="' + pfpFor(m.id) + '" alt=""></a>' +
+65|          '<div class="cb-mod-meta">' +
+66|            '<a href="/users/' + encodeURIComponent(m.id) + '"><strong>' + (m.name || "Lab") + "</strong></a>" +
+67|            '<div class="cb-muted">@' + (m.handle || "lab") + "</div>" +
+68|            '<div class="cb-mod-favor-label">Favor ' + m.favor + "%</div>" +
+69|            favorChart(m.favor) +
+70|            '<button type="button" class="cb-mod-replace-btn" data-mod-id="' + m.id + '">Vote to replace</button>' +
+71|          "</div>" +
+72|        "</article>"
+73|      );
+74|    }).join("") || '<p class="cb-muted">No moderators yet.</p>';
+75|  }
+76|
+77|  function renderDebates(board) {
+78|    var host = document.getElementById("boardDebates");
+79|    if (!host) return;
+80|    var polls = {};
+81|    try { polls = JSON.parse(localStorage.getItem("coolbrador_polls_v1") || "{}"); } catch (_) { polls = {}; }
+82|    var flat = [];
+83|    ["issues", "mutinies", "ideas"].forEach(function (t) {
+84|      (polls[t] || []).forEach(function (p) {
+85|        var b = String((p && (p.board || p.community || "")) || "").toLowerCase();
+86|        if (!b || b === String(board).toLowerCase() || b === "general") {
+87|          flat.push({ title: (p && p.title) || "Untitled debate", type: t });
+88|        }
+89|      });
+90|    });
+91|    if (!flat.length) {
+92|      flat = [
+93|        { title: "What should " + labelize(board) + " focus on next?", type: "ideas" },
+94|        { title: "Best flair for " + labelize(board) + "?", type: "issues" }
+95|      ];
+96|    }
+97|    host.innerHTML = flat.slice(0, 8).map(function (d) {
+98|      return '<a class="cb-board-debate-link" href="/polls.html">' + d.title + "<span>" + d.type + "</span></a>";
+99|    }).join("");
+100|  }
+101|
+102|  function activate(tab) {
+103|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+104|      var on = btn.getAttribute("data-board-tab") === tab;
+105|      btn.classList.toggle("is-active", on);
+106|      btn.setAttribute("aria-selected", on ? "true" : "false");
+107|    });
+108|    document.querySelectorAll(".cb-board-panel").forEach(function (panel) {
+109|      var on = panel.getAttribute("data-board-panel") === tab;
+110|      panel.classList.toggle("is-active", on);
+111|      panel.hidden = !on;
+112|    });
+113|  }
+114|
+115|  function boot() {
+116|    var board = boardFromPath();
+117|    if (!board) return;
+118|    try {
+119|      document.body.dataset.cbBoard = board;
+120|      window.__cbCurrentBoard = board;
+121|    } catch (_) {}
+122|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+123|      btn.addEventListener("click", function () {
+124|        activate(btn.getAttribute("data-board-tab"));
+125|      });
+126|    });
+127|    renderDebates(board);
+128|    renderMods(board);
+129|    if (location.hash === "#debates") activate("debates");
+130|    if (location.hash === "#mods") activate("mods");
+131|  }
+132|
+133|  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+134|  else boot();
+135|})();
+---
+@4
+2|  "use strict";
+3|
+4|  function boardFromPath() {
+5|    var parts = (location.pathname || "").split("/").filter(Boolean);
+6|    if (parts[0] === "b" && parts[1]) return decodeURIComponent(parts[1]);
+7|    return "";
+8|  }
+9|
+10|  function labelize(id) {
+11|    return String(id || "").replace(/[-_]/g, " ");
+12|  }
+13|
+14|  function seedMods(board) {
+15|    var key = "cb_board_mods_v1_" + board;
+16|    try {
+17|      var existing = JSON.parse(localStorage.getItem(key) || "null");
+18|      if (Array.isArray(existing) && existing.length) return existing;
+19|    } catch (_) {}
+20|    var demo = [
+21|      { id: "3", name: "BeeSid", handle: "beesid", favor: 72 },
+22|      { id: "4", name: "Miguel", handle: "miguel", favor: 61 },
+23|      { id: "6", name: "AnthonySpade", handle: "anthonyspade", favor: 54 }
+24|    ];
+25|    if (String(board).toLowerCase() === "beesid") {
+26|      demo = [
+27|        { id: "3", name: "BeeSid", handle: "beesid", favor: 88 },
+28|        { id: "12", name: "CoolDog", handle: "cooldog", favor: 57 },
+29|        { id: "5", name: "GyattToad", handle: "gyatttoad", favor: 41 }
+30|      ];
+31|    }
+32|    try { localStorage.setItem(key, JSON.stringify(demo)); } catch (_) {}
+33|    return demo;
+34|  }
+35|
+36|  function pfpFor(id) {
+37|    try {
+38|      if (window.CoolbradorPosts && CoolbradorPosts.getPfp) return CoolbradorPosts.getPfp(id);
+39|    } catch (_) {}
+40|    try { return localStorage.getItem("pfp_" + id) || "/users/default/pfp.jpg"; } catch (_) {
+41|      return "/users/default/pfp.jpg";
+42|    }
+43|  }
+44|
+45|  function favorChart(pct) {
+46|    pct = Math.max(0, Math.min(100, Number(pct) || 0));
+47|    var w = 160, h = 44;
+48|    var y = h - 6 - (pct / 100) * (h - 12);
+49|    return (
+50|      '<svg class="cb-mod-favor-chart" viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" aria-label="Favor ' + pct + '%">' +
+51|        '<polyline fill="none" stroke="var(--cb-accent)" stroke-width="2" points="0,' + (h - 6) + " " + (w * 0.35) + "," + (h - 6 - pct * 0.15) + " " + (w * 0.7) + "," + (h - 6 - pct * 0.4) + " " + w + "," + y + '"></polyline>' +
+52|        '<circle cx="' + w + '" cy="' + y + '" r="3.5" fill="var(--cb-accent)"></circle>' +
+53|      "</svg>"
+54|    );
+55|  }
+56|
+57|  function renderMods(board) {
+58|    var host = document.getElementById("boardMods");
+59|    if (!host) return;
+60|    var mods = seedMods(board);
+61|    host.innerHTML = mods.map(function (m) {
+62|      return (
+63|        '<article class="cb-mod-card">' +
+64|          '<a class="cb-mod-avatar" href="/users/' + encodeURIComponent(m.id) + '"><img src="' + pfpFor(m.id) + '" alt=""></a>' +
+65|          '<div class="cb-mod-meta">' +
+66|            '<a href="/users/' + encodeURIComponent(m.id) + '"><strong>' + (m.name || "Lab") + "</strong></a>" +
+67|            '<div class="cb-muted">@' + (m.handle || "lab") + "</div>" +
+68|            '<div class="cb-mod-favor-label">Favor ' + m.favor + "%</div>" +
+69|            favorChart(m.favor) +
+70|            '<button type="button" class="cb-mod-replace-btn" data-mod-id="' + m.id + '">Vote to replace</button>' +
+71|          "</div>" +
+72|        "</article>"
+73|      );
+74|    }).join("") || '<p class="cb-muted">No moderators yet.</p>';
+75|  }
+76|
+77|  function renderDebates(board) {
+78|    var host = document.getElementById("boardDebates");
+79|    if (!host) return;
+80|    var polls = {};
+81|    try { polls = JSON.parse(localStorage.getItem("coolbrador_polls_v1") || "{}"); } catch (_) { polls = {}; }
+82|    var flat = [];
+83|    ["issues", "mutinies", "ideas"].forEach(function (t) {
+84|      (polls[t] || []).forEach(function (p) {
+85|        var b = String((p && (p.board || p.community || "")) || "").toLowerCase();
+86|        if (!b || b === String(board).toLowerCase() || b === "general") {
+87|          flat.push({ title: (p && p.title) || "Untitled debate", type: t });
+88|        }
+89|      });
+90|    });
+91|    if (!flat.length) {
+92|      flat = [
+93|        { title: "What should " + labelize(board) + " focus on next?", type: "ideas" },
+94|        { title: "Best flair for " + labelize(board) + "?", type: "issues" }
+95|      ];
+96|    }
+97|    host.innerHTML = flat.slice(0, 8).map(function (d) {
+98|      return '<a class="cb-board-debate-link" href="/polls.html">' + d.title + "<span>" + d.type + "</span></a>";
+99|    }).join("");
+100|  }
+101|
+102|  function activate(tab) {
+103|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+104|      var on = btn.getAttribute("data-board-tab") === tab;
+105|      btn.classList.toggle("is-active", on);
+106|      btn.setAttribute("aria-selected", on ? "true" : "false");
+107|    });
+108|    document.querySelectorAll(".cb-board-panel").forEach(function (panel) {
+109|      var on = panel.getAttribute("data-board-panel") === tab;
+110|      panel.classList.toggle("is-active", on);
+111|      panel.hidden = !on;
+112|    });
+113|  }
+114|
+115|  function boot() {
+116|    var board = boardFromPath();
+117|    if (!board) return;
+118|    try {
+119|      document.body.dataset.cbBoard = board;
+120|      window.__cbCurrentBoard = board;
+121|    } catch (_) {}
+122|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+123|      btn.addEventListener("click", function () {
+124|        activate(btn.getAttribute("data-board-tab"));
+125|      });
+126|    });
+127|    renderDebates(board);
+128|    renderMods(board);
+129|    if (location.hash === "#debates") activate("debates");
+130|    if (location.hash === "#mods") activate("mods");
+131|  }
+132|
+133|  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+134|  else boot();
+135|})();
+---
+@5
+3|
+4|  function boardFromPath() {
+5|    var parts = (location.pathname || "").split("/").filter(Boolean);
+6|    if (parts[0] === "b" && parts[1]) return decodeURIComponent(parts[1]);
+7|    return "";
+8|  }
+9|
+10|  function labelize(id) {
+11|    return String(id || "").replace(/[-_]/g, " ");
+12|  }
+13|
+14|  function seedMods(board) {
+15|    var key = "cb_board_mods_v1_" + board;
+16|    try {
+17|      var existing = JSON.parse(localStorage.getItem(key) || "null");
+18|      if (Array.isArray(existing) && existing.length) return existing;
+19|    } catch (_) {}
+20|    var demo = [
+21|      { id: "3", name: "BeeSid", handle: "beesid", favor: 72 },
+22|      { id: "4", name: "Miguel", handle: "miguel", favor: 61 },
+23|      { id: "6", name: "AnthonySpade", handle: "anthonyspade", favor: 54 }
+24|    ];
+25|    if (String(board).toLowerCase() === "beesid") {
+26|      demo = [
+27|        { id: "3", name: "BeeSid", handle: "beesid", favor: 88 },
+28|        { id: "12", name: "CoolDog", handle: "cooldog", favor: 57 },
+29|        { id: "5", name: "GyattToad", handle: "gyatttoad", favor: 41 }
+30|      ];
+31|    }
+32|    try { localStorage.setItem(key, JSON.stringify(demo)); } catch (_) {}
+33|    return demo;
+34|  }
+35|
+36|  function pfpFor(id) {
+37|    try {
+38|      if (window.CoolbradorPosts && CoolbradorPosts.getPfp) return CoolbradorPosts.getPfp(id);
+39|    } catch (_) {}
+40|    try { return localStorage.getItem("pfp_" + id) || "/users/default/pfp.jpg"; } catch (_) {
+41|      return "/users/default/pfp.jpg";
+42|    }
+43|  }
+44|
+45|  function favorChart(pct) {
+46|    pct = Math.max(0, Math.min(100, Number(pct) || 0));
+47|    var w = 160, h = 44;
+48|    var y = h - 6 - (pct / 100) * (h - 12);
+49|    return (
+50|      '<svg class="cb-mod-favor-chart" viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" aria-label="Favor ' + pct + '%">' +
+51|        '<polyline fill="none" stroke="var(--cb-accent)" stroke-width="2" points="0,' + (h - 6) + " " + (w * 0.35) + "," + (h - 6 - pct * 0.15) + " " + (w * 0.7) + "," + (h - 6 - pct * 0.4) + " " + w + "," + y + '"></polyline>' +
+52|        '<circle cx="' + w + '" cy="' + y + '" r="3.5" fill="var(--cb-accent)"></circle>' +
+53|      "</svg>"
+54|    );
+55|  }
+56|
+57|  function renderMods(board) {
+58|    var host = document.getElementById("boardMods");
+59|    if (!host) return;
+60|    var mods = seedMods(board);
+61|    host.innerHTML = mods.map(function (m) {
+62|      return (
+63|        '<article class="cb-mod-card">' +
+64|          '<a class="cb-mod-avatar" href="/users/' + encodeURIComponent(m.id) + '"><img src="' + pfpFor(m.id) + '" alt=""></a>' +
+65|          '<div class="cb-mod-meta">' +
+66|            '<a href="/users/' + encodeURIComponent(m.id) + '"><strong>' + (m.name || "Lab") + "</strong></a>" +
+67|            '<div class="cb-muted">@' + (m.handle || "lab") + "</div>" +
+68|            '<div class="cb-mod-favor-label">Favor ' + m.favor + "%</div>" +
+69|            favorChart(m.favor) +
+70|            '<button type="button" class="cb-mod-replace-btn" data-mod-id="' + m.id + '">Vote to replace</button>' +
+71|          "</div>" +
+72|        "</article>"
+73|      );
+74|    }).join("") || '<p class="cb-muted">No moderators yet.</p>';
+75|  }
+76|
+77|  function renderDebates(board) {
+78|    var host = document.getElementById("boardDebates");
+79|    if (!host) return;
+80|    var polls = {};
+81|    try { polls = JSON.parse(localStorage.getItem("coolbrador_polls_v1") || "{}"); } catch (_) { polls = {}; }
+82|    var flat = [];
+83|    ["issues", "mutinies", "ideas"].forEach(function (t) {
+84|      (polls[t] || []).forEach(function (p) {
+85|        var b = String((p && (p.board || p.community || "")) || "").toLowerCase();
+86|        if (!b || b === String(board).toLowerCase() || b === "general") {
+87|          flat.push({ title: (p && p.title) || "Untitled debate", type: t });
+88|        }
+89|      });
+90|    });
+91|    if (!flat.length) {
+92|      flat = [
+93|        { title: "What should " + labelize(board) + " focus on next?", type: "ideas" },
+94|        { title: "Best flair for " + labelize(board) + "?", type: "issues" }
+95|      ];
+96|    }
+97|    host.innerHTML = flat.slice(0, 8).map(function (d) {
+98|      return '<a class="cb-board-debate-link" href="/polls.html">' + d.title + "<span>" + d.type + "</span></a>";
+99|    }).join("");
+100|  }
+101|
+102|  function activate(tab) {
+103|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+104|      var on = btn.getAttribute("data-board-tab") === tab;
+105|      btn.classList.toggle("is-active", on);
+106|      btn.setAttribute("aria-selected", on ? "true" : "false");
+107|    });
+108|    document.querySelectorAll(".cb-board-panel").forEach(function (panel) {
+109|      var on = panel.getAttribute("data-board-panel") === tab;
+110|      panel.classList.toggle("is-active", on);
+111|      panel.hidden = !on;
+112|    });
+113|  }
+114|
+115|  function boot() {
+116|    var board = boardFromPath();
+117|    if (!board) return;
+118|    try {
+119|      document.body.dataset.cbBoard = board;
+120|      window.__cbCurrentBoard = board;
+121|    } catch (_) {}
+122|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+123|      btn.addEventListener("click", function () {
+124|        activate(btn.getAttribute("data-board-tab"));
+125|      });
+126|    });
+127|    renderDebates(board);
+128|    renderMods(board);
+129|    if (location.hash === "#debates") activate("debates");
+130|    if (location.hash === "#mods") activate("mods");
+131|  }
+132|
+133|  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+134|  else boot();
+135|})();
+---
+@6
+4|  function boardFromPath() {
+5|    var parts = (location.pathname || "").split("/").filter(Boolean);
+6|    if (parts[0] === "b" && parts[1]) return decodeURIComponent(parts[1]);
+7|    return "";
+8|  }
+9|
+10|  function labelize(id) {
+11|    return String(id || "").replace(/[-_]/g, " ");
+12|  }
+13|
+14|  function seedMods(board) {
+15|    var key = "cb_board_mods_v1_" + board;
+16|    try {
+17|      var existing = JSON.parse(localStorage.getItem(key) || "null");
+18|      if (Array.isArray(existing) && existing.length) return existing;
+19|    } catch (_) {}
+20|    var demo = [
+21|      { id: "3", name: "BeeSid", handle: "beesid", favor: 72 },
+22|      { id: "4", name: "Miguel", handle: "miguel", favor: 61 },
+23|      { id: "6", name: "AnthonySpade", handle: "anthonyspade", favor: 54 }
+24|    ];
+25|    if (String(board).toLowerCase() === "beesid") {
+26|      demo = [
+27|        { id: "3", name: "BeeSid", handle: "beesid", favor: 88 },
+28|        { id: "12", name: "CoolDog", handle: "cooldog", favor: 57 },
+29|        { id: "5", name: "GyattToad", handle: "gyatttoad", favor: 41 }
+30|      ];
+31|    }
+32|    try { localStorage.setItem(key, JSON.stringify(demo)); } catch (_) {}
+33|    return demo;
+34|  }
+35|
+36|  function pfpFor(id) {
+37|    try {
+38|      if (window.CoolbradorPosts && CoolbradorPosts.getPfp) return CoolbradorPosts.getPfp(id);
+39|    } catch (_) {}
+40|    try { return localStorage.getItem("pfp_" + id) || "/users/default/pfp.jpg"; } catch (_) {
+41|      return "/users/default/pfp.jpg";
+42|    }
+43|  }
+44|
+45|  function favorChart(pct) {
+46|    pct = Math.max(0, Math.min(100, Number(pct) || 0));
+47|    var w = 160, h = 44;
+48|    var y = h - 6 - (pct / 100) * (h - 12);
+49|    return (
+50|      '<svg class="cb-mod-favor-chart" viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" aria-label="Favor ' + pct + '%">' +
+51|        '<polyline fill="none" stroke="var(--cb-accent)" stroke-width="2" points="0,' + (h - 6) + " " + (w * 0.35) + "," + (h - 6 - pct * 0.15) + " " + (w * 0.7) + "," + (h - 6 - pct * 0.4) + " " + w + "," + y + '"></polyline>' +
+52|        '<circle cx="' + w + '" cy="' + y + '" r="3.5" fill="var(--cb-accent)"></circle>' +
+53|      "</svg>"
+54|    );
+55|  }
+56|
+57|  function renderMods(board) {
+58|    var host = document.getElementById("boardMods");
+59|    if (!host) return;
+60|    var mods = seedMods(board);
+61|    host.innerHTML = mods.map(function (m) {
+62|      return (
+63|        '<article class="cb-mod-card">' +
+64|          '<a class="cb-mod-avatar" href="/users/' + encodeURIComponent(m.id) + '"><img src="' + pfpFor(m.id) + '" alt=""></a>' +
+65|          '<div class="cb-mod-meta">' +
+66|            '<a href="/users/' + encodeURIComponent(m.id) + '"><strong>' + (m.name || "Lab") + "</strong></a>" +
+67|            '<div class="cb-muted">@' + (m.handle || "lab") + "</div>" +
+68|            '<div class="cb-mod-favor-label">Favor ' + m.favor + "%</div>" +
+69|            favorChart(m.favor) +
+70|            '<button type="button" class="cb-mod-replace-btn" data-mod-id="' + m.id + '">Vote to replace</button>' +
+71|          "</div>" +
+72|        "</article>"
+73|      );
+74|    }).join("") || '<p class="cb-muted">No moderators yet.</p>';
+75|  }
+76|
+77|  function renderDebates(board) {
+78|    var host = document.getElementById("boardDebates");
+79|    if (!host) return;
+80|    var polls = {};
+81|    try { polls = JSON.parse(localStorage.getItem("coolbrador_polls_v1") || "{}"); } catch (_) { polls = {}; }
+82|    var flat = [];
+83|    ["issues", "mutinies", "ideas"].forEach(function (t) {
+84|      (polls[t] || []).forEach(function (p) {
+85|        var b = String((p && (p.board || p.community || "")) || "").toLowerCase();
+86|        if (!b || b === String(board).toLowerCase() || b === "general") {
+87|          flat.push({ title: (p && p.title) || "Untitled debate", type: t });
+88|        }
+89|      });
+90|    });
+91|    if (!flat.length) {
+92|      flat = [
+93|        { title: "What should " + labelize(board) + " focus on next?", type: "ideas" },
+94|        { title: "Best flair for " + labelize(board) + "?", type: "issues" }
+95|      ];
+96|    }
+97|    host.innerHTML = flat.slice(0, 8).map(function (d) {
+98|      return '<a class="cb-board-debate-link" href="/polls.html">' + d.title + "<span>" + d.type + "</span></a>";
+99|    }).join("");
+100|  }
+101|
+102|  function activate(tab) {
+103|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+104|      var on = btn.getAttribute("data-board-tab") === tab;
+105|      btn.classList.toggle("is-active", on);
+106|      btn.setAttribute("aria-selected", on ? "true" : "false");
+107|    });
+108|    document.querySelectorAll(".cb-board-panel").forEach(function (panel) {
+109|      var on = panel.getAttribute("data-board-panel") === tab;
+110|      panel.classList.toggle("is-active", on);
+111|      panel.hidden = !on;
+112|    });
+113|  }
+114|
+115|  function boot() {
+116|    var board = boardFromPath();
+117|    if (!board) return;
+118|    try {
+119|      document.body.dataset.cbBoard = board;
+120|      window.__cbCurrentBoard = board;
+121|    } catch (_) {}
+122|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+123|      btn.addEventListener("click", function () {
+124|        activate(btn.getAttribute("data-board-tab"));
+125|      });
+126|    });
+127|    renderDebates(board);
+128|    renderMods(board);
+129|    if (location.hash === "#debates") activate("debates");
+130|    if (location.hash === "#mods") activate("mods");
+131|  }
+132|
+133|  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+134|  else boot();
+135|})();
+---
+@7
+5|    var parts = (location.pathname || "").split("/").filter(Boolean);
+6|    if (parts[0] === "b" && parts[1]) return decodeURIComponent(parts[1]);
+7|    return "";
+8|  }
+9|
+10|  function labelize(id) {
+11|    return String(id || "").replace(/[-_]/g, " ");
+12|  }
+13|
+14|  function seedMods(board) {
+15|    var key = "cb_board_mods_v1_" + board;
+16|    try {
+17|      var existing = JSON.parse(localStorage.getItem(key) || "null");
+18|      if (Array.isArray(existing) && existing.length) return existing;
+19|    } catch (_) {}
+20|    var demo = [
+21|      { id: "3", name: "BeeSid", handle: "beesid", favor: 72 },
+22|      { id: "4", name: "Miguel", handle: "miguel", favor: 61 },
+23|      { id: "6", name: "AnthonySpade", handle: "anthonyspade", favor: 54 }
+24|    ];
+25|    if (String(board).toLowerCase() === "beesid") {
+26|      demo = [
+27|        { id: "3", name: "BeeSid", handle: "beesid", favor: 88 },
+28|        { id: "12", name: "CoolDog", handle: "cooldog", favor: 57 },
+29|        { id: "5", name: "GyattToad", handle: "gyatttoad", favor: 41 }
+30|      ];
+31|    }
+32|    try { localStorage.setItem(key, JSON.stringify(demo)); } catch (_) {}
+33|    return demo;
+34|  }
+35|
+36|  function pfpFor(id) {
+37|    try {
+38|      if (window.CoolbradorPosts && CoolbradorPosts.getPfp) return CoolbradorPosts.getPfp(id);
+39|    } catch (_) {}
+40|    try { return localStorage.getItem("pfp_" + id) || "/users/default/pfp.jpg"; } catch (_) {
+41|      return "/users/default/pfp.jpg";
+42|    }
+43|  }
+44|
+45|  function favorChart(pct) {
+46|    pct = Math.max(0, Math.min(100, Number(pct) || 0));
+47|    var w = 160, h = 44;
+48|    var y = h - 6 - (pct / 100) * (h - 12);
+49|    return (
+50|      '<svg class="cb-mod-favor-chart" viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" aria-label="Favor ' + pct + '%">' +
+51|        '<polyline fill="none" stroke="var(--cb-accent)" stroke-width="2" points="0,' + (h - 6) + " " + (w * 0.35) + "," + (h - 6 - pct * 0.15) + " " + (w * 0.7) + "," + (h - 6 - pct * 0.4) + " " + w + "," + y + '"></polyline>' +
+52|        '<circle cx="' + w + '" cy="' + y + '" r="3.5" fill="var(--cb-accent)"></circle>' +
+53|      "</svg>"
+54|    );
+55|  }
+56|
+57|  function renderMods(board) {
+58|    var host = document.getElementById("boardMods");
+59|    if (!host) return;
+60|    var mods = seedMods(board);
+61|    host.innerHTML = mods.map(function (m) {
+62|      return (
+63|        '<article class="cb-mod-card">' +
+64|          '<a class="cb-mod-avatar" href="/users/' + encodeURIComponent(m.id) + '"><img src="' + pfpFor(m.id) + '" alt=""></a>' +
+65|          '<div class="cb-mod-meta">' +
+66|            '<a href="/users/' + encodeURIComponent(m.id) + '"><strong>' + (m.name || "Lab") + "</strong></a>" +
+67|            '<div class="cb-muted">@' + (m.handle || "lab") + "</div>" +
+68|            '<div class="cb-mod-favor-label">Favor ' + m.favor + "%</div>" +
+69|            favorChart(m.favor) +
+70|            '<button type="button" class="cb-mod-replace-btn" data-mod-id="' + m.id + '">Vote to replace</button>' +
+71|          "</div>" +
+72|        "</article>"
+73|      );
+74|    }).join("") || '<p class="cb-muted">No moderators yet.</p>';
+75|  }
+76|
+77|  function renderDebates(board) {
+78|    var host = document.getElementById("boardDebates");
+79|    if (!host) return;
+80|    var polls = {};
+81|    try { polls = JSON.parse(localStorage.getItem("coolbrador_polls_v1") || "{}"); } catch (_) { polls = {}; }
+82|    var flat = [];
+83|    ["issues", "mutinies", "ideas"].forEach(function (t) {
+84|      (polls[t] || []).forEach(function (p) {
+85|        var b = String((p && (p.board || p.community || "")) || "").toLowerCase();
+86|        if (!b || b === String(board).toLowerCase() || b === "general") {
+87|          flat.push({ title: (p && p.title) || "Untitled debate", type: t });
+88|        }
+89|      });
+90|    });
+91|    if (!flat.length) {
+92|      flat = [
+93|        { title: "What should " + labelize(board) + " focus on next?", type: "ideas" },
+94|        { title: "Best flair for " + labelize(board) + "?", type: "issues" }
+95|      ];
+96|    }
+97|    host.innerHTML = flat.slice(0, 8).map(function (d) {
+98|      return '<a class="cb-board-debate-link" href="/polls.html">' + d.title + "<span>" + d.type + "</span></a>";
+99|    }).join("");
+100|  }
+101|
+102|  function activate(tab) {
+103|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+104|      var on = btn.getAttribute("data-board-tab") === tab;
+105|      btn.classList.toggle("is-active", on);
+106|      btn.setAttribute("aria-selected", on ? "true" : "false");
+107|    });
+108|    document.querySelectorAll(".cb-board-panel").forEach(function (panel) {
+109|      var on = panel.getAttribute("data-board-panel") === tab;
+110|      panel.classList.toggle("is-active", on);
+111|      panel.hidden = !on;
+112|    });
+113|  }
+114|
+115|  function boot() {
+116|    var board = boardFromPath();
+117|    if (!board) return;
+118|    try {
+119|      document.body.dataset.cbBoard = board;
+120|      window.__cbCurrentBoard = board;
+121|    } catch (_) {}
+122|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+123|      btn.addEventListener("click", function () {
+124|        activate(btn.getAttribute("data-board-tab"));
+125|      });
+126|    });
+127|    renderDebates(board);
+128|    renderMods(board);
+129|    if (location.hash === "#debates") activate("debates");
+130|    if (location.hash === "#mods") activate("mods");
+131|  }
+132|
+133|  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+134|  else boot();
+135|})();
+---
+@8
+6|    if (parts[0] === "b" && parts[1]) return decodeURIComponent(parts[1]);
+7|    return "";
+8|  }
+9|
+10|  function labelize(id) {
+11|    return String(id || "").replace(/[-_]/g, " ");
+12|  }
+13|
+14|  function seedMods(board) {
+15|    var key = "cb_board_mods_v1_" + board;
+16|    try {
+17|      var existing = JSON.parse(localStorage.getItem(key) || "null");
+18|      if (Array.isArray(existing) && existing.length) return existing;
+19|    } catch (_) {}
+20|    var demo = [
+21|      { id: "3", name: "BeeSid", handle: "beesid", favor: 72 },
+22|      { id: "4", name: "Miguel", handle: "miguel", favor: 61 },
+23|      { id: "6", name: "AnthonySpade", handle: "anthonyspade", favor: 54 }
+24|    ];
+25|    if (String(board).toLowerCase() === "beesid") {
+26|      demo = [
+27|        { id: "3", name: "BeeSid", handle: "beesid", favor: 88 },
+28|        { id: "12", name: "CoolDog", handle: "cooldog", favor: 57 },
+29|        { id: "5", name: "GyattToad", handle: "gyatttoad", favor: 41 }
+30|      ];
+31|    }
+32|    try { localStorage.setItem(key, JSON.stringify(demo)); } catch (_) {}
+33|    return demo;
+34|  }
+35|
+36|  function pfpFor(id) {
+37|    try {
+38|      if (window.CoolbradorPosts && CoolbradorPosts.getPfp) return CoolbradorPosts.getPfp(id);
+39|    } catch (_) {}
+40|    try { return localStorage.getItem("pfp_" + id) || "/users/default/pfp.jpg"; } catch (_) {
+41|      return "/users/default/pfp.jpg";
+42|    }
+43|  }
+44|
+45|  function favorChart(pct) {
+46|    pct = Math.max(0, Math.min(100, Number(pct) || 0));
+47|    var w = 160, h = 44;
+48|    var y = h - 6 - (pct / 100) * (h - 12);
+49|    return (
+50|      '<svg class="cb-mod-favor-chart" viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" aria-label="Favor ' + pct + '%">' +
+51|        '<polyline fill="none" stroke="var(--cb-accent)" stroke-width="2" points="0,' + (h - 6) + " " + (w * 0.35) + "," + (h - 6 - pct * 0.15) + " " + (w * 0.7) + "," + (h - 6 - pct * 0.4) + " " + w + "," + y + '"></polyline>' +
+52|        '<circle cx="' + w + '" cy="' + y + '" r="3.5" fill="var(--cb-accent)"></circle>' +
+53|      "</svg>"
+54|    );
+55|  }
+56|
+57|  function renderMods(board) {
+58|    var host = document.getElementById("boardMods");
+59|    if (!host) return;
+60|    var mods = seedMods(board);
+61|    host.innerHTML = mods.map(function (m) {
+62|      return (
+63|        '<article class="cb-mod-card">' +
+64|          '<a class="cb-mod-avatar" href="/users/' + encodeURIComponent(m.id) + '"><img src="' + pfpFor(m.id) + '" alt=""></a>' +
+65|          '<div class="cb-mod-meta">' +
+66|            '<a href="/users/' + encodeURIComponent(m.id) + '"><strong>' + (m.name || "Lab") + "</strong></a>" +
+67|            '<div class="cb-muted">@' + (m.handle || "lab") + "</div>" +
+68|            '<div class="cb-mod-favor-label">Favor ' + m.favor + "%</div>" +
+69|            favorChart(m.favor) +
+70|            '<button type="button" class="cb-mod-replace-btn" data-mod-id="' + m.id + '">Vote to replace</button>' +
+71|          "</div>" +
+72|        "</article>"
+73|      );
+74|    }).join("") || '<p class="cb-muted">No moderators yet.</p>';
+75|  }
+76|
+77|  function renderDebates(board) {
+78|    var host = document.getElementById("boardDebates");
+79|    if (!host) return;
+80|    var polls = {};
+81|    try { polls = JSON.parse(localStorage.getItem("coolbrador_polls_v1") || "{}"); } catch (_) { polls = {}; }
+82|    var flat = [];
+83|    ["issues", "mutinies", "ideas"].forEach(function (t) {
+84|      (polls[t] || []).forEach(function (p) {
+85|        var b = String((p && (p.board || p.community || "")) || "").toLowerCase();
+86|        if (!b || b === String(board).toLowerCase() || b === "general") {
+87|          flat.push({ title: (p && p.title) || "Untitled debate", type: t });
+88|        }
+89|      });
+90|    });
+91|    if (!flat.length) {
+92|      flat = [
+93|        { title: "What should " + labelize(board) + " focus on next?", type: "ideas" },
+94|        { title: "Best flair for " + labelize(board) + "?", type: "issues" }
+95|      ];
+96|    }
+97|    host.innerHTML = flat.slice(0, 8).map(function (d) {
+98|      return '<a class="cb-board-debate-link" href="/polls.html">' + d.title + "<span>" + d.type + "</span></a>";
+99|    }).join("");
+100|  }
+101|
+102|  function activate(tab) {
+103|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+104|      var on = btn.getAttribute("data-board-tab") === tab;
+105|      btn.classList.toggle("is-active", on);
+106|      btn.setAttribute("aria-selected", on ? "true" : "false");
+107|    });
+108|    document.querySelectorAll(".cb-board-panel").forEach(function (panel) {
+109|      var on = panel.getAttribute("data-board-panel") === tab;
+110|      panel.classList.toggle("is-active", on);
+111|      panel.hidden = !on;
+112|    });
+113|  }
+114|
+115|  function boot() {
+116|    var board = boardFromPath();
+117|    if (!board) return;
+118|    try {
+119|      document.body.dataset.cbBoard = board;
+120|      window.__cbCurrentBoard = board;
+121|    } catch (_) {}
+122|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+123|      btn.addEventListener("click", function () {
+124|        activate(btn.getAttribute("data-board-tab"));
+125|      });
+126|    });
+127|    renderDebates(board);
+128|    renderMods(board);
+129|    if (location.hash === "#debates") activate("debates");
+130|    if (location.hash === "#mods") activate("mods");
+131|  }
+132|
+133|  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+134|  else boot();
+135|})();
+---
+@10
+8|  }
+9|
+10|  function labelize(id) {
+11|    return String(id || "").replace(/[-_]/g, " ");
+12|  }
+13|
+14|  function seedMods(board) {
+15|    var key = "cb_board_mods_v1_" + board;
+16|    try {
+17|      var existing = JSON.parse(localStorage.getItem(key) || "null");
+18|      if (Array.isArray(existing) && existing.length) return existing;
+19|    } catch (_) {}
+20|    var demo = [
+21|      { id: "3", name: "BeeSid", handle: "beesid", favor: 72 },
+22|      { id: "4", name: "Miguel", handle: "miguel", favor: 61 },
+23|      { id: "6", name: "AnthonySpade", handle: "anthonyspade", favor: 54 }
+24|    ];
+25|    if (String(board).toLowerCase() === "beesid") {
+26|      demo = [
+27|        { id: "3", name: "BeeSid", handle: "beesid", favor: 88 },
+28|        { id: "12", name: "CoolDog", handle: "cooldog", favor: 57 },
+29|        { id: "5", name: "GyattToad", handle: "gyatttoad", favor: 41 }
+30|      ];
+31|    }
+32|    try { localStorage.setItem(key, JSON.stringify(demo)); } catch (_) {}
+33|    return demo;
+34|  }
+35|
+36|  function pfpFor(id) {
+37|    try {
+38|      if (window.CoolbradorPosts && CoolbradorPosts.getPfp) return CoolbradorPosts.getPfp(id);
+39|    } catch (_) {}
+40|    try { return localStorage.getItem("pfp_" + id) || "/users/default/pfp.jpg"; } catch (_) {
+41|      return "/users/default/pfp.jpg";
+42|    }
+43|  }
+44|
+45|  function favorChart(pct) {
+46|    pct = Math.max(0, Math.min(100, Number(pct) || 0));
+47|    var w = 160, h = 44;
+48|    var y = h - 6 - (pct / 100) * (h - 12);
+49|    return (
+50|      '<svg class="cb-mod-favor-chart" viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" aria-label="Favor ' + pct + '%">' +
+51|        '<polyline fill="none" stroke="var(--cb-accent)" stroke-width="2" points="0,' + (h - 6) + " " + (w * 0.35) + "," + (h - 6 - pct * 0.15) + " " + (w * 0.7) + "," + (h - 6 - pct * 0.4) + " " + w + "," + y + '"></polyline>' +
+52|        '<circle cx="' + w + '" cy="' + y + '" r="3.5" fill="var(--cb-accent)"></circle>' +
+53|      "</svg>"
+54|    );
+55|  }
+56|
+57|  function renderMods(board) {
+58|    var host = document.getElementById("boardMods");
+59|    if (!host) return;
+60|    var mods = seedMods(board);
+61|    host.innerHTML = mods.map(function (m) {
+62|      return (
+63|        '<article class="cb-mod-card">' +
+64|          '<a class="cb-mod-avatar" href="/users/' + encodeURIComponent(m.id) + '"><img src="' + pfpFor(m.id) + '" alt=""></a>' +
+65|          '<div class="cb-mod-meta">' +
+66|            '<a href="/users/' + encodeURIComponent(m.id) + '"><strong>' + (m.name || "Lab") + "</strong></a>" +
+67|            '<div class="cb-muted">@' + (m.handle || "lab") + "</div>" +
+68|            '<div class="cb-mod-favor-label">Favor ' + m.favor + "%</div>" +
+69|            favorChart(m.favor) +
+70|            '<button type="button" class="cb-mod-replace-btn" data-mod-id="' + m.id + '">Vote to replace</button>' +
+71|          "</div>" +
+72|        "</article>"
+73|      );
+74|    }).join("") || '<p class="cb-muted">No moderators yet.</p>';
+75|  }
+76|
+77|  function renderDebates(board) {
+78|    var host = document.getElementById("boardDebates");
+79|    if (!host) return;
+80|    var polls = {};
+81|    try { polls = JSON.parse(localStorage.getItem("coolbrador_polls_v1") || "{}"); } catch (_) { polls = {}; }
+82|    var flat = [];
+83|    ["issues", "mutinies", "ideas"].forEach(function (t) {
+84|      (polls[t] || []).forEach(function (p) {
+85|        var b = String((p && (p.board || p.community || "")) || "").toLowerCase();
+86|        if (!b || b === String(board).toLowerCase() || b === "general") {
+87|          flat.push({ title: (p && p.title) || "Untitled debate", type: t });
+88|        }
+89|      });
+90|    });
+91|    if (!flat.length) {
+92|      flat = [
+93|        { title: "What should " + labelize(board) + " focus on next?", type: "ideas" },
+94|        { title: "Best flair for " + labelize(board) + "?", type: "issues" }
+95|      ];
+96|    }
+97|    host.innerHTML = flat.slice(0, 8).map(function (d) {
+98|      return '<a class="cb-board-debate-link" href="/polls.html">' + d.title + "<span>" + d.type + "</span></a>";
+99|    }).join("");
+100|  }
+101|
+102|  function activate(tab) {
+103|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+104|      var on = btn.getAttribute("data-board-tab") === tab;
+105|      btn.classList.toggle("is-active", on);
+106|      btn.setAttribute("aria-selected", on ? "true" : "false");
+107|    });
+108|    document.querySelectorAll(".cb-board-panel").forEach(function (panel) {
+109|      var on = panel.getAttribute("data-board-panel") === tab;
+110|      panel.classList.toggle("is-active", on);
+111|      panel.hidden = !on;
+112|    });
+113|  }
+114|
+115|  function boot() {
+116|    var board = boardFromPath();
+117|    if (!board) return;
+118|    try {
+119|      document.body.dataset.cbBoard = board;
+120|      window.__cbCurrentBoard = board;
+121|    } catch (_) {}
+122|    document.querySelectorAll(".cb-board-tab").forEach(function (btn) {
+123|      btn.addEventListener("click", function () {
+124|        activate(btn.getAttribute("data-board-tab"));
+125|      });
+126|    });
+127|    renderDebates(board);
+128|    renderMods(board);
+129|    if (location.hash === "#debates") activate("debates");
+130|    if (location.hash === "#mods") activate("mods");
+131|  }
+132|
+133|  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+134|  else boot();
+135|})();
+
+
+=== js/polls.js ===
+@344
+342|
+343|    var grids = [100, 75, 50, 25, 0].map(function (v) {
+344|      return '<line class="poll-poly-grid" x1="' + padL + '" y1="' + yAt(v) + '" x2="' + (w - padR) + '" y2="' + yAt(v) + '"/>';
+345|    }).join("");
+346|
+347|    var axes = [100, 75, 50, 25, 0].map(function (v) {
+348|      return '<text class="poll-poly-axis" x="' + (padL - 8) + '" y="' + yAt(v) + '" text-anchor="end" dominant-baseline="middle">' + v + "</text>";
+349|    }).join("");
+350|
+351|    var sidePts = sides.map(function (s) {
+352|      return series.map(function (pt) {
+353|        var pct = (pt.pct && pt.pct[s.id] != null) ? pt.pct[s.id] : 0;
+354|        return { t: pt.t, x: xAt(pt.t), y: yAt(pct), pct: pct };
+355|      });
+356|    });
+357|
+358|    // Fills: draw Yeah first, then Nah/extras on top so under-Nah is that side's color
+359|    var areas = "";
+360|    sides.forEach(function (s, i) {
+361|      var pts = sidePts[i];
+362|      var d = pts.map(function (pt, j) { return (j ? "L" : "M") + pt.x.toFixed(1) + " " + pt.y.toFixed(1); }).join(" ");
+363|      var area = d + " L" + pts[pts.length - 1].x.toFixed(1) + " " + (padT + plotH).toFixed(1) +
+364|        " L" + pts[0].x.toFixed(1) + " " + (padT + plotH).toFixed(1) + " Z";
+365|      areas += '<path class="poll-poly-area" d="' + area + '" fill="url(#' + uid + "F" + i + ')"/>';
+366|    });
+367|
+368|    var lines = "";
+369|    var dots = "";
+370|    sides.forEach(function (s, i) {
+371|      var pts = sidePts[i];
+372|      var d = pts.map(function (pt, j) { return (j ? "L" : "M") + pt.x.toFixed(1) + " " + pt.y.toFixed(1); }).join(" ");
+373|      lines += '<path class="poll-poly-line" data-side="' + escapeHtml(s.id) + '" d="' + d + '" fill="none" style="stroke:' + s.color.stroke + '" stroke-width="2.6"/>';
+374|      var end = pts[pts.length - 1];
+375|      dots += '<circle class="poll-poly-dot poll-poly-end-dot" data-side="' + escapeHtml(s.id) + '" cx="' + end.x.toFixed(1) + '" cy="' + end.y.toFixed(1) + '" r="4.5" style="fill:' + s.color.stroke + '"/>';
+376|    });
+377|
+378|    var scrubDots = sides.map(function (s) {
+379|      return '<circle class="poll-poly-scrub-dot" data-side="' + escapeHtml(s.id) + '" cx="0" cy="0" r="5" style="fill:' + s.color.stroke + ';display:none" />';
+380|    }).join("");
+381|
+382|    var legend = sides.map(function (s) {
+383|      var pct = endPct[s.id] != null ? endPct[s.id] : 0;
+---
+@348
+346|
+347|    var axes = [100, 75, 50, 25, 0].map(function (v) {
+348|      return '<text class="poll-poly-axis" x="' + (padL - 8) + '" y="' + yAt(v) + '" text-anchor="end" dominant-baseline="middle">' + v + "</text>";
+349|    }).join("");
+350|
+351|    var sidePts = sides.map(function (s) {
+352|      return series.map(function (pt) {
+353|        var pct = (pt.pct && pt.pct[s.id] != null) ? pt.pct[s.id] : 0;
+354|        return { t: pt.t, x: xAt(pt.t), y: yAt(pct), pct: pct };
+355|      });
+356|    });
+357|
+358|    // Fills: draw Yeah first, then Nah/extras on top so under-Nah is that side's color
+359|    var areas = "";
+360|    sides.forEach(function (s, i) {
+361|      var pts = sidePts[i];
+362|      var d = pts.map(function (pt, j) { return (j ? "L" : "M") + pt.x.toFixed(1) + " " + pt.y.toFixed(1); }).join(" ");
+363|      var area = d + " L" + pts[pts.length - 1].x.toFixed(1) + " " + (padT + plotH).toFixed(1) +
+364|        " L" + pts[0].x.toFixed(1) + " " + (padT + plotH).toFixed(1) + " Z";
+365|      areas += '<path class="poll-poly-area" d="' + area + '" fill="url(#' + uid + "F" + i + ')"/>';
+366|    });
+367|
+368|    var lines = "";
+369|    var dots = "";
+370|    sides.forEach(function (s, i) {
+371|      var pts = sidePts[i];
+372|      var d = pts.map(function (pt, j) { return (j ? "L" : "M") + pt.x.toFixed(1) + " " + pt.y.toFixed(1); }).join(" ");
+373|      lines += '<path class="poll-poly-line" data-side="' + escapeHtml(s.id) + '" d="' + d + '" fill="none" style="stroke:' + s.color.stroke + '" stroke-width="2.6"/>';
+374|      var end = pts[pts.length - 1];
+375|      dots += '<circle class="poll-poly-dot poll-poly-end-dot" data-side="' + escapeHtml(s.id) + '" cx="' + end.x.toFixed(1) + '" cy="' + end.y.toFixed(1) + '" r="4.5" style="fill:' + s.color.stroke + '"/>';
+376|    });
+377|
+378|    var scrubDots = sides.map(function (s) {
+379|      return '<circle class="poll-poly-scrub-dot" data-side="' + escapeHtml(s.id) + '" cx="0" cy="0" r="5" style="fill:' + s.color.stroke + ';display:none" />';
+380|    }).join("");
+381|
+382|    var legend = sides.map(function (s) {
+383|      var pct = endPct[s.id] != null ? endPct[s.id] : 0;
+384|      return '<div class="poll-poly-legend-item" data-side="' + escapeHtml(s.id) + '">' +
+385|        '<span class="poll-poly-swatch" style="background:' + s.color.stroke + '"></span>' +
+386|        '<span class="poll-poly-legend-label">' + escapeHtml(s.short) + "</span>" +
+387|        '<span class="poll-poly-legend-pct" style="color:' + s.color.stroke + '">' + pct + "%</span>" +
+---
+@365
+363|      var area = d + " L" + pts[pts.length - 1].x.toFixed(1) + " " + (padT + plotH).toFixed(1) +
+364|        " L" + pts[0].x.toFixed(1) + " " + (padT + plotH).toFixed(1) + " Z";
+365|      areas += '<path class="poll-poly-area" d="' + area + '" fill="url(#' + uid + "F" + i + ')"/>';
+366|    });
+367|
+368|    var lines = "";
+369|    var dots = "";
+370|    sides.forEach(function (s, i) {
+371|      var pts = sidePts[i];
+372|      var d = pts.map(function (pt, j) { return (j ? "L" : "M") + pt.x.toFixed(1) + " " + pt.y.toFixed(1); }).join(" ");
+373|      lines += '<path class="poll-poly-line" data-side="' + escapeHtml(s.id) + '" d="' + d + '" fill="none" style="stroke:' + s.color.stroke + '" stroke-width="2.6"/>';
+374|      var end = pts[pts.length - 1];
+375|      dots += '<circle class="poll-poly-dot poll-poly-end-dot" data-side="' + escapeHtml(s.id) + '" cx="' + end.x.toFixed(1) + '" cy="' + end.y.toFixed(1) + '" r="4.5" style="fill:' + s.color.stroke + '"/>';
+376|    });
+377|
+378|    var scrubDots = sides.map(function (s) {
+379|      return '<circle class="poll-poly-scrub-dot" data-side="' + escapeHtml(s.id) + '" cx="0" cy="0" r="5" style="fill:' + s.color.stroke + ';display:none" />';
+380|    }).join("");
+381|
+382|    var legend = sides.map(function (s) {
+383|      var pct = endPct[s.id] != null ? endPct[s.id] : 0;
+384|      return '<div class="poll-poly-legend-item" data-side="' + escapeHtml(s.id) + '">' +
+385|        '<span class="poll-poly-swatch" style="background:' + s.color.stroke + '"></span>' +
+386|        '<span class="poll-poly-legend-label">' + escapeHtml(s.short) + "</span>" +
+387|        '<span class="poll-poly-legend-pct" style="color:' + s.color.stroke + '">' + pct + "%</span>" +
+388|        "</div>";
+389|    }).join("");
+390|
+391|    var payload = {
+392|      t0: t0,
+393|      t1: t1,
+394|      padL: padL,
+395|      padR: padR,
+396|      padT: padT,
+397|      padB: padB,
+398|      w: w,
+399|      h: h,
+400|      sides: sides.map(function (s) { return { id: s.id, short: s.short, color: s.color.stroke }; }),
+401|      series: series.map(function (pt) {
+402|        var row = { t: pt.t, pct: {} };
+403|        sideIds.forEach(function (id) { row.pct[id] = (pt.pct && pt.pct[id] != null) ? pt.pct[id] : 0; });
+404|        return row;
+---
+@373
+371|      var pts = sidePts[i];
+372|      var d = pts.map(function (pt, j) { return (j ? "L" : "M") + pt.x.toFixed(1) + " " + pt.y.toFixed(1); }).join(" ");
+373|      lines += '<path class="poll-poly-line" data-side="' + escapeHtml(s.id) + '" d="' + d + '" fill="none" style="stroke:' + s.color.stroke + '" stroke-width="2.6"/>';
+374|      var end = pts[pts.length - 1];
+375|      dots += '<circle class="poll-poly-dot poll-poly-end-dot" data-side="' + escapeHtml(s.id) + '" cx="' + end.x.toFixed(1) + '" cy="' + end.y.toFixed(1) + '" r="4.5" style="fill:' + s.color.stroke + '"/>';
+376|    });
+377|
+378|    var scrubDots = sides.map(function (s) {
+379|      return '<circle class="poll-poly-scrub-dot" data-side="' + escapeHtml(s.id) + '" cx="0" cy="0" r="5" style="fill:' + s.color.stroke + ';display:none" />';
+380|    }).join("");
+381|
+382|    var legend = sides.map(function (s) {
+383|      var pct = endPct[s.id] != null ? endPct[s.id] : 0;
+384|      return '<div class="poll-poly-legend-item" data-side="' + escapeHtml(s.id) + '">' +
+385|        '<span class="poll-poly-swatch" style="background:' + s.color.stroke + '"></span>' +
+386|        '<span class="poll-poly-legend-label">' + escapeHtml(s.short) + "</span>" +
+387|        '<span class="poll-poly-legend-pct" style="color:' + s.color.stroke + '">' + pct + "%</span>" +
+388|        "</div>";
+389|    }).join("");
+390|
+391|    var payload = {
+392|      t0: t0,
+393|      t1: t1,
+394|      padL: padL,
+395|      padR: padR,
+396|      padT: padT,
+397|      padB: padB,
+398|      w: w,
+399|      h: h,
+400|      sides: sides.map(function (s) { return { id: s.id, short: s.short, color: s.color.stroke }; }),
+401|      series: series.map(function (pt) {
+402|        var row = { t: pt.t, pct: {} };
+403|        sideIds.forEach(function (id) { row.pct[id] = (pt.pct && pt.pct[id] != null) ? pt.pct[id] : 0; });
+404|        return row;
+405|      })
+406|    };
+407|
+408|    return (
+409|      '<div class="poll-poly-wrap" data-poly="' + encodeURIComponent(JSON.stringify(payload)) + '">' +
+410|        '<div class="poll-poly-head">' +
+411|          '<span class="poll-poly-title">Odds over time</span>' +
+412|          '<div class="poll-poly-legend">' + legend + "</div>" +
+---
+@375
+373|      lines += '<path class="poll-poly-line" data-side="' + escapeHtml(s.id) + '" d="' + d + '" fill="none" style="stroke:' + s.color.stroke + '" stroke-width="2.6"/>';
+374|      var end = pts[pts.length - 1];
+375|      dots += '<circle class="poll-poly-dot poll-poly-end-dot" data-side="' + escapeHtml(s.id) + '" cx="' + end.x.toFixed(1) + '" cy="' + end.y.toFixed(1) + '" r="4.5" style="fill:' + s.color.stroke + '"/>';
+376|    });
+377|
+378|    var scrubDots = sides.map(function (s) {
+379|      return '<circle class="poll-poly-scrub-dot" data-side="' + escapeHtml(s.id) + '" cx="0" cy="0" r="5" style="fill:' + s.color.stroke + ';display:none" />';
+380|    }).join("");
+381|
+382|    var legend = sides.map(function (s) {
+383|      var pct = endPct[s.id] != null ? endPct[s.id] : 0;
+384|      return '<div class="poll-poly-legend-item" data-side="' + escapeHtml(s.id) + '">' +
+385|        '<span class="poll-poly-swatch" style="background:' + s.color.stroke + '"></span>' +
+386|        '<span class="poll-poly-legend-label">' + escapeHtml(s.short) + "</span>" +
+387|        '<span class="poll-poly-legend-pct" style="color:' + s.color.stroke + '">' + pct + "%</span>" +
+388|        "</div>";
+389|    }).join("");
+390|
+391|    var payload = {
+392|      t0: t0,
+393|      t1: t1,
+394|      padL: padL,
+395|      padR: padR,
+396|      padT: padT,
+397|      padB: padB,
+398|      w: w,
+399|      h: h,
+400|      sides: sides.map(function (s) { return { id: s.id, short: s.short, color: s.color.stroke }; }),
+401|      series: series.map(function (pt) {
+402|        var row = { t: pt.t, pct: {} };
+403|        sideIds.forEach(function (id) { row.pct[id] = (pt.pct && pt.pct[id] != null) ? pt.pct[id] : 0; });
+404|        return row;
+405|      })
+406|    };
+407|
+408|    return (
+409|      '<div class="poll-poly-wrap" data-poly="' + encodeURIComponent(JSON.stringify(payload)) + '">' +
+410|        '<div class="poll-poly-head">' +
+411|          '<span class="poll-poly-title">Odds over time</span>' +
+412|          '<div class="poll-poly-legend">' + legend + "</div>" +
+413|        "</div>" +
+414|        '<div class="poll-poly-chart-wrap"><span class="poll-poly-readout" aria-hidden="true"></span>' +
+---
+@378
+376|    });
+377|
+378|    var scrubDots = sides.map(function (s) {
+379|      return '<circle class="poll-poly-scrub-dot" data-side="' + escapeHtml(s.id) + '" cx="0" cy="0" r="5" style="fill:' + s.color.stroke + ';display:none" />';
+380|    }).join("");
+381|
+382|    var legend = sides.map(function (s) {
+383|      var pct = endPct[s.id] != null ? endPct[s.id] : 0;
+384|      return '<div class="poll-poly-legend-item" data-side="' + escapeHtml(s.id) + '">' +
+385|        '<span class="poll-poly-swatch" style="background:' + s.color.stroke + '"></span>' +
+386|        '<span class="poll-poly-legend-label">' + escapeHtml(s.short) + "</span>" +
+387|        '<span class="poll-poly-legend-pct" style="color:' + s.color.stroke + '">' + pct + "%</span>" +
+388|        "</div>";
+389|    }).join("");
+390|
+391|    var payload = {
+392|      t0: t0,
+393|      t1: t1,
+394|      padL: padL,
+395|      padR: padR,
+396|      padT: padT,
+397|      padB: padB,
+398|      w: w,
+399|      h: h,
+400|      sides: sides.map(function (s) { return { id: s.id, short: s.short, color: s.color.stroke }; }),
+401|      series: series.map(function (pt) {
+402|        var row = { t: pt.t, pct: {} };
+403|        sideIds.forEach(function (id) { row.pct[id] = (pt.pct && pt.pct[id] != null) ? pt.pct[id] : 0; });
+404|        return row;
+405|      })
+406|    };
+407|
+408|    return (
+409|      '<div class="poll-poly-wrap" data-poly="' + encodeURIComponent(JSON.stringify(payload)) + '">' +
+410|        '<div class="poll-poly-head">' +
+411|          '<span class="poll-poly-title">Odds over time</span>' +
+412|          '<div class="poll-poly-legend">' + legend + "</div>" +
+413|        "</div>" +
+414|        '<div class="poll-poly-chart-wrap"><span class="poll-poly-readout" aria-hidden="true"></span>' +
+415|          '<svg class="poll-poly-chart" viewBox="0 0 ' + w + " " + h + '" role="img" aria-label="Side odds over time">' +
+416|            "<defs>" + defs + "</defs>" +
+417|            grids + axes + areas + lines + dots +
+---
+@379
+377|
+378|    var scrubDots = sides.map(function (s) {
+379|      return '<circle class="poll-poly-scrub-dot" data-side="' + escapeHtml(s.id) + '" cx="0" cy="0" r="5" style="fill:' + s.color.stroke + ';display:none" />';
+380|    }).join("");
+381|
+382|    var legend = sides.map(function (s) {
+383|      var pct = endPct[s.id] != null ? endPct[s.id] : 0;
+384|      return '<div class="poll-poly-legend-item" data-side="' + escapeHtml(s.id) + '">' +
+385|        '<span class="poll-poly-swatch" style="background:' + s.color.stroke + '"></span>' +
+386|        '<span class="poll-poly-legend-label">' + escapeHtml(s.short) + "</span>" +
+387|        '<span class="poll-poly-legend-pct" style="color:' + s.color.stroke + '">' + pct + "%</span>" +
+388|        "</div>";
+389|    }).join("");
+390|
+391|    var payload = {
+392|      t0: t0,
+393|      t1: t1,
+394|      padL: padL,
+395|      padR: padR,
+396|      padT: padT,
+397|      padB: padB,
+398|      w: w,
+399|      h: h,
+400|      sides: sides.map(function (s) { return { id: s.id, short: s.short, color: s.color.stroke }; }),
+401|      series: series.map(function (pt) {
+402|        var row = { t: pt.t, pct: {} };
+403|        sideIds.forEach(function (id) { row.pct[id] = (pt.pct && pt.pct[id] != null) ? pt.pct[id] : 0; });
+404|        return row;
+405|      })
+406|    };
+407|
+408|    return (
+409|      '<div class="poll-poly-wrap" data-poly="' + encodeURIComponent(JSON.stringify(payload)) + '">' +
+410|        '<div class="poll-poly-head">' +
+411|          '<span class="poll-poly-title">Odds over time</span>' +
+412|          '<div class="poll-poly-legend">' + legend + "</div>" +
+413|        "</div>" +
+414|        '<div class="poll-poly-chart-wrap"><span class="poll-poly-readout" aria-hidden="true"></span>' +
+415|          '<svg class="poll-poly-chart" viewBox="0 0 ' + w + " " + h + '" role="img" aria-label="Side odds over time">' +
+416|            "<defs>" + defs + "</defs>" +
+417|            grids + axes + areas + lines + dots +
+418|            '<line class="poll-poly-scrub" x1="0" y1="' + padT + '" x2="0" y2="' + (padT + plotH) + '" style="display:none"/>' +
+---
+@384
+382|    var legend = sides.map(function (s) {
+383|      var pct = endPct[s.id] != null ? endPct[s.id] : 0;
+384|      return '<div class="poll-poly-legend-item" data-side="' + escapeHtml(s.id) + '">' +
+385|        '<span class="poll-poly-swatch" style="background:' + s.color.stroke + '"></span>' +
+386|        '<span class="poll-poly-legend-label">' + escapeHtml(s.short) + "</span>" +
+387|        '<span class="poll-poly-legend-pct" style="color:' + s.color.stroke + '">' + pct + "%</span>" +
+388|        "</div>";
+389|    }).join("");
+390|
+391|    var payload = {
+392|      t0: t0,
+393|      t1: t1,
+394|      padL: padL,
+395|      padR: padR,
+396|      padT: padT,
+397|      padB: padB,
+398|      w: w,
+399|      h: h,
+400|      sides: sides.map(function (s) { return { id: s.id, short: s.short, color: s.color.stroke }; }),
+401|      series: series.map(function (pt) {
+402|        var row = { t: pt.t, pct: {} };
+403|        sideIds.forEach(function (id) { row.pct[id] = (pt.pct && pt.pct[id] != null) ? pt.pct[id] : 0; });
+404|        return row;
+405|      })
+406|    };
+407|
+408|    return (
+409|      '<div class="poll-poly-wrap" data-poly="' + encodeURIComponent(JSON.stringify(payload)) + '">' +
+410|        '<div class="poll-poly-head">' +
+411|          '<span class="poll-poly-title">Odds over time</span>' +
+412|          '<div class="poll-poly-legend">' + legend + "</div>" +
+413|        "</div>" +
+414|        '<div class="poll-poly-chart-wrap"><span class="poll-poly-readout" aria-hidden="true"></span>' +
+415|          '<svg class="poll-poly-chart" viewBox="0 0 ' + w + " " + h + '" role="img" aria-label="Side odds over time">' +
+416|            "<defs>" + defs + "</defs>" +
+417|            grids + axes + areas + lines + dots +
+418|            '<line class="poll-poly-scrub" x1="0" y1="' + padT + '" x2="0" y2="' + (padT + plotH) + '" style="display:none"/>' +
+419|            '<rect class="poll-poly-mask" x="0" y="0" width="0" height="0" fill="rgba(0,0,0,0.45)" style="display:none"></rect>' +
+420|            scrubDots +
+421|          "</svg>" +
+422|        "</div>" +
+423|        '<div class="poll-poly-foot" style="padding-left:' + padL + 'px;padding-right:' + padR + 'px">' +
+
+
+=== messages.html ===
+@7
+5|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+6|  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
+7|  <title>Messages - Coolbrador</title>
+8|  <link rel="stylesheet" href="/styles.css">
+9|</head>
+10|<body class="messages-page community-page">
+11|  <div id="shared-header"></div>
+12|<script src="/js/shell-boot.js"></script>
+13|  <main class="cb-msg-shell" id="messagesRoot">
+14|    <aside class="cb-msg-sidebar">
+15|      <div class="cb-msg-side-head">
+16|        <h1>Messages</h1>
+17|        <button type="button" class="tool-btn" id="msgNewBtn" title="New message">New</button>
+18|      </div>
+19|      <div class="cb-msg-search-wrap">
+20|        <input type="search" id="msgSearch" class="cb-msg-search" placeholder="Search messages" autocomplete="off">
+21|      </div>
+22|      <div class="cb-msg-thread-list" id="msgThreadList" role="list"></div>
+23|    </aside>
+24|    <section class="cb-msg-pane" id="msgPane">
+25|      <div class="cb-msg-chat" id="msgChat" hidden>
+26|        <header class="cb-msg-chat-head" id="msgChatHead"></header>
+---
+@8
+6|  <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
+7|  <title>Messages - Coolbrador</title>
+8|  <link rel="stylesheet" href="/styles.css">
+9|</head>
+10|<body class="messages-page community-page">
+11|  <div id="shared-header"></div>
+12|<script src="/js/shell-boot.js"></script>
+13|  <main class="cb-msg-shell" id="messagesRoot">
+14|    <aside class="cb-msg-sidebar">
+15|      <div class="cb-msg-side-head">
+16|        <h1>Messages</h1>
+17|        <button type="button" class="tool-btn" id="msgNewBtn" title="New message">New</button>
+18|      </div>
+19|      <div class="cb-msg-search-wrap">
+20|        <input type="search" id="msgSearch" class="cb-msg-search" placeholder="Search messages" autocomplete="off">
+21|      </div>
+22|      <div class="cb-msg-thread-list" id="msgThreadList" role="list"></div>
+23|    </aside>
+24|    <section class="cb-msg-pane" id="msgPane">
+25|      <div class="cb-msg-chat" id="msgChat" hidden>
+26|        <header class="cb-msg-chat-head" id="msgChatHead"></header>
+27|        <div class="cb-msg-chat-body" id="msgChatBody"></div>
+---
+@10
+8|  <link rel="stylesheet" href="/styles.css">
+9|</head>
+10|<body class="messages-page community-page">
+11|  <div id="shared-header"></div>
+12|<script src="/js/shell-boot.js"></script>
+13|  <main class="cb-msg-shell" id="messagesRoot">
+14|    <aside class="cb-msg-sidebar">
+15|      <div class="cb-msg-side-head">
+16|        <h1>Messages</h1>
+17|        <button type="button" class="tool-btn" id="msgNewBtn" title="New message">New</button>
+18|      </div>
+19|      <div class="cb-msg-search-wrap">
+20|        <input type="search" id="msgSearch" class="cb-msg-search" placeholder="Search messages" autocomplete="off">
+21|      </div>
+22|      <div class="cb-msg-thread-list" id="msgThreadList" role="list"></div>
+23|    </aside>
+24|    <section class="cb-msg-pane" id="msgPane">
+25|      <div class="cb-msg-chat" id="msgChat" hidden>
+26|        <header class="cb-msg-chat-head" id="msgChatHead"></header>
+27|        <div class="cb-msg-chat-body" id="msgChatBody"></div>
+28|        <form class="cb-msg-composer" id="msgComposer">
+29|          <div class="cb-msg-media-preview" id="msgMediaPreview" hidden></div>
+---
+@12
+10|<body class="messages-page community-page">
+11|  <div id="shared-header"></div>
+12|<script src="/js/shell-boot.js"></script>
+13|  <main class="cb-msg-shell" id="messagesRoot">
+14|    <aside class="cb-msg-sidebar">
+15|      <div class="cb-msg-side-head">
+16|        <h1>Messages</h1>
+17|        <button type="button" class="tool-btn" id="msgNewBtn" title="New message">New</button>
+18|      </div>
+19|      <div class="cb-msg-search-wrap">
+20|        <input type="search" id="msgSearch" class="cb-msg-search" placeholder="Search messages" autocomplete="off">
+21|      </div>
+22|      <div class="cb-msg-thread-list" id="msgThreadList" role="list"></div>
+23|    </aside>
+24|    <section class="cb-msg-pane" id="msgPane">
+25|      <div class="cb-msg-chat" id="msgChat" hidden>
+26|        <header class="cb-msg-chat-head" id="msgChatHead"></header>
+27|        <div class="cb-msg-chat-body" id="msgChatBody"></div>
+28|        <form class="cb-msg-composer" id="msgComposer">
+29|          <div class="cb-msg-media-preview" id="msgMediaPreview" hidden></div>
+30|          <div class="cb-msg-composer-row">
+31|            <button type="button" class="cb-msg-attach-btn" id="msgAttachBtn" title="Attach media" aria-label="Attach media">
+---
+@13
+11|  <div id="shared-header"></div>
+12|<script src="/js/shell-boot.js"></script>
+13|  <main class="cb-msg-shell" id="messagesRoot">
+14|    <aside class="cb-msg-sidebar">
+15|      <div class="cb-msg-side-head">
+16|        <h1>Messages</h1>
+17|        <button type="button" class="tool-btn" id="msgNewBtn" title="New message">New</button>
+18|      </div>
+19|      <div class="cb-msg-search-wrap">
+20|        <input type="search" id="msgSearch" class="cb-msg-search" placeholder="Search messages" autocomplete="off">
+21|      </div>
+22|      <div class="cb-msg-thread-list" id="msgThreadList" role="list"></div>
+23|    </aside>
+24|    <section class="cb-msg-pane" id="msgPane">
+25|      <div class="cb-msg-chat" id="msgChat" hidden>
+26|        <header class="cb-msg-chat-head" id="msgChatHead"></header>
+27|        <div class="cb-msg-chat-body" id="msgChatBody"></div>
+28|        <form class="cb-msg-composer" id="msgComposer">
+29|          <div class="cb-msg-media-preview" id="msgMediaPreview" hidden></div>
+30|          <div class="cb-msg-composer-row">
+31|            <button type="button" class="cb-msg-attach-btn" id="msgAttachBtn" title="Attach media" aria-label="Attach media">
+32|              <i class="fa-solid fa-paperclip" aria-hidden="true"></i>
+---
+@16
+14|    <aside class="cb-msg-sidebar">
+15|      <div class="cb-msg-side-head">
+16|        <h1>Messages</h1>
+17|        <button type="button" class="tool-btn" id="msgNewBtn" title="New message">New</button>
+18|      </div>
+19|      <div class="cb-msg-search-wrap">
+20|        <input type="search" id="msgSearch" class="cb-msg-search" placeholder="Search messages" autocomplete="off">
+21|      </div>
+22|      <div class="cb-msg-thread-list" id="msgThreadList" role="list"></div>
+23|    </aside>
+24|    <section class="cb-msg-pane" id="msgPane">
+25|      <div class="cb-msg-chat" id="msgChat" hidden>
+26|        <header class="cb-msg-chat-head" id="msgChatHead"></header>
+27|        <div class="cb-msg-chat-body" id="msgChatBody"></div>
+28|        <form class="cb-msg-composer" id="msgComposer">
+29|          <div class="cb-msg-media-preview" id="msgMediaPreview" hidden></div>
+30|          <div class="cb-msg-composer-row">
+31|            <button type="button" class="cb-msg-attach-btn" id="msgAttachBtn" title="Attach media" aria-label="Attach media">
+32|              <i class="fa-solid fa-paperclip" aria-hidden="true"></i>
+33|            </button>
+34|            <input type="file" id="msgMediaInput" accept="image/*,video/*,audio/*" hidden>
+35|            <input type="text" id="msgInput" placeholder="Message..." autocomplete="off">
+---
+@20
+18|      </div>
+19|      <div class="cb-msg-search-wrap">
+20|        <input type="search" id="msgSearch" class="cb-msg-search" placeholder="Search messages" autocomplete="off">
+21|      </div>
+22|      <div class="cb-msg-thread-list" id="msgThreadList" role="list"></div>
+23|    </aside>
+24|    <section class="cb-msg-pane" id="msgPane">
+25|      <div class="cb-msg-chat" id="msgChat" hidden>
+26|        <header class="cb-msg-chat-head" id="msgChatHead"></header>
+27|        <div class="cb-msg-chat-body" id="msgChatBody"></div>
+28|        <form class="cb-msg-composer" id="msgComposer">
+29|          <div class="cb-msg-media-preview" id="msgMediaPreview" hidden></div>
+30|          <div class="cb-msg-composer-row">
+31|            <button type="button" class="cb-msg-attach-btn" id="msgAttachBtn" title="Attach media" aria-label="Attach media">
+32|              <i class="fa-solid fa-paperclip" aria-hidden="true"></i>
+33|            </button>
+34|            <input type="file" id="msgMediaInput" accept="image/*,video/*,audio/*" hidden>
+35|            <input type="text" id="msgInput" placeholder="Message..." autocomplete="off">
+36|            <button type="submit" class="post-submit-btn" id="msgSend">Send</button>
+37|          </div>
+38|        </form>
+39|      </div>
+---
+@43
+41|  </main>
+42|  <div id="shared-footer"></div>
+43|  <script src="/js/layout.js"></script>
+44|  <script src="/js/seed-demo.js"></script>
+45|  <script src="/js/posts.js"></script>
+46|  <script src="/js/messages.js"></script>
+47|</body>
+48|</html>
+
+
+BOARDS: BeeSid, ChipperCorner, FarmDESTROYERSCLUB, FarmReport, General, GiftDrive, Invasions, Labradoria, Mutinies4Lyfe, MutinyDesk, Starry, post-thread.html, post-thread.html.bak_20260912_002052, testboard
+
+index.html scripts: /js/shell-boot.js, /js/layout.js, /js/seed-demo.js, /js/media-viewer.js, /js/posts.js, /js/home.js
+
+polls.html scripts: /js/shell-boot.js, /js/layout.js, /js/media-viewer.js, /js/posts.js, /js/polls.js
+
+messages.html scripts: /js/shell-boot.js, /js/layout.js, /js/seed-demo.js, /js/posts.js, /js/messages.js
+
+community.html scripts: /js/shell-boot.js, /js/layout.js, /js/seed-demo.js, /js/media-viewer.js, /js/posts.js

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Friends · Coolbrador</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+</head>
+<body class="home-hub-page friends-page">
+  <div id="shared-header"></div>
+  <script src="/js/shell-boot.js"></script>
+  <main class="friends-page-main">
+    <header class="friends-page-head">
+      <h1>My Friends</h1>
+      <p class="friends-page-sub">Pack mates, online dots, and bios. Middle-click opens a profile in a new tab.</p>
+      <div class="friends-page-toolbar">
+        <span id="friendsCount">Friends (0)</span>
+        <label class="friends-search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input id="friendsSearch" type="search" placeholder="Search friends" autocomplete="off" />
+        </label>
+      </div>
+    </header>
+    <div id="friendsGrid" class="friends-grid" aria-live="polite"></div>
+  </main>
+  <div id="shared-footer"></div>
+  <script src="/js/layout.js"></script>
+  <script src="/js/cb-scrub-chart.js"></script>
+<script src="/js/cb-media-player.js"></script>
+<script src="/js/cb-feed-algo.js"></script>
+<script src="/js/cb-sensitive-filter.js"></script>
+  <script src="/js/cb-media-safety.js"></script>
+  <script src="/js/posts.js"></script>
+  <script src="/js/friends.js"></script>
+</body>
+</html>
