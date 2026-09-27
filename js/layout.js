@@ -71,6 +71,8 @@
     { title: "Chipper", url: "/games/chipper.html", hint: "Play soon", section: "Games" },
     { title: "Polls", url: "/polls.html", hint: "Issues / Mutinies / Ideas", section: "Discussions" },
     { title: "Gift", url: "/gift.html", hint: "Community drawings and thank-yous", section: "Pages" },
+    { title: "Safety & reports", url: "/safety.html", hint: "Rules and moderation decisions", section: "Pages" },
+    { title: "Data & privacy", url: "/privacy.html", hint: "Your data controls", section: "Pages" },
     { title: "Support", url: "/support.html", hint: "Help", section: "Pages" },
     { title: "Settings", url: "/settings", hint: "Account, theme and preferences", section: "Pages" },
     { title: "Login", url: "/login.html", hint: "Sign in", section: "Pages" }
@@ -90,7 +92,7 @@
 
   function sharedPath(file) { return "/shared/" + file; }
 
-  var SHELL_CACHE_KEY = "cb_shell_html_v3";
+  var SHELL_CACHE_KEY = "cb_shell_html_v4";
   var SHELL_FLAGS_KEY = "cb_shell_flags_v1";
 
   function readShellCache() {
@@ -115,7 +117,7 @@
         v: 2
       }));
       // Drop legacy key once v2 is written.
-      try { localStorage.removeItem("cb_shell_html_v2"); } catch (_) {}
+      try { localStorage.removeItem("cb_shell_html_v2"); localStorage.removeItem("cb_shell_html_v3"); } catch (_) {}
     } catch (_) {}
   }
 

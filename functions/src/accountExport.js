@@ -15,7 +15,9 @@ async function collectAccountData(uid, { maxBytes = 8 * 1024 * 1024, maxScanned 
   let bytes = Buffer.byteLength(JSON.stringify(result)), scanned = 0;
   function add(snap) {
     if (!snap.exists) return;
-    const record = { path: snap.ref.path, data: snap.data() };
+    let data=snap.data();
+    if(snap.ref.parent.id==='profiles')data=Object.fromEntries(['uid','displayName','username','bio','avatarUrl','avatarPath','createdAt','searchTokens'].filter(key=>key in data).map(key=>[key,data[key]]));
+    const record = { path: snap.ref.path, data };
     // Timestamps serialize explicitly for portable consumption.
     const json = JSON.stringify(record, (_, value) => value && typeof value.toDate === 'function' ? value.toDate().toISOString() : value);
     bytes += Buffer.byteLength(json);
@@ -42,7 +44,7 @@ async function collectAccountData(uid, { maxBytes = 8 * 1024 * 1024, maxScanned 
   for (const name of ['blocks','notifications','conversationReads','activity']) await walk(db.collection(`users/${uid}/${name}`));
   const privateRecord = await db.doc('accountPrivate/' + uid).get();
   // Legacy migration only stores contact details here; explicitly whitelist them.
-  if (privateRecord.exists) result.privateContact = { email: privateRecord.get('email') || null, phone: privateRecord.get('phone') || null };
+  if (privateRecord.exists) result.privateContact = { email: privateRecord.get('email') || null, phone: privateRecord.get('phone') || privateRecord.get('phoneNumber') || null };
   await walk(db.collection('conversations').where('participants','array-contains',uid), async thread => {
     add(thread);
     await walk(thread.ref.collection('messages').where('senderId','==',uid));

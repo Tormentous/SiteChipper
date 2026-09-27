@@ -25,6 +25,11 @@ document.querySelector('#copyNotice').onclick = async () => {
 };
 const escape = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const host = document.querySelector('#myDecisions');
+function contentUrl(path) {
+  const parts=String(path||'').split('/');
+  if(parts[0]==='polls')return '/polls#poll-'+encodeURIComponent(parts[1]);
+  return '/post/'+encodeURIComponent(parts[1])+(parts[2]==='comments'?'#comment-'+encodeURIComponent(parts[3]):'');
+}
 let stops=[];
 watchAuth(state => {
   stops.splice(0).forEach(stop=>stop());
@@ -36,6 +41,6 @@ watchAuth(state => {
   },error=>{pending.textContent=friendlyError(error);}));
   stops.push(watchDecisions(rows=>{
     rows.sort((a,b)=>(b.createdAt?.toMillis()||0)-(a.createdAt?.toMillis()||0));
-    decisions.innerHTML='<h3>Decisions</h3>'+(rows.length?rows.map(row=>`<article class="social-comment"><h4>${row.action==='remove'?'Content removed':'No removal'}</h4><p>Reference: ${escape(row.id)}</p><p>Basis: ${escape(row.basis)} · ${escape(row.ground)}</p><p>${escape(row.reason)}</p><p>${row.action==='remove'?'Removal applies throughout the service and has no scheduled expiry.':'No content restriction was applied.'} Decision made by a human moderator following a report.</p><p><a href="mailto:support@coolbrador.com?subject=${encodeURIComponent('Review decision '+row.id)}">Ask for a review</a></p></article>`).join(''):'<p>No decisions to show.</p>');
+    decisions.innerHTML='<h3>Decisions</h3>'+(rows.length?rows.map(row=>`<article class="social-comment"><h4>${row.action==='remove'?'Content removed':'No removal'}</h4><p>Reference: ${escape(row.id)}</p><p><a href="${contentUrl(row.target)}">Content covered by this decision</a></p><p>Basis: ${escape(row.basis)} · ${escape(row.ground)}</p><p>${escape(row.reason)}</p><p>${row.action==='remove'?'Removal applies throughout the service and has no scheduled expiry.':'No content restriction was applied.'} Decision made by a human moderator following a report.</p><p><a href="mailto:support@coolbrador.com?subject=${encodeURIComponent('Review decision '+row.id)}">Ask for a review</a></p></article>`).join(''):'<p>No decisions to show.</p>');
   },error=>{decisions.textContent=friendlyError(error);}));
 });

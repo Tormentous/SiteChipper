@@ -172,9 +172,20 @@ async function reportDialog(target,url) {
   dialog.innerHTML=`<form method="dialog"><h2 id="reportTitle">Report content</h2><p>Reports go to moderators. Your identity is not shown to the author.</p><label>Reason<select name="category"><option>Harassment or threats</option><option>Hate or violence</option><option>Child safety</option><option>Privacy or intimate images</option><option>Scam or spam</option><option>Copyright</option><option>Other</option></select></label><label>What happened?<textarea name="reason" rows="4" maxlength="850" required></textarea></label><p><a id="legalNotice">Report suspected illegal content without an account →</a></p><div class="social-actions"><button value="cancel" formnovalidate>Cancel</button><button value="submit" class="social-primary">Submit report</button></div></form>`;
   dialog.querySelector('#legalNotice').href='/safety.html?url='+encodeURIComponent(url)+'#report';
   const previous=document.activeElement;document.body.append(dialog);dialog.showModal();
-  const result=await new Promise(resolve=>dialog.addEventListener('close',()=>resolve(dialog.returnValue),{once:true}));
-  const values=new FormData(dialog.querySelector('form'));dialog.remove();if(previous?.isConnected)previous.focus();
-  if(result==='submit'){await api.reportContent(target,values.get('category')+': '+values.get('reason'));toast('Report submitted for review.');}
+  const form=dialog.querySelector('form'),status=document.createElement('p');status.setAttribute('role','status');form.append(status);
+  let busy=false;
+  form.onsubmit=async event=>{
+    if(event.submitter?.value==='cancel')return;
+    event.preventDefault();if(busy)return;
+    const values=new FormData(form),reason=String(values.get('reason')).trim();
+    if(!reason){status.textContent='Please describe what happened.';form.elements.reason.focus();return;}
+    busy=true;form.setAttribute('aria-busy','true');form.querySelectorAll('button').forEach(b=>b.disabled=true);
+    try{await api.reportContent(target,values.get('category')+': '+reason);dialog.close();toast('Report submitted for review.');}
+    catch(error){status.textContent=api.friendlyError(error);}
+    finally{busy=false;form.removeAttribute('aria-busy');form.querySelectorAll('button').forEach(b=>b.disabled=false);}
+  };
+  dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
+  await new Promise(resolve=>dialog.addEventListener('close',()=>{dialog.remove();if(previous?.isConnected)previous.focus();resolve();},{once:true}));
 }
 function boardGrid() {
   return `<nav class="social-boards" aria-label="Communities">${api.BOARDS.map((b,i) => `<a href="/b/${b}"><span aria-hidden="true">${['✦','🎮','☾','🌱','🌎','⚑','🎁','🌾'][i] || '✦'}</span><strong>${escape(api.boardInfo.get(b)?.name || b)}</strong><small>${b === 'BeeSid' ? 'The Chipper game board' : 'Join the conversation'}</small></a>`).join('')}</nav>`;
@@ -506,10 +517,18 @@ async function moderationPage() {
     async function decide(report,action) {
       const dialog=document.createElement('dialog');dialog.className='social-dialog';dialog.setAttribute('aria-labelledby','decisionTitle');
       dialog.innerHTML=`<form method="dialog"><h2 id="decisionTitle">${action==='remove'?'Remove content':'Keep content'}</h2><label>Basis<select name="basis"><option>Community rules</option><option>Law</option></select></label><label>Specific rule or law<input name="ground" maxlength="300" required></label><label>Facts and explanation<textarea name="reason" rows="5" maxlength="2000" required></textarea></label><p>This explanation is sent to the author and reporter. Do not include the reporter's identity or private details.</p><div class="social-actions"><button value="cancel" formnovalidate>Cancel</button><button value="confirm">Record decision</button></div></form>`;
-      document.body.append(dialog);dialog.showModal();
-      const result=await new Promise(resolve=>dialog.addEventListener('close',()=>resolve(dialog.returnValue),{once:true}));
-      const values=new FormData(dialog.querySelector('form'));dialog.remove();if(result!=='confirm')return;
-      try { await api.resolveReport(report,{action,basis:values.get('basis'),ground:values.get('ground'),reason:values.get('reason')});toast('Decision recorded.'); }catch(error){failure(error);}
+      const previous=document.activeElement;document.body.append(dialog);dialog.showModal();
+      const form=dialog.querySelector('form'),status=document.createElement('p');status.setAttribute('role','status');form.append(status);
+      let busy=false;
+      form.onsubmit=async event=>{
+        if(event.submitter?.value==='cancel')return;event.preventDefault();if(busy)return;
+        const values=new FormData(form);busy=true;form.querySelectorAll('button').forEach(b=>b.disabled=true);
+        try{await api.resolveReport(report,{action,basis:values.get('basis'),ground:values.get('ground'),reason:values.get('reason')});dialog.close();toast('Decision recorded.');}
+        catch(error){status.textContent=api.friendlyError(error);}
+        finally{busy=false;form.querySelectorAll('button').forEach(b=>b.disabled=false);}
+      };
+      dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
+      await new Promise(resolve=>dialog.addEventListener('close',()=>{dialog.remove();if(previous?.isConnected)previous.focus();resolve();},{once:true}));
     }
     host.querySelectorAll('[data-dismiss]').forEach(button=>{button.onclick=()=>decide(rows.find(r=>r.id===button.dataset.dismiss),'keep');});
     host.querySelectorAll('[data-remove-report]').forEach(button=>{button.onclick=()=>decide(rows.find(r=>r.id===button.dataset.removeReport),'remove');});

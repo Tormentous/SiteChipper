@@ -38,7 +38,7 @@ async function cleanPost(id, data) {
   await eraseQuery(ref.collection('reactions'));
   await eraseQuery(db.collection('reposts').where('postId', '==', id));
   await eraseQuery(db.collectionGroup('notifications').where('postId', '==', id));
-  await eraseQuery(db.collection('reports').where('postId', '==', id));
+  // Keep pending reports until a moderator records an outcome, even after deletion.
   await eraseMedia(data.media, data.authorId,'posts/'+id);
 }
 async function cleanAccount(uid) {

@@ -99,8 +99,8 @@
 
     if (accent) {
       root.style.setProperty("--cb-accent", accent.hex);
-      root.style.setProperty("--cb-link", accent.hex);
-      root.style.setProperty("--cb-accent-text", accent.hex);
+      root.style.setProperty("--cb-link", root.dataset.mode === "light" ? "color-mix(in srgb, var(--cb-accent) 45%, var(--cb-text))" : accent.hex);
+      root.style.setProperty("--cb-accent-text", "var(--cb-link)");
       root.style.setProperty("--cb-accent-rgb", accent.r + ", " + accent.g + ", " + accent.b);
       root.classList.add("cb-has-custom-accent");
     }
@@ -176,6 +176,13 @@
 
     applyCustomColors(root);
     applyWallpaper(root);
+    // Choose readable button text from semantic palette tokens, including custom accents.
+    var color = hexToRgb(getComputedStyle(root).getPropertyValue('--cb-accent').trim());
+    if (color) {
+      var channels = [color.r,color.g,color.b].map(function(v) { v/=255;return v<=0.04045?v/12.92:Math.pow((v+0.055)/1.055,2.4); });
+      var luminance=channels[0]*0.2126+channels[1]*0.7152+channels[2]*0.0722;
+      root.style.setProperty('--cb-on-accent',luminance>0.2?'var(--cb-on-accent-dark)':'var(--cb-on-accent-light)');
+    }
 
     return { theme: theme, mode: mode };
   }

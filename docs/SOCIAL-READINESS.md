@@ -117,3 +117,27 @@ the turn. No alternative API is used to bypass that restriction.
 - CodeRabbit review is still disabled by task configuration. GitHub accepted b1268ff
   then rejected subsequent pushes with403. Later work is committed locally and
   preserved in the downloadable Git recovery bundle. Production remains undeployed.
+
+## EU safety and interface follow-up
+
+- Researched the official DSA/GDPR texts, Mastodon user controls and AT Protocol
+  moderation documentation. Applicability and operator launch gaps are recorded
+  in `EU-SAFETY-AND-UI.md`; this work does not certify legal compliance.
+- Added safety/rules, private moderation decisions with required reasons, pending
+  report visibility, account-free email-notice preparation, and a current-data
+  export with recent-login checks, rate limits and bounds. No emails are sent by
+  the notice builder; monitoring and acknowledgement require operator setup.
+- Added muted phrases and safer initial content visibility. Fixed light-mode text
+  inheritance/contrast, small-screen toolbars and profiles, touch targets, dialog
+  labels/focus and retry behavior, attachment controls, scrollable message history,
+  settings navigation and theme persistence on login. New component colors use
+  palette tokens; chart series and drawing colors are centrally defined.
+- Main automated gate passed37/37. Browser checks exercised reports and moderator
+  receipts, notice drafting, muted content and actual account download. Live HTTP
+  export authentication/recent-login/cooldown and account deletion passed.
+- Light-home contrast and login-link accessibility findings were fixed; final
+  corresponding audits have zero violations. Settings and Safety audits also
+  have zero violations. Poll SVG axis contrast remains a manual check, inspected
+  visually in both modes; no complete sitewide WCAG certification is claimed.
+- Checkpoint5a2dfcf pushed successfully, including the previously blocked commits.
+  CodeRabbit review remains disabled by the task setting.

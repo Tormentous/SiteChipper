@@ -30,9 +30,9 @@ exports.cleanupDeletedReply = retrying.firestore.document('posts/{postId}/commen
   if((await snap.ref.get()).exists)return;
   await eraseMedia(snap.data().media, snap.data().authorId);
   await require('./socialCleanup').eraseQuery(admin.firestore().collectionGroup('notifications').where('commentId', '==', context.params.id));
-  await require('./socialCleanup').eraseQuery(admin.firestore().collection('reports').where('commentId', '==', context.params.id));
+  // Pending reports remain available for a reasoned moderation decision.
 });
-exports.cleanupDeletedPoll = retrying.firestore.document('polls/{id}').onDelete(async (_, context) => { if((await admin.firestore().doc('polls/'+context.params.id).get()).exists)return;await admin.firestore().recursiveDelete(admin.firestore().doc('polls/' + context.params.id));await require('./socialCleanup').eraseQuery(admin.firestore().collection('reports').where('pollId','==',context.params.id)); });
+exports.cleanupDeletedPoll = retrying.firestore.document('polls/{id}').onDelete(async (_, context) => { if((await admin.firestore().doc('polls/'+context.params.id).get()).exists)return;await admin.firestore().recursiveDelete(admin.firestore().doc('polls/' + context.params.id)); });
 
 exports.cleanupReplacedAvatar = retrying.firestore.document('profiles/{id}').onUpdate(async change => {
  const before=change.before.data(),after=change.after.data(),path=pathFromAvatar(before,before.uid);

@@ -6,7 +6,7 @@
       return;
     }
     var FLAGS = "cb_shell_flags_v1";
-    var SHELL = "cb_shell_html_v3";
+    var SHELL = "cb_shell_html_v4";
     var COLLAPSE = "cbSidebarCollapsed";
 
     var flags = null;

@@ -171,3 +171,19 @@ Appearance settings, simulations, game pages and original archived posts remain.
 Gift Drive is now a shared appreciation board; no fabricated donor totals, prizes
 or payment buttons are presented. Historical local-only profile builders and demo
 moderation/polls are not migrated into trusted server records.
+
+## Safety, privacy and UI follow-up
+
+See `docs/EU-SAFETY-AND-UI.md` for verified legal sources and the remaining operator
+requirements. Deploy updated Firestore rules (`moderationDecisions` and reporter
+reads) before the new moderation UI. Deploy `exportAccountData` and its Hosting
+rewrite together. The new export requires a login within five minutes, enforces
+one request per minute and returns a private, uncached download. It is a current
+content copy, not a complete response covering provider logs/backups.
+
+Reports now remain after their target is deleted so moderators can provide an
+outcome. Decide a retention policy for reports and decision records before launch.
+Account deletion removes that account's decision copies and export quota. Record
+reasons from the mod panel; direct console deletion bypasses that user workflow.
+The email notice builder does not send emails itself: verify the support inbox,
+receipt acknowledgement and review staffing before offering this to the public.

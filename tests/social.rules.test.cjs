@@ -212,3 +212,26 @@ test('friends feeds may query author batches without making friendships public',
  await assertSucceeds(getDocs(query(collection(alice,'posts'),where('board','==','BeeSid'),where('authorId','in',['bob']),orderBy('createdAt','desc'),limit(30))));
  await assertFails(getDocs(collection(guest,'friendships')));
 });
+
+test('reporters see only their reports and decision recipients cannot forge or alter outcomes',async()=>{
+ const mod=env.authenticatedContext('decision-mod',{moderator:true}).firestore();
+ const ownQuery=query(collection(bob,'reports'),where('reporter','==','bob'));
+ assert.ok((await assertSucceeds(getDocs(ownQuery))).size>0);
+ await assertFails(getDocs(query(collection(alice,'reports'),where('reporter','==','bob'))));
+ const decision={recipients:['bob'],reportId:'report-reference',target:'posts/shared',action:'keep',basis:'Community rules',ground:'No breach',reason:'Reviewed context; no rule violation found.',createdAt:serverTimestamp()};
+ await assertFails(setDoc(doc(bob,'moderationDecisions','forged'),decision));
+ await assertSucceeds(setDoc(doc(mod,'moderationDecisions','private-outcome'),decision));
+ await assertSucceeds(getDoc(doc(bob,'moderationDecisions','private-outcome')));
+ await assertFails(getDoc(doc(alice,'moderationDecisions','private-outcome')));
+ await assertFails(getDoc(doc(guest,'moderationDecisions','private-outcome')));
+ await assertSucceeds(getDocs(query(collection(bob,'moderationDecisions'),where('recipients','array-contains','bob'))));
+ await assertFails(getDocs(collection(bob,'moderationDecisions')));
+ await assertFails(updateDoc(doc(bob,'moderationDecisions','private-outcome'),{reason:'changed'}));
+ await assertFails(deleteDoc(doc(bob,'moderationDecisions','private-outcome')));
+ await assertFails(setDoc(doc(mod,'moderationDecisions','blank-reason'),{...decision,reason:''}));
+ const batch=writeBatch(mod);
+ batch.set(doc(mod,'moderationDecisions','atomic-removal'),{...decision,action:'remove'});
+ batch.delete(doc(mod,'posts','shared'));
+ await assertSucceeds(batch.commit());
+ assert.equal((await getDoc(doc(guest,'posts','shared'))).exists(),false);
+});
