@@ -144,6 +144,11 @@ export async function react(id, kind) {
     const current = await tx.get(ref);
     const value = current.exists() ? current.data() : { yeah: false, repost: false };
     tx.set(ref, { ...value, [kind]: !value[kind] });
+    if (kind === 'repost') {
+      const repost = doc(db, 'reposts', uid + '__' + id);
+      if (value.repost) tx.delete(repost);
+      else tx.set(repost, { authorId: uid, profileId: state.profile.id, postId: id, createdAt: serverTimestamp() });
+    }
   });
 }
 export function watchComments(id, success, error) {
@@ -217,3 +222,12 @@ export async function createPoll(title, options, board) {
 export function watchPolls(success, error) { return onSnapshot(query(collection(db, 'polls'), orderBy('createdAt', 'desc'), limit(30)), snap => success(snap.docs.map(row)), error); }
 export function watchVotes(id, success, error) { return onSnapshot(query(collection(db, 'polls', id, 'votes'), orderBy('createdAt')), snap => success(snap.docs.map(row)), error); }
 export async function vote(id, choice) { await setDoc(doc(db, 'polls', id, 'votes', signedIn()), { choice, createdAt: serverTimestamp() }); }
+
+export function watchReposts({ authorId, count = 30 } = {}, success, error) {
+  const filters = authorId ? [where('authorId', '==', authorId)] : [];
+  return onSnapshot(query(collection(db, 'reposts'), ...filters, orderBy('createdAt', 'desc'), limit(count)), snap => success(snap.docs.map(row)), error);
+}
+export async function getPost(id) { const snap = await getDoc(doc(db, 'posts', id)); return snap.exists() ? row(snap) : null; }
+export async function isModerator() { return !!auth.currentUser && (await auth.currentUser.getIdTokenResult()).claims.moderator === true; }
+export function watchReports(success, error) { return onSnapshot(query(collection(db, 'reports'), orderBy('createdAt','desc'), limit(100)), snap => success(snap.docs.map(row)), error); }
+export async function dismissReport(id) { await deleteDoc(doc(db, 'reports', id)); }

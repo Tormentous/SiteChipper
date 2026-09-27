@@ -51,6 +51,15 @@ service cloud.firestore {
         allow delete: if mine(resource.data.authorId) || (postExists(id) && mine(get(/databases/$(database)/documents/posts/$(id)).data.authorId)) || moderator();
       }
     }
+    match /reposts/{id} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.keys().hasOnly(['authorId','profileId','postId','createdAt'])
+        && mine(request.resource.data.authorId) && validProfile(request.resource.data.profileId)
+        && id == request.auth.uid + '__' + request.resource.data.postId && canEngage(request.resource.data.postId)
+        && request.resource.data.createdAt == request.time
+        && getAfter(/databases/$(database)/documents/posts/$(request.resource.data.postId)/reactions/$(request.auth.uid)).data.repost == true;
+      allow delete: if mine(resource.data.authorId) || moderator();
+    }
     match /friendships/{id} {
       allow read: if signedIn() && request.auth.uid in resource.data.participants;
       allow create: if signedIn() && request.resource.data.keys().hasOnly(['participants','requester','status','createdAt'])

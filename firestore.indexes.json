@@ -1,7 +1,47 @@
 {
   "indexes": [
-    { "collectionGroup": "posts", "queryScope": "COLLECTION", "fields": [{"fieldPath":"board","order":"ASCENDING"},{"fieldPath":"createdAt","order":"DESCENDING"}] },
-    { "collectionGroup": "posts", "queryScope": "COLLECTION", "fields": [{"fieldPath":"authorId","order":"ASCENDING"},{"fieldPath":"createdAt","order":"DESCENDING"}] }
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "board",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "authorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "reposts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "authorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
   ],
   "fieldOverrides": []
 }

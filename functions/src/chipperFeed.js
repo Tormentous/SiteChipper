@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Chipper Game Board live feed — serve via coolbrador.com Cloud Functions.
  * Write path remains browser Save → Firestore chipper/feed (cb-chipper-feed-sync.js).
  * GET handlers read that doc so Chipper never talks to Firestore directly.
@@ -15,7 +15,7 @@ if (!admin.apps.length) {
 
 const FEED_PATH = "chipper/chipper_game_board_feed.json";
 const BOARD_PATH = "chipper/BeeSid.json";
-const PUBLISH_PIN = process.env.CHIPPER_PUBLISH_PIN || "coolbrador";
+const { toGamePost, mergeFeed } = require("./socialFeed");
 const FS_DOC = "chipper/feed";
 
 function cors(req, res) {
@@ -23,7 +23,7 @@ function cors(req, res) {
   res.set("Access-Control-Allow-Origin", origin);
   res.set("Vary", "Origin");
   res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.set("Access-Control-Allow-Headers", "Content-Type, X-Mod-Pin");
+  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.set("Access-Control-Max-Age", "3600");
 }
 
@@ -79,7 +79,7 @@ function parseJsonField(raw) {
   return null;
 }
 
-async function liveFeed() {
+async function curatedFeed() {
   const data = await readFirestoreFeedDoc();
   if (data) {
     const feed = parseJsonField(data.payload);
@@ -102,7 +102,22 @@ async function liveFeed() {
   };
 }
 
-async function liveBoard() {
+async function sharedGamePosts() {
+  const snapshot = await admin.firestore().collection('posts').where('board', '==', 'BeeSid').orderBy('createdAt','desc').limit(50).get();
+  return Promise.all(snapshot.docs.map(async document => {
+    const post = { ...document.data(), id: document.id };
+    const [profile, reactions] = await Promise.all([
+      admin.firestore().collection('profiles').doc(post.profileId).get(),
+      document.ref.collection('reactions').get()
+    ]);
+    return toGamePost(post, profile.exists ? profile.data() : null, reactions.docs.map(r => r.data()));
+  }));
+}
+async function liveFeed() {
+  const [base, posts] = await Promise.all([curatedFeed(), sharedGamePosts()]);
+  return mergeFeed(base, posts);
+}
+async function curatedBoard() {
   const data = await readFirestoreFeedDoc();
   if (data) {
     const board = parseJsonField(data.board);
@@ -124,6 +139,11 @@ async function liveBoard() {
   };
 }
 
+async function liveBoard() {
+  const [base, posts] = await Promise.all([curatedBoard(), sharedGamePosts()]);
+  return { ...base, posts: [...posts.map(p => ({ ...p, text:p.body, userId:p.author })), ...(base.posts || [])] };
+}
+
 exports.publishChipperFeed = functions.https.onRequest(async (req, res) => {
   cors(req, res);
   if (req.method === "OPTIONS") return res.status(204).send("");
@@ -141,9 +161,13 @@ exports.publishChipperFeed = functions.https.onRequest(async (req, res) => {
   }
   body = body || {};
 
-  const pin = String(body.pin || req.get("X-Mod-Pin") || "");
-  if (pin !== PUBLISH_PIN) {
-    return res.status(403).json({ ok: false, error: "bad pin" });
+  try {
+    const header = req.get('Authorization') || '';
+    if (!header.startsWith('Bearer ')) return res.status(401).json({ ok:false, error:'Sign in required' });
+    const claims = await admin.auth().verifyIdToken(header.slice(7), true);
+    if (claims.moderator !== true) return res.status(403).json({ ok:false, error:'Moderator access required' });
+  } catch (_) {
+    return res.status(401).json({ ok:false, error:'Invalid authentication' });
   }
 
   const feed = body.feed;

@@ -35,3 +35,19 @@ The local development server runs Firebase Auth/Firestore/Storage emulators.
 Production deployment and existing-data migration must be reviewed separately.
 The repository records a Spark-plan limitation for live Cloud Functions. Static
 Chipper JSON stays available until the documented live-feed deployment is enabled.
+
+## Checkpoint: shared social implementation
+Implemented Firebase-backed accounts and public profiles, stable post links,
+media uploads, posts/replies/Yeah/reposts, friend requests, blocking, private text
+messages, reply notifications, polls, moderator reports, and history charts.
+The original game JSON files are retained. Legacy board posts are archived;
+new shared posts live in separate Firestore collections. Existing palette,
+wallpaper, Chipper game presentation, simulations, and account-link pages remain.
+
+First rules pass: 10/10 tests passed. Sign-up and a shared BeeSid post exercised
+in the local browser. Three game-feed projection tests passed. Remaining:
+full browser journeys, deployment/migration documentation, and CodeRabbit review.
+
+GitHub checkpoint pushes work. Direct draft-PR creation was rejected by the
+runtime-owned Git delivery wrapper, which states it will handle delivery after
+the turn. No alternative API is used to bypass that restriction.

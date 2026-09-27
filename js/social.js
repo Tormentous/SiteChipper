@@ -96,7 +96,7 @@ function postCard(post, detailed = false) {
   posts.set(post.id, post);
   const el = document.createElement('article'); el.className = 'social-post'; el.dataset.postId = post.id;
   const own = post.authorId === api.state.user?.uid;
-  el.innerHTML = `<header class="social-post-head"><a class="social-author" href="${profileUrl(post.profileId)}">${avatar()}<strong>Loading profile…</strong></a><a class="social-board-tag" href="/b/${encodeURIComponent(post.board)}">${escape(post.board)}${post.inGame ? ' · In-game' : ''}</a>
+  el.innerHTML = `${post._repost ? `<p class="social-muted">↻ <a href="${profileUrl(post._repost.profileId)}">${escape(post._repost.name)}</a> reposted</p>` : ''}<header class="social-post-head"><a class="social-author" href="${profileUrl(post.profileId)}">${avatar()}<strong>Loading profile…</strong></a><a class="social-board-tag" href="/b/${encodeURIComponent(post.board)}">${escape(post.board)}${post.inGame ? ' · In-game' : ''}</a>
     <details class="social-menu"><summary aria-label="Post options">•••</summary><div><button data-action="share" data-id="${escape(post.id)}">Copy link</button>${own ? `<button data-action="edit" data-id="${escape(post.id)}">Edit post</button><button data-action="delete" data-id="${escape(post.id)}">Delete post</button>` : `<button data-action="report" data-id="${escape(post.id)}">Report post</button><button data-action="block" data-id="${escape(post.id)}">Block author</button>`}</div></details></header>
     <a class="social-post-time" href="${postUrl(post.id)}">${time(post.createdAt)}${post.editedAt ? ' · edited' : ''}</a><p class="social-post-text">${escape(post.text)}</p>${mediaHTML(post.media)}
     <footer class="social-post-actions"><button data-action="yeah" data-id="${escape(post.id)}" aria-pressed="false">♡ Yeah! <span>0</span></button><a href="${postUrl(post.id)}${detailed ? '#reply' : ''}">↩ Reply</a><button data-action="repost" data-id="${escape(post.id)}" aria-pressed="false">↻ Repost <span>0</span></button><button data-action="share" data-id="${escape(post.id)}">↗ Share</button></footer>`;
@@ -142,14 +142,15 @@ function boardGrid() {
 }
 function renderFeed(board, authorId) {
   const host = root.querySelector('#liveFeed');
-  let current = [], stop, count = 30;
+  let current = [], reposts = [], stop, stopReposts, generation = 0, count = 30;
   const load = root.querySelector('#loadMore');
   feedRender = () => {
     disposeCards(); host.replaceChildren();
-    let filtered = current.filter(p => !blocks.includes(p.authorId));
+    let filtered = [...current, ...reposts].filter(p => !blocks.includes(p.authorId) && !blocks.includes(p._repost?.authorId));
+    filtered.sort((a,b) => api.timestamp(b._repost?.createdAt || b.createdAt)-api.timestamp(a._repost?.createdAt || a.createdAt));
     if (root.querySelector('[data-feed="friends"][aria-selected="true"]')) {
       const ids = friends.filter(f => f.status === 'accepted').flatMap(f => f.participants);
-      filtered = filtered.filter(p => ids.includes(p.authorId) && p.authorId !== api.state.user?.uid);
+      filtered = filtered.filter(p => ids.includes(p._repost?.authorId || p.authorId) && (p._repost?.authorId || p.authorId) !== api.state.user?.uid);
     }
     const term = (root.querySelector('#feedSearch')?.value || '').toLowerCase().trim();
     if (term) filtered = filtered.filter(p => p.text.toLowerCase().includes(term) || p.board.toLowerCase().includes(term));
@@ -169,7 +170,18 @@ function renderFeed(board, authorId) {
     root.querySelectorAll('[data-feed]').forEach(el => { el.setAttribute('aria-selected', String(el === tab)); el.tabIndex = el === tab ? 0 : -1; });
     feedRender();
   }; });
-  disposers.push(() => stop?.()); subscribe();
+  stopReposts = api.watchReposts({authorId, count: 100}, async entries => {
+    const currentGeneration = ++generation;
+    const shared = await Promise.all(entries.map(async r => {
+      const p = await api.getPost(r.postId).catch(() => null);
+      if (!p || board && p.board !== board) return null;
+      const sharer = await api.profile(r.profileId).catch(() => null);
+      return { ...p, _repost: { ...r, name: userName(sharer) } };
+    }));
+    if (currentGeneration !== generation) return;
+    reposts = shared.filter(Boolean); feedRender();
+  }, failure);
+  disposers.push(() => { stop?.(); stopReposts?.(); generation++; }); subscribe();
 }
 async function feedPage(board) {
   const title = board || (page === 'home' ? 'Your corner of the cosmos' : 'Community');
@@ -341,16 +353,27 @@ async function pollsPage() {
   }, failure));
 }
 async function archivePage() {
-  const response = await fetch('/data/boards/BeeSid.json'); if (!response.ok) throw new Error('The game archive is temporarily unavailable.');
+  const board = decodeURIComponent(location.pathname.split('/')[2] || 'BeeSid');
+  const response = await fetch(board === 'BeeSid' ? '/data/boards/BeeSid.json' : '/data/community-archive.json'); if (!response.ok) throw new Error('The game archive is temporarily unavailable.');
   const data = await response.json();
-  const all = data.posts || [];
-  root.innerHTML = heading('Chipper game archive', 'Original Miiverse-style posts, preserved for the game. New conversations happen on the live BeeSid board.') + '<a class="social-primary" href="/b/BeeSid">Join the live board →</a><section id="archivePosts"></section>';
+  const all = board === 'BeeSid' ? data.posts || [] : data[board] || [];
+  root.innerHTML = heading(board === 'BeeSid' ? 'Chipper game archive' : board + ' archive', 'Original Miiverse-style posts, preserved for the game. New conversations happen on the live BeeSid board.') + '<a class="social-primary" href="/b/BeeSid">Join the live board →</a><section id="archivePosts"></section>';
   const route = location.pathname.match(/\/post\/(\d+)\/comments/);
-  const chronological = all.slice().sort((a,b) => Date.parse(a.timestamp)-Date.parse(b.timestamp));
+  const chronological = all.slice().sort((a,b) => (Date.parse(a.timestamp) || Number(a.id) || 0)-(Date.parse(b.timestamp) || Number(b.id) || 0));
   const selected = route ? [chronological[Number(route[1])-1]].filter(Boolean) : all;
   const host = root.querySelector('#archivePosts');
   if (!selected.length) { host.innerHTML = empty('Archived post not found'); return; }
   host.innerHTML = selected.map(p => `<article class="social-post"><header class="social-post-head"><strong>${escape(p.username || p.author || 'Chipper player')}</strong><span class="social-board-tag">Chipper archive</span></header><p class="social-post-text">${escape(p.text || p.body)}</p>${(Array.isArray(p.media) ? p.media : [p.media]).map(mediaHTML).join('')}<p class="social-muted">${Array.isArray(p.yeahs) ? p.yeahs.length : Number(p.yeahs) || 0} Yeah! · ${escape(timeLabel(p.timestamp))}</p></article>`).join('');
+}
+async function moderationPage() {
+  if (!await api.isModerator()) { root.innerHTML = heading('Moderation') + empty('Moderator access required', 'Sign in with an account assigned the moderator role.'); return; }
+  root.innerHTML = heading('Moderation', 'Review reports from the community. Removing a post also removes it from the live Chipper feed.') + '<section id="reports"></section>';
+  disposers.push(api.watchReports(rows => {
+    const host = root.querySelector('#reports');
+    host.innerHTML = rows.length ? rows.map(r => `<article class="social-post"><a href="${postUrl(r.postId)}">Open reported post →</a><p>${escape(r.reason)}</p>${time(r.createdAt)}<div class="social-actions"><button data-remove-post="${escape(r.postId)}">Remove post</button><button data-dismiss="${escape(r.id)}">Dismiss report</button></div></article>`).join('') : empty('No pending reports');
+    host.querySelectorAll('[data-dismiss]').forEach(button => { button.onclick = () => api.dismissReport(button.dataset.dismiss).catch(failure); });
+    host.querySelectorAll('[data-remove-post]').forEach(button => { button.onclick = async () => { if (await confirmDialog('Remove this post?', 'It will no longer be publicly visible.', '')) { try { await api.removePost(button.dataset.removePost); toast('Post removed.'); } catch (error) { failure(error); } } }; });
+  }, failure));
 }
 function wireKeyboardTabs() {
   root.addEventListener('keydown', e => {
@@ -381,6 +404,7 @@ async function boot() {
     else if (page === 'notifications') await notificationsPage();
     else if (page === 'polls') await pollsPage();
     else if (page === 'archive') await archivePage();
+    else if (page === 'moderation') await moderationPage();
   } catch (error) { root.innerHTML = empty('Could not load this page', api.friendlyError(error), '<button onclick="location.reload()">Try again</button>'); }
   wireKeyboardTabs();
 }

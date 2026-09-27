@@ -149,3 +149,28 @@ body.social-page { --social-panel: var(--cb-surface, #111126); background-color:
   .social-auth { margin-top: 24px; padding: 24px; }
 }
 @media (prefers-reduced-motion: reduce) { .social-page *, .social-page *::before, .social-page *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+.cb-history { margin: 24px 0; font-size: 12px; }
+.cb-history-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cb-history-ranges { display: flex; gap: 4px; }
+.cb-history-ranges button { font-size: 11px; padding: 6px 10px; min-height: 34px; }
+.cb-history-ranges [aria-pressed=true] { border-color: var(--cb-accent, #84a8ff); }
+.cb-history-stage svg { width: 100%; height: 230px; display: block; overflow: visible; touch-action: pan-y; }
+.cb-history-stage svg text { fill: var(--cb-muted, #9eabc5); font-size: 10px; }
+.cb-history-grid { stroke: var(--cb-border, #333348); stroke-dasharray: 3 5; }
+.cb-history-cursor { stroke: var(--cb-muted, #9eabc5); stroke-dasharray: 4 4; pointer-events: none; }
+.cb-history-readout { color: var(--cb-muted, #9eabc5); }
+.cb-history-legend { display: flex; flex-wrap: wrap; gap: 14px; min-height: 30px; }
+.cb-history-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.cb-history-legend i { width: 8px; height: 8px; border-radius: 50%; }
+.cb-history-slider { margin-top: 18px; font-size: 11px !important; color: var(--cb-muted, #9eabc5); }
+.cb-history-slider input[type=range] { accent-color: var(--cb-accent, #84a8ff); padding: 0; border: 0; min-height: 30px; }
+.cb-history-data { margin-top: 14px; }
+.cb-history-data summary { padding: 8px 0; }
+.cb-history-table { overflow: auto; max-height: 250px; }
+.cb-history-data table { border-collapse: collapse; width: 100%; text-align: left; font-size: 11px; }
+.cb-history-data caption { text-align: left; padding: 10px; }
+.cb-history-data th, .cb-history-data td { padding: 8px; border-bottom: 1px solid var(--cb-border, #333348); white-space: nowrap; }
+.cb-chart-empty { color: var(--cb-muted, #9eabc5); border: 1px dashed var(--cb-border, #333348); border-radius: 12px; padding: 24px; text-align: center; }
+
+body.social-page.cb-signed-out a[href="/friends.html"] { display: inline-flex !important; }
+.social-page .header-search input { padding-left: 42px; border-radius: 24px; }

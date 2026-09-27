@@ -12,7 +12,6 @@
   var BOARD_MIRROR_KEY = "cb_boards_BeeSid_mirror";
   var SITE = "https://coolbrador.com";
   var FS_BASE = "https://firestore.googleapis.com/v1/projects/coolbrador/databases/(default)/documents/chipper";
-  var FS_KEY = "AIzaSyDcxFPQU10CvAR8aEas54DEo7foxynsaeM";
   var DEBOUNCE_MS = 900;
   var _timer = null;
   var _inflight = null;
@@ -205,35 +204,18 @@
     };
   }
 
-  function firestorePatchOrCreate(docId, body) {
-    var fieldPaths = Object.keys(body.fields || {});
-    var mask = fieldPaths.map(function (f) {
-      return "&updateMask.fieldPaths=" + encodeURIComponent(f);
-    }).join("");
-    var url = FS_BASE + "/" + encodeURIComponent(docId) + "?key=" + encodeURIComponent(FS_KEY) + mask;
-    return fetch(url, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      cache: "no-store"
-    }).then(function (r) {
-      if (r.ok) return r.json();
-      if (r.status === 404) {
-        var createUrl = FS_BASE + "?documentId=" + encodeURIComponent(docId) + "&key=" + encodeURIComponent(FS_KEY);
-        return fetch(createUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-          cache: "no-store"
-        }).then(function (r2) {
-          if (!r2.ok) throw new Error("HTTP " + r2.status);
-          return r2.json();
-        });
-      }
-      return r.text().then(function (txt) {
-        throw new Error("HTTP " + r.status + " " + String(txt || "").slice(0, 160));
-      });
-    });
+  async function firestorePatchOrCreate(docId, body) {
+    const { auth, db } = await import('/js/firebase.js');
+    if (!auth.currentUser) throw new Error('Sign in as a moderator to publish the game feed.');
+    const token = await auth.currentUser.getIdTokenResult();
+    if (token.claims.moderator !== true) throw new Error('Moderator access required.');
+    const { doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
+    const fields = body.fields;
+    await setDoc(doc(db, 'chipper', docId), {
+      payload: fields.payload.stringValue, board: fields.board.stringValue,
+      updatedAt: serverTimestamp(), postCount: Number(fields.postCount.integerValue), boardName: 'BeeSid'
+    }, { merge: true });
+    return { ok: true };
   }
 
   function pushToFirestore(feed, boardDoc) {
