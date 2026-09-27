@@ -237,6 +237,7 @@
   }
 
   function pushToFirestore(feed, boardDoc) {
+    if (global.__CB_EMULATOR__) return Promise.resolve({ skipped: true, reason: "local-preview" });
     var nowIso = new Date().toISOString();
     feed = feed || {};
     feed.meta = Object.assign({}, feed.meta || {}, {
