@@ -3,12 +3,12 @@
   "use strict";
 
   // Defaults (user override Sep 21):
-  // Website sensitive speech SHOW; Chipper HIDE; non-porn 18+ HIDE.
+  // Website sensitive speech HIDE; Chipper HIDE; non-porn 18+ HIDE.
   var KEY_SPEECH = "cb_show_sensitive_speech";
   var KEY_CHIPPER_SPEECH = "cb_chipper_show_sensitive_speech";
   var KEY_NSFW = "cb_show_nsfw";
 
-  var SPEECH_DEFAULT = true;
+  var SPEECH_DEFAULT = false;
   var CHIPPER_SPEECH_DEFAULT = false;
   var NSFW_DEFAULT = false;
 

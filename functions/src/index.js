@@ -7,3 +7,5 @@ exports.getChipperFeed = chipper.getChipperFeed;
 exports.getBeeSidBoard = chipper.getBeeSidBoard;
 
 Object.assign(exports, require('./socialLifecycle'));
+
+exports.exportAccountData = require('./accountExport').exportAccountData;

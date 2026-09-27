@@ -340,3 +340,29 @@ export async function discardUpload(media) {
  const {ref,deleteObject}=await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js');
  await deleteObject(ref(await getStorageInstance(),media.path));
 }
+
+export function watchOwnReports(success,error) {
+  return onSnapshot(query(collection(db,'reports'),where('reporter','==',signedIn())),snap=>success(snap.docs.map(row)),error);
+}
+export function watchDecisions(success,error) {
+  return onSnapshot(query(collection(db,'moderationDecisions'),where('recipients','array-contains',signedIn())),snap=>success(snap.docs.map(row)),error);
+}
+export async function resolveReport(report, {action,basis,ground,reason}) {
+  signedIn();
+  const ref=doc(db,'reports',report.id),decision=doc(collection(db,'moderationDecisions'));
+  await runTransaction(db, async tx=>{
+    const current=await tx.get(ref);if(!current.exists())throw Error('This report has already been handled.');
+    const item=current.data();
+    const target=item.pollId?doc(db,'polls',item.pollId):item.commentId?doc(db,'posts',item.postId,'comments',item.commentId):doc(db,'posts',item.postId);
+    const content=await tx.get(target), author=content.data()?.authorId;
+    if(action==='remove'&&!content.exists())throw Error('Content is already unavailable. Record a no-removal decision.');
+    const recipients=[...new Set([item.reporter,author].filter(Boolean))];
+    // Separate copies prevent revealing the reporter's UID to the author.
+    for(const recipient of recipients) {
+      const copy=doc(db,'moderationDecisions',decision.id+'_'+recipient);
+      tx.set(copy,{recipients:[recipient],reportId:report.id,target:target.path,action,basis,ground:text(ground,300,'Rule or law'),reason:text(reason,2000,'Decision explanation'),createdAt:serverTimestamp()});
+    }
+    if(action==='remove')tx.delete(target);
+    tx.delete(ref);
+  });
+}

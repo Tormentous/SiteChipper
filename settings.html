@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings - Coolbrador</title>
   <link rel="icon" href="/img/favicon3.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/social.css">
   <script src="/js/theme-rice.js"></script>
   <script>
     (function () {
@@ -22,15 +22,15 @@
     .settings-page h1 { margin: 0 0 8px; font-size: 1.8rem; }
     .settings-page .settings-sub { color: var(--cb-muted); margin: 0 0 22px; }
     .settings-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--cb-surface);
+      border: 1px solid var(--cb-border);
       border-radius: 14px;
       padding: 18px 20px;
       margin-bottom: 16px;
     }
     html[data-mode="light"] .settings-card {
       background: var(--cb-surface);
-      border-color: rgba(15,23,42,0.1);
+      border-color: var(--cb-border);
     }
     .settings-card h2 { margin: 0 0 6px; font-size: 1.15rem; }
     .settings-card p { margin: 0 0 14px; color: var(--cb-muted); font-size: 0.95rem; }
@@ -44,19 +44,19 @@
       display: block;
       text-align: left;
       cursor: pointer;
-      border: 2px solid rgba(255,255,255,0.12);
+      border: 2px solid var(--cb-border);
       border-radius: 12px;
       padding: 14px;
-      background: rgba(0,0,0,0.25);
+      background: var(--cb-surface-2);
       color: inherit;
       transition: border-color 0.15s, box-shadow 0.15s;
     }
     html[data-mode="light"] .theme-option,
     html[data-mode="light"] .mode-option {
-      background: rgba(15,23,42,0.04);
-      border-color: rgba(15,23,42,0.12);
+      background: var(--cb-surface);
+      border-color: var(--cb-border);
     }
-    .theme-option:hover, .mode-option:hover { border-color: rgba(255,255,255,0.28); }
+    .theme-option:hover, .mode-option:hover { border-color: var(--cb-border); }
     .theme-option.selected, .mode-option.selected {
       border-color: var(--cb-accent);
       box-shadow: 0 0 0 2px rgba(var(--cb-accent-rgb),0.25);
@@ -64,7 +64,7 @@
     .theme-option .swatch-row { display: flex; gap: 8px; margin-bottom: 10px; }
     .theme-option .swatch {
       width: 28px; height: 28px; border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.2);
+      border: 1px solid var(--cb-border);
     }
     .theme-option strong, .mode-option strong { display: block; margin-bottom: 4px; }
     .theme-option span, .mode-option span { color: var(--cb-muted); font-size: 0.85rem; }
@@ -84,7 +84,7 @@
     .rice-field input[type="color"] {
       width: 100%;
       height: 42px;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid var(--cb-border);
       border-radius: 10px;
       background: transparent;
       padding: 4px;
@@ -93,7 +93,7 @@
     .rice-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
     .rice-actions button, .rice-file-btn {
       background: var(--cb-accent);
-      color: #fff !important;
+      color: var(--cb-on-accent) !important;
       border: none;
       border-radius: 999px;
       padding: 8px 16px;
@@ -109,8 +109,8 @@
       width: 100%;
       min-height: 120px;
       border-radius: 12px;
-      border: 1px dashed rgba(255,255,255,0.2);
-      background: rgba(0,0,0,0.25) center/cover no-repeat;
+      border: 1px dashed var(--cb-border);
+      background: var(--cb-surface-2) center/cover no-repeat;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -123,17 +123,17 @@
 
     .chipper-link-pre {
       white-space: pre-wrap; word-break: break-word;
-      background: rgba(0,0,0,0.35); border-radius: 10px; padding: 12px;
-      font-size: 0.82rem; border: 1px solid rgba(255,255,255,0.08);
+      background: var(--cb-surface-2); border-radius: 10px; padding: 12px;
+      font-size: 0.82rem; border: 1px solid var(--cb-border);
       max-height: 220px; overflow: auto;
     }
     .chipper-connect-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
     .settings-btn {
       border: 0; border-radius: 10px; padding: 10px 14px; cursor: pointer;
-      background: var(--cb-accent); color: #fff; font-weight: 700; text-decoration: none;
+      background: var(--cb-accent); color: var(--cb-on-accent); font-weight: 700; text-decoration: none;
       display: inline-flex; align-items: center;
     }
-    .settings-btn-secondary { background: rgba(255,255,255,0.12); color: var(--cb-text); }
+    .settings-btn-secondary { background: var(--cb-surface); color: var(--cb-text); }
     .rice-actions button#resetCustomColors {
       background: transparent;
       border: 1px solid rgba(var(--cb-accent-rgb),0.45);
@@ -141,10 +141,10 @@
     }
   </style>
 </head>
-<body class="settings-page">
+<body class="settings-page social-page">
   <div id="shared-header"></div>
 <script src="/js/shell-boot.js"></script>
-  <main class="settings-wrap">
+  <main class="settings-wrap" id="main-content"><nav class="safety-links" aria-label="Settings sections"><a href="#accountSettings">Account</a><a href="#contentPreferences">Content</a><a href="#privacyControls">Privacy</a><a href="/safety.html">Safety &amp; rules</a></nav>
     <h1>Settings</h1>
     <p class="settings-sub">Customize how Coolbrador looks on this device — palette, light/dark, and background.</p>
 
@@ -170,70 +170,70 @@
       <div class="theme-options" role="group" aria-label="Site palette">
         <button type="button" class="theme-option" data-theme="default" id="themeDefault">
           <div class="swatch-row">
-            <span class="swatch" style="background:#00001c"></span>
-            <span class="swatch" style="background:#080223"></span>
-            <span class="swatch" style="background:#0f053f"></span>
-            <span class="swatch" style="background:#4a9eff"></span>
+            <span class="swatch" style="background:var(--cb-preview-default-1)"></span>
+            <span class="swatch" style="background:var(--cb-preview-default-2)"></span>
+            <span class="swatch" style="background:var(--cb-preview-default-3)"></span>
+            <span class="swatch" style="background:var(--cb-preview-default-4)"></span>
           </div>
           <strong>Coolbrador</strong>
           <span>Blue cosmos</span>
         </button>
         <button type="button" class="theme-option" data-theme="green" id="themeGreen">
           <div class="swatch-row">
-            <span class="swatch" style="background:#06130d"></span>
-            <span class="swatch" style="background:#08140e"></span>
-            <span class="swatch" style="background:#102418"></span>
-            <span class="swatch" style="background:#54a36e"></span>
+            <span class="swatch" style="background:var(--cb-preview-green-1)"></span>
+            <span class="swatch" style="background:var(--cb-preview-green-2)"></span>
+            <span class="swatch" style="background:var(--cb-preview-green-3)"></span>
+            <span class="swatch" style="background:var(--cb-preview-green-4)"></span>
           </div>
           <strong>Green</strong>
           <span>Dark pine accents</span>
         </button>
         <button type="button" class="theme-option" data-theme="ember" id="themeEmber">
           <div class="swatch-row">
-            <span class="swatch" style="background:#1a0a08"></span>
-            <span class="swatch" style="background:#2a1210"></span>
-            <span class="swatch" style="background:#3d1a12"></span>
-            <span class="swatch" style="background:#ff7a45"></span>
+            <span class="swatch" style="background:var(--cb-preview-ember-1)"></span>
+            <span class="swatch" style="background:var(--cb-preview-ember-2)"></span>
+            <span class="swatch" style="background:var(--cb-preview-ember-3)"></span>
+            <span class="swatch" style="background:var(--cb-preview-ember-4)"></span>
           </div>
           <strong>Ember</strong>
           <span>Charcoal + orange</span>
         </button>
         <button type="button" class="theme-option" data-theme="violet" id="themeViolet">
           <div class="swatch-row">
-            <span class="swatch" style="background:#12081c"></span>
-            <span class="swatch" style="background:#1c0f2e"></span>
-            <span class="swatch" style="background:#2a1644"></span>
-            <span class="swatch" style="background:#b388ff"></span>
+            <span class="swatch" style="background:var(--cb-preview-violet-1)"></span>
+            <span class="swatch" style="background:var(--cb-preview-violet-2)"></span>
+            <span class="swatch" style="background:var(--cb-preview-violet-3)"></span>
+            <span class="swatch" style="background:var(--cb-preview-violet-4)"></span>
           </div>
           <strong>Violet</strong>
           <span>Purple night</span>
         </button>
         <button type="button" class="theme-option" data-theme="ocean" id="themeOcean">
           <div class="swatch-row">
-            <span class="swatch" style="background:#061418"></span>
-            <span class="swatch" style="background:#0a1f24"></span>
-            <span class="swatch" style="background:#0f2c33"></span>
-            <span class="swatch" style="background:#2ec4b6"></span>
+            <span class="swatch" style="background:var(--cb-preview-ocean-1)"></span>
+            <span class="swatch" style="background:var(--cb-preview-ocean-2)"></span>
+            <span class="swatch" style="background:var(--cb-preview-ocean-3)"></span>
+            <span class="swatch" style="background:var(--cb-preview-ocean-4)"></span>
           </div>
           <strong>Ocean</strong>
           <span>Teal depth</span>
         </button>
         <button type="button" class="theme-option" data-theme="rose" id="themeRose">
           <div class="swatch-row">
-            <span class="swatch" style="background:#16080e"></span>
-            <span class="swatch" style="background:#241018"></span>
-            <span class="swatch" style="background:#3a1824"></span>
-            <span class="swatch" style="background:#ff6b9d"></span>
+            <span class="swatch" style="background:var(--cb-preview-rose-1)"></span>
+            <span class="swatch" style="background:var(--cb-preview-rose-2)"></span>
+            <span class="swatch" style="background:var(--cb-preview-rose-3)"></span>
+            <span class="swatch" style="background:var(--cb-preview-rose-4)"></span>
           </div>
           <strong>Rose</strong>
           <span>Wine accents</span>
         </button>
         <button type="button" class="theme-option" data-theme="slate" id="themeSlate">
           <div class="swatch-row">
-            <span class="swatch" style="background:#0c0e12"></span>
-            <span class="swatch" style="background:#141820"></span>
-            <span class="swatch" style="background:#1c2230"></span>
-            <span class="swatch" style="background:#94a3b8"></span>
+            <span class="swatch" style="background:var(--cb-preview-slate-1)"></span>
+            <span class="swatch" style="background:var(--cb-preview-slate-2)"></span>
+            <span class="swatch" style="background:var(--cb-preview-slate-3)"></span>
+            <span class="swatch" style="background:var(--cb-preview-slate-4)"></span>
           </div>
           <strong>Slate</strong>
           <span>Neutral grey</span>
@@ -264,7 +264,7 @@
       <label><input type="checkbox" id="showChipperSensitive"> Show sensitive speech in Chipper</label>
       <label><input type="checkbox" id="showMature"> Show mature content</label>
     </section>
-    <section class="settings-card" id="chipper">
+    <section class="settings-card account-settings" id="privacyControls"><h2>Privacy &amp; safety</h2><p><a href="/privacy.html">How your data is used</a> · <a href="/safety.html#report">Report illegal content</a></p><div id="dataControls"></div><h3>Muted words</h3><p>Hide matching public posts, replies and polls behind a warning on this device. One word or phrase per line; matching ignores case. This does not block messages or report content.</p><form id="mutedWordsForm"><label>Words or phrases<textarea id="mutedWords" rows="4" maxlength="2000"></textarea></label><button type="submit">Save muted words</button><p role="status"></p></form><p><a href="/friends.html">Manage blocked accounts →</a></p></section><section class="settings-card" id="chipper">
       <h2>Connect to Chipper</h2>
       <p>Share your public Coolbrador profile with Chipper. This card is for in-game display; it does not grant access to your account.</p>
       <div class="chipper-connect-box">
@@ -289,6 +289,6 @@
   <script type="module" src="/js/chipper-link.js"></script>
   <script src="/js/cb-sensitive-filter.js"></script>
   <script src="/js/settings.js"></script>
-  <script type="module" src="/js/account-settings.js"></script>
+  <script type="module" src="/js/account-settings.js"></script><script type="module" src="/js/privacy-controls.js"></script>
 </body>
 </html>

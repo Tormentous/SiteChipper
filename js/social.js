@@ -1,4 +1,5 @@
 import * as api from './social-api.js';
+import { matchesMuted } from './content-preferences.mjs';
 import { mountDrawing } from './drawing.js';
 const root = document.querySelector('#socialRoot');
 const page = document.body.dataset.page;
@@ -107,6 +108,7 @@ function mediaHTML(media) {
 }
 function postBody(post) {
   const content = `<p class="social-post-text">${escape(post.text)}</p>${mediaHTML(post.media)}`;
+  if (matchesMuted(post.text)) return `<details class="social-content-warning"><summary>Muted word or phrase · Show post</summary>${content}</details>`;
   const classification = window.CoolbradorSensitiveFilter?.classifyPost(post);
   if (classification && !window.CoolbradorSensitiveFilter.shouldShowPost(post)) return `<details class="social-content-warning"><summary>Sensitive content · Show post</summary>${content}</details>`;
   return content;
@@ -135,15 +137,18 @@ function postCard(post, detailed = false) {
 function disposeCards() { cardDisposers.splice(0).forEach(fn => fn()); }
 async function confirmDialog(title, label, value, multiline = false) {
   const dialog = document.createElement('dialog'); dialog.className = 'social-dialog';
-  dialog.innerHTML = `<form method="dialog"><h2>${escape(title)}</h2>${label ? `<label>${escape(label)}${multiline ? `<textarea name="value" rows="5" maxlength="2000" required>${escape(value || '')}</textarea>` : `<p>${escape(value || '')}</p>`}</label>` : ''}<div class="social-actions"><button value="cancel" formnovalidate>Cancel</button><button class="social-primary" value="confirm">Confirm</button></div></form>`;
+  dialog.setAttribute('aria-labelledby','socialDialogTitle');
+  dialog.innerHTML = `<form method="dialog"><h2 id="socialDialogTitle">${escape(title)}</h2>${label ? `<label>${escape(label)}${multiline ? `<textarea name="value" rows="5" maxlength="2000" required>${escape(value || '')}</textarea>` : `<p>${escape(value || '')}</p>`}</label>` : ''}<div class="social-actions"><button value="cancel" formnovalidate>Cancel</button><button class="social-primary" value="confirm">Confirm</button></div></form>`;
+  const previousFocus=document.activeElement;
   document.body.append(dialog); dialog.showModal();
-  return new Promise(resolve => dialog.addEventListener('close', () => { const result = dialog.returnValue === 'confirm' ? multiline ? dialog.querySelector('textarea').value : true : null; dialog.remove(); resolve(result); }, { once: true }));
+  return new Promise(resolve => dialog.addEventListener('close', () => { const result = dialog.returnValue === 'confirm' ? multiline ? dialog.querySelector('textarea').value : true : null; dialog.remove(); if(previousFocus?.isConnected)previousFocus.focus(); resolve(result); }, { once: true }));
 }
 root.addEventListener('click', async event => {
   const button = event.target.closest('button[data-action]'); if (!button || button.disabled) return;
   const { action, id } = button.dataset, post = posts.get(id);
   if (!post) return;
-  if (action !== 'share' && !requireUser()) return;
+  if (!['share','report'].includes(action) && !requireUser()) return;
+  if(action==='report' && !api.state.user){location.assign('/safety.html?url='+encodeURIComponent(location.origin+postUrl(id))+'#report');return;}
   button.disabled = true;
   try {
     if (action === 'share') {
@@ -152,10 +157,25 @@ root.addEventListener('click', async event => {
     } else if (['yeah','repost'].includes(action)) { await api.react(id, action); if (action === 'repost') toast('Repost updated.'); }
     else if (action === 'delete') { if (await confirmDialog('Delete this post?', 'This cannot be undone.', '')) await api.removePost(id); }
     else if (action === 'edit') { const value = await confirmDialog('Edit post', 'Post text', post.text, true); if (value !== null) await api.editPost(id, value); }
-    else if (action === 'report') { const reason = await confirmDialog('Report post', 'Tell the moderators what is wrong', '', true); if (reason !== null) { await api.report(post, reason); toast('Report submitted for review.'); } }
+    else if (action === 'report') { await reportDialog({postId:post.id},location.origin+postUrl(id)); }
     else if (action === 'block') { if (await confirmDialog('Block this person?', 'Their posts will be hidden and they will be unable to message you.', '')) { await api.block(post.authorId, true); toast('Person blocked. Manage blocks in Friends.'); } }
   } catch (error) { failure(error); } finally { button.disabled = false; }
 });
+document.addEventListener('click', event => {
+  document.querySelectorAll('.social-menu[open]').forEach(menu => { if(!menu.contains(event.target))menu.open=false; });
+});
+document.addEventListener('keydown', event => {
+  if(event.key==='Escape')document.querySelectorAll('.social-menu[open]').forEach(menu => {menu.open=false;menu.querySelector('summary').focus();});
+});
+async function reportDialog(target,url) {
+  const dialog=document.createElement('dialog');dialog.className='social-dialog';dialog.setAttribute('aria-labelledby','reportTitle');
+  dialog.innerHTML=`<form method="dialog"><h2 id="reportTitle">Report content</h2><p>Reports go to moderators. Your identity is not shown to the author.</p><label>Reason<select name="category"><option>Harassment or threats</option><option>Hate or violence</option><option>Child safety</option><option>Privacy or intimate images</option><option>Scam or spam</option><option>Copyright</option><option>Other</option></select></label><label>What happened?<textarea name="reason" rows="4" maxlength="850" required></textarea></label><p><a id="legalNotice">Report suspected illegal content without an account →</a></p><div class="social-actions"><button value="cancel" formnovalidate>Cancel</button><button value="submit" class="social-primary">Submit report</button></div></form>`;
+  dialog.querySelector('#legalNotice').href='/safety.html?url='+encodeURIComponent(url)+'#report';
+  const previous=document.activeElement;document.body.append(dialog);dialog.showModal();
+  const result=await new Promise(resolve=>dialog.addEventListener('close',()=>resolve(dialog.returnValue),{once:true}));
+  const values=new FormData(dialog.querySelector('form'));dialog.remove();if(previous?.isConnected)previous.focus();
+  if(result==='submit'){await api.reportContent(target,values.get('category')+': '+values.get('reason'));toast('Report submitted for review.');}
+}
 function boardGrid() {
   return `<nav class="social-boards" aria-label="Communities">${api.BOARDS.map((b,i) => `<a href="/b/${b}"><span aria-hidden="true">${['✦','🎮','☾','🌱','🌎','⚑','🎁','🌾'][i] || '✦'}</span><strong>${escape(api.boardInfo.get(b)?.name || b)}</strong><small>${b === 'BeeSid' ? 'The Chipper game board' : 'Join the conversation'}</small></a>`).join('')}</nav>`;
 }
@@ -215,7 +235,7 @@ async function feedPage(board) {
   root.innerHTML = heading(title, page==='gift'?'Share drawings, encouragement and thank-yous. This board does not take payments.':board === 'BeeSid' ? 'The Miiverse-style home for Chipper moments, drawings, and in-game discoveries.' : 'Small moments. Big conversations. A place for the whole pack.') +
     (page === 'home' || !board ? boardGrid() : '') +
     `<div id="composer"></div>${board === 'BeeSid' ? '<aside class="social-callout">🎮 Posts on this board are marked for Chipper. <a href="?archive=1">Explore the original game feed →</a></aside>' : ''}
-    <div class="social-feed-toolbar"><div role="tablist" aria-label="Feed"><button role="tab" data-feed="latest" aria-selected="true">Latest</button><button role="tab" data-feed="friends" aria-selected="false" tabindex="-1">Friends</button></div><label>Search posts<input id="feedSearch" type="search" placeholder="Find a conversation"></label></div><section id="liveFeed" aria-label="Posts"><p>Loading posts…</p></section><button id="loadMore" class="social-load" hidden>Load more posts</button>`;
+    <div class="social-feed-toolbar"><div role="tablist" aria-label="Feed"><button role="tab" data-feed="latest" aria-selected="true">Latest</button><button role="tab" data-feed="friends" aria-selected="false" tabindex="-1">Friends</button></div><label>Search posts<input id="feedSearch" type="search" placeholder="Find a conversation"></label></div><p class="social-muted">Newest first · <a href="/safety.html#feed">How your feed works</a></p><section id="liveFeed" aria-label="Posts"><p>Loading posts…</p></section><button id="loadMore" class="social-load" hidden>Load more posts</button>`;
   root.querySelector('#composer').append(composer(board)); renderFeed(board);
   if (page === 'home') { const grid=root.querySelector('.social-boards');grid.classList.add('is-carousel');root.querySelector('.social-heading').after(root.querySelector('#composer'));const browse=document.createElement('a');browse.href='/community.html';browse.textContent='Browse all communities →';grid.after(browse); }
   if (page === 'community') {
@@ -250,12 +270,12 @@ async function threadPage() {
         const cards = await Promise.all(comments.map(async c => {
           const p = await api.profile(c.profileId).catch(() => null);
           if (blocks.includes(c.authorId)) return '';
-          return `<article class="social-comment" id="comment-${escape(c.id)}"><a class="social-author" href="${profileUrl(c.profileId)}">${avatar(p)}<strong>${escape(userName(p))}</strong></a>${time(c.createdAt)}<p>${escape(c.text)}</p>${mediaHTML(c.media)}${api.state.user?.uid === c.authorId || api.state.user?.uid === post.authorId ? `<button data-delete-comment="${escape(c.id)}">Delete reply</button>` : `<button data-report-comment="${escape(c.id)}">Report reply</button>`}</article>`;
+          return `<article class="social-comment" id="comment-${escape(c.id)}"><a class="social-author" href="${profileUrl(c.profileId)}">${avatar(p)}<strong>${escape(userName(p))}</strong></a>${time(c.createdAt)}${matchesMuted(c.text)?`<details class="social-content-warning"><summary>Muted word or phrase · Show reply</summary><p>${escape(c.text)}</p>${mediaHTML(c.media)}</details>`:`<p>${escape(c.text)}</p>${mediaHTML(c.media)}`}${api.state.user?.uid === c.authorId || api.state.user?.uid === post.authorId ? `<button data-delete-comment="${escape(c.id)}">Delete reply</button>` : `<button data-report-comment="${escape(c.id)}">Report reply</button>`}</article>`;
         }));
         if(version!==commentVersion)return;
         container.innerHTML = `<h2>Replies (${comments.length}${more ? '+' : ''})</h2>` + (cards.join('') || '<p class="social-muted">Start the conversation.</p>');
         revealAnchor();
-        container.querySelectorAll('[data-report-comment]').forEach(button=>{button.onclick=async()=>{if(!requireUser())return;const reason=await confirmDialog('Report reply','Tell the moderators what is wrong','',true);if(reason!==null){try{await api.reportContent({postId:id,commentId:button.dataset.reportComment},reason);toast('Reply reported.');}catch(error){failure(error);}}};});
+        container.querySelectorAll('[data-report-comment]').forEach(button=>{button.onclick=async()=>{const url=location.origin+postUrl(id)+'#comment-'+button.dataset.reportComment;if(!api.state.user){location.assign('/safety.html?url='+encodeURIComponent(url)+'#report');return;}try{await reportDialog({postId:id,commentId:button.dataset.reportComment},url);}catch(error){failure(error);}};});
         container.querySelectorAll('[data-delete-comment]').forEach(button => { button.onclick = async () => { if (await confirmDialog('Delete reply?', '', '')) { try { await api.removeComment(id, button.dataset.deleteComment); } catch (error) { failure(error); } } }; });
       }, failure);
       root.querySelector('#moreReplies').onclick = () => stopComments.more();
@@ -310,7 +330,7 @@ async function profilePage() {
   const p = await api.profile(id);
   if (!p) { root.innerHTML = heading('Profile') + empty('Profile not found', 'This profile may be an archived demo or its link may be incorrect.', '<a href="/friends.html">Discover people →</a>'); return; }
   const own = p.uid === api.state.user?.uid;
-  root.innerHTML = `<header class="social-profile">${avatar(p)}<div><p class="social-eyebrow">MEMBER OF THE PACK</p><h1>${escape(userName(p))}</h1><p class="social-bio">${escape(p.bio || 'A little corner of the Coolbrador cosmos.')}</p><small>Joined ${escape(timeLabel(p.createdAt))}</small></div></header><div class="social-actions">${own ? '<button id="editProfile">Edit profile</button><a href="/settings">Customize appearance</a>' : '<button id="profileFriend">Add friend</button><button id="profileMessage">Message</button><button id="profileBlock">Block</button>'}</div><div id="profileEditor"></div><h2>Posts</h2><section id="liveFeed"></section><button id="loadMore" class="social-load" hidden>Load more posts</button>`;
+  root.innerHTML = `<header class="social-profile">${avatar(p)}<div><p class="social-eyebrow">MEMBER OF THE PACK</p><h1>${escape(userName(p))}</h1><p class="social-bio">${escape(p.bio || 'A little corner of the Coolbrador cosmos.')}</p><small>Joined ${escape(timeLabel(p.createdAt))}</small></div></header><div class="social-actions">${own ? '<button id="editProfile">Edit profile</button><a href="/settings">Customize appearance</a>' : '<button id="profileFriend">Add friend</button><button id="profileMessage">Message</button><button id="profileBlock">Block</button>'}</div><div id="profileEditor"></div><h2>Posts</h2><p class="social-muted">Newest first · <a href="/safety.html#feed">How your feed works</a></p><section id="liveFeed"></section><button id="loadMore" class="social-load" hidden>Load more posts</button>`;
   renderFeed(undefined, p.uid);
   if (own) root.querySelector('#editProfile').onclick = () => {
     const editor = root.querySelector('#profileEditor');
@@ -353,7 +373,7 @@ async function messagesPage() {
     const version = ++selection; lastRead=0;
     const other = await api.profileByUid(otherId); if(version !== selection) return;
     const pane = root.querySelector('#conversation');
-    pane.innerHTML = `<header class="social-chat-head"><a href="${profileUrl(other?.id || otherId)}">${escape(userName(other))}</a><span class="social-muted">Private conversation</span></header><button id="olderMessages" class="social-load" hidden>Load older messages</button><div id="messageLog" class="social-message-log" role="log" aria-label="Messages" aria-live="polite"></div><form class="social-chat-compose"><label>Message<textarea name="message" rows="2" maxlength="2000" required placeholder="Write a message…"></textarea></label><button type="submit" class="social-primary">Send</button><p role="status"></p></form>`;
+    pane.innerHTML = `<header class="social-chat-head"><a href="${profileUrl(other?.id || otherId)}">${escape(userName(other))}</a><span class="social-muted">Private conversation</span></header><button id="olderMessages" class="social-load" hidden>Load older messages</button><div id="messageLog" class="social-message-log" role="log" tabindex="0" aria-label="Messages" aria-live="polite"></div><form class="social-chat-compose"><label>Message<textarea name="message" rows="2" maxlength="2000" required placeholder="Write a message…"></textarea></label><button type="submit" class="social-primary">Send</button><p role="status"></p></form>`;
     const form = pane.querySelector('form');
     const draftKey = `cb_dm_draft_${api.state.user.uid}_${id}`;
     try { form.elements.message.value = localStorage.getItem(draftKey) || ''; } catch (_) {}
@@ -419,7 +439,8 @@ async function pollsPage() {
       const card = document.createElement('article'); card.className = 'social-poll'; card.id = 'poll-' + poll.id;
       card.innerHTML = `<span class="social-board-tag">${escape(poll.board)}</span><h2>${escape(poll.title)}</h2><div class="social-vote-options">${poll.options.map((option,i) => `<button data-choice="${i}"><span>${escape(option)}</span><strong>0%</strong></button>`).join('')}</div><p class="social-vote-status" role="status"></p><div class="social-chart"></div><p class="social-muted">Share of votes, not betting odds. One vote per account. Votes are public.</p>${poll.authorId===api.state.user?.uid?`<div class="social-actions">${poll.closedAt?'':'<button data-close-poll>Close voting</button>'}<button data-delete-poll>Delete poll</button></div>`:'<button data-report-poll>Report poll</button>'}`;
       host.append(card); revealAnchor(); let myVote, chart;
-      card.querySelector('[data-report-poll]')?.addEventListener('click',async()=>{if(!requireUser())return;const reason=await confirmDialog('Report poll','Tell the moderators what is wrong','',true);if(reason!==null){try{await api.reportContent({pollId:poll.id},reason);toast('Poll reported.');}catch(error){failure(error);}}});
+      if(matchesMuted([poll.title,...poll.options].join(' ')))card.innerHTML='<details class="social-content-warning"><summary>Muted word or phrase · Show poll</summary>'+card.innerHTML+'</details>';
+      card.querySelector('[data-report-poll]')?.addEventListener('click',async()=>{const url=location.origin+'/polls#poll-'+poll.id;if(!api.state.user){location.assign('/safety.html?url='+encodeURIComponent(url)+'#report');return;}try{await reportDialog({pollId:poll.id},url);}catch(error){failure(error);}});
       card.querySelector('[data-close-poll]')?.addEventListener('click',async()=>{if(await confirmDialog('Close this poll?','Existing votes and history will remain visible.','')){try{await api.closePoll(poll.id);}catch(error){failure(error);}}});
       card.querySelector('[data-delete-poll]')?.addEventListener('click',async()=>{if(await confirmDialog('Delete this poll?','Its votes and history will be permanently removed.','')){try{await api.removePoll(poll.id);}catch(error){failure(error);}}});
       card.querySelectorAll('[data-choice]').forEach(button => { button.onclick = async () => {
@@ -474,7 +495,7 @@ async function searchPage() {
 }
 async function moderationPage() {
   if (!await api.isModerator()) { root.innerHTML = heading('Moderation') + empty('Moderator access required', 'Sign in with an account assigned the moderator role.'); return; }
-  root.innerHTML = heading('Moderation', 'Review community reports. Content removal also clears its reports and associated media.') + '<section id="reports"></section><button id="moreReports" class="social-load" hidden>Load older reports</button>';
+  root.innerHTML = heading('Moderation', 'Review reports and record a specific reason. Decisions are shared privately with the reporter and author.') + '<section id="reports"></section><button id="moreReports" class="social-load" hidden>Load older reports</button>';
   const stopReports = api.watchReports((rows, more) => {
     root.querySelector('#moreReports').hidden=!more;
     const host = root.querySelector('#reports');
@@ -482,15 +503,16 @@ async function moderationPage() {
       const kind=r.pollId?'poll':r.commentId?'reply':'post',url=r.pollId?'/polls#poll-'+encodeURIComponent(r.pollId):postUrl(r.postId)+(r.commentId?'#comment-'+encodeURIComponent(r.commentId):'');
       return `<article class="social-post"><a href="${url}">Open reported ${kind} →</a><p>${escape(r.reason)}</p>${time(r.createdAt)}<div class="social-actions"><button data-remove-report="${escape(r.id)}">Remove ${kind}</button><button data-dismiss="${escape(r.id)}">Dismiss report</button></div></article>`;
     }).join('') : empty('No pending reports');
-    host.querySelectorAll('[data-dismiss]').forEach(button => { button.onclick = () => api.dismissReport(button.dataset.dismiss).catch(failure); });
-    host.querySelectorAll('[data-remove-report]').forEach(button => { button.onclick = async () => {
-      const report=rows.find(r=>r.id===button.dataset.removeReport);
-      if(await confirmDialog('Remove this content?','It will no longer be publicly visible.','')) {
-        button.disabled=true;
-        try { if(report.pollId)await api.removePoll(report.pollId);else if(report.commentId)await api.removeComment(report.postId,report.commentId);else await api.removePost(report.postId);await api.dismissReport(report.id);toast('Content removed.'); }
-        catch(error){failure(error);}finally{button.disabled=false;}
-      }
-    }; });
+    async function decide(report,action) {
+      const dialog=document.createElement('dialog');dialog.className='social-dialog';dialog.setAttribute('aria-labelledby','decisionTitle');
+      dialog.innerHTML=`<form method="dialog"><h2 id="decisionTitle">${action==='remove'?'Remove content':'Keep content'}</h2><label>Basis<select name="basis"><option>Community rules</option><option>Law</option></select></label><label>Specific rule or law<input name="ground" maxlength="300" required></label><label>Facts and explanation<textarea name="reason" rows="5" maxlength="2000" required></textarea></label><p>This explanation is sent to the author and reporter. Do not include the reporter's identity or private details.</p><div class="social-actions"><button value="cancel" formnovalidate>Cancel</button><button value="confirm">Record decision</button></div></form>`;
+      document.body.append(dialog);dialog.showModal();
+      const result=await new Promise(resolve=>dialog.addEventListener('close',()=>resolve(dialog.returnValue),{once:true}));
+      const values=new FormData(dialog.querySelector('form'));dialog.remove();if(result!=='confirm')return;
+      try { await api.resolveReport(report,{action,basis:values.get('basis'),ground:values.get('ground'),reason:values.get('reason')});toast('Decision recorded.'); }catch(error){failure(error);}
+    }
+    host.querySelectorAll('[data-dismiss]').forEach(button=>{button.onclick=()=>decide(rows.find(r=>r.id===button.dataset.dismiss),'keep');});
+    host.querySelectorAll('[data-remove-report]').forEach(button=>{button.onclick=()=>decide(rows.find(r=>r.id===button.dataset.removeReport),'remove');});
   }, failure);
   disposers.push(stopReports); root.querySelector('#moreReports').onclick=()=>stopReports.more();
 }

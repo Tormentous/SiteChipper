@@ -46,6 +46,10 @@
     ],
     "rewrites": [
       {
+        "source": "/api/account/export",
+        "function": "exportAccountData"
+      },
+      {
         "source": "/search",
         "destination": "/search.html"
       },

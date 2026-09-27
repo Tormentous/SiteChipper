@@ -60,11 +60,13 @@ async function cleanAccount(uid) {
   await eachPage(db.collection('posts'), snap => snap.ref.collection('reactions').doc(uid).delete());
   await eraseQuery(db.collectionGroup('notifications').where('senderId', '==', uid));
   await eraseQuery(db.collection('reports').where('reporter', '==', uid));
+  await eraseQuery(db.collection('moderationDecisions').where('recipients', 'array-contains', uid));
   await eachPage(db.collection('boards').where('ownerId', '==', uid), snap => snap.ref.update({ ownerId: null }));
   await eraseQuery(db.collection('profiles').where('uid', '==', uid));
   await db.recursiveDelete(db.doc('users/' + uid));
   await db.doc('accountPrivate/' + uid).delete();
   await db.doc('scanQuota/' + uid).delete();
+  await db.doc('exportQuota/' + uid).delete();
   await admin.storage().bucket().deleteFiles({ prefix: `media/${uid}/` });
   try { await admin.auth().deleteUser(uid); } catch (error) { if (error.code !== 'auth/user-not-found') throw error; }
   await db.doc('accountDeletions/' + uid).set({ status: 'complete', completedAt: FieldValue.serverTimestamp() }, { merge: true });

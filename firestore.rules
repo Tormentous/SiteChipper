@@ -179,7 +179,18 @@ service cloud.firestore {
       allow create: if signedIn() && rate('report',id)
         && request.resource.data.keys().hasOnly(['reporter','postId','commentId','pollId','reason','createdAt']) && mine(request.resource.data.reporter)
         && target() && shortText(request.resource.data.reason,1000) && request.resource.data.createdAt == request.time;
-      allow read, update, delete: if moderator();
+      allow read: if moderator() || mine(resource.data.reporter);
+      allow update, delete: if moderator();
+    }
+    match /moderationDecisions/{id} {
+      allow read: if moderator() || (signedIn() && request.auth.uid in resource.data.recipients);
+      allow create: if moderator() && request.resource.data.keys().hasOnly(['recipients','reportId','target','action','basis','ground','reason','createdAt'])
+        && request.resource.data.recipients is list && request.resource.data.recipients.size() == 1
+        && request.resource.data.recipients[0] is string
+        && request.resource.data.action in ['remove','keep'] && request.resource.data.basis in ['Community rules','Law']
+        && shortText(request.resource.data.ground,300) && shortText(request.resource.data.reason,2000)
+        && shortText(request.resource.data.reportId,200) && shortText(request.resource.data.target,1000)
+        && request.resource.data.createdAt == request.time;
     }
     // Only trusted moderators/server code can publish the curated in-game feed.
     match /chipper/{id} { allow read: if true; allow write: if moderator(); }

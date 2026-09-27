@@ -4,7 +4,7 @@
   var instances = new WeakMap();
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
   function cssVar(key, fallback) { return getComputedStyle(document.documentElement).getPropertyValue(key).trim() || fallback; }
-  function theme() { return { accent: cssVar('--cb-accent','#84a8ff'), green: '#35cfa0', red: '#fc8092', text: cssVar('--cb-text','#edf0ff'), muted: cssVar('--cb-muted','#9eabc5') }; }
+  function theme() { return { accent: 'var(--cb-chart-1)', green: 'var(--cb-chart-2)', red: 'var(--cb-chart-4)', text: 'var(--cb-text)', muted: 'var(--cb-muted)' }; }
   function pct(n) { return Number(n).toFixed(1).replace(/\.0$/, '') + '%'; }
   function stamp(t) { return new Date(t).toLocaleString([], { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }); }
   function normalize(input) {
@@ -31,7 +31,7 @@
     opts = opts || {};
     var series = normalize(opts.series);
     if (!series.length) { host.innerHTML = '<p class="cb-chart-empty">No recorded votes yet. History appears after the first vote.</p>'; return null; }
-    var colors = [theme().accent, '#35cfa0', '#f3c76b', '#fc8092', '#bf98ff', '#5acde0'];
+    var colors = [1,2,3,4,5,6].map(function(i) { return 'var(--cb-chart-'+i+')'; });
     series.forEach(function (s,i) { s.color = typeof s.color === 'string' && /^#[0-9a-f]{3,8}$/i.test(s.color) ? s.color : colors[i%colors.length]; });
     var allTimes = Array.from(new Set(series.flatMap(function (s) { return s.points.map(function (p) { return p.t; }); }))).sort(function(a,b) { return a-b; });
     var earliest = allTimes[0], latest = allTimes[allTimes.length-1], range = 'all', destroyed = false;
