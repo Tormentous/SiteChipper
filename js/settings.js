@@ -75,6 +75,13 @@
   document.addEventListener("DOMContentLoaded", function () {
     applyAndRefresh({ persist: true });
     syncPickersFromStorage();
+    const filter=window.CoolbradorSensitiveFilter;
+    if(filter){
+      const speech=document.getElementById('showSensitive'),chipper=document.getElementById('showChipperSensitive'),mature=document.getElementById('showMature');
+      speech.checked=filter.showSensitiveSpeech();mature.checked=filter.showNsfw();
+      try{chipper.checked=localStorage.getItem(filter.KEY_CHIPPER_SPEECH)==='true';}catch(_){}
+      speech.onchange=()=>filter.setShowSensitiveSpeech(speech.checked);chipper.onchange=()=>filter.setChipperShowSensitiveSpeech(chipper.checked);mature.onchange=()=>filter.setShowNsfw(mature.checked);
+    }
 
     document.querySelectorAll(".theme-option").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -127,6 +134,13 @@
           }
           if (wallStatus) wallStatus.textContent = "Wallpaper saved.";
           syncPickersFromStorage();
+    const filter=window.CoolbradorSensitiveFilter;
+    if(filter){
+      const speech=document.getElementById('showSensitive'),chipper=document.getElementById('showChipperSensitive'),mature=document.getElementById('showMature');
+      speech.checked=filter.showSensitiveSpeech();mature.checked=filter.showNsfw();
+      try{chipper.checked=localStorage.getItem(filter.KEY_CHIPPER_SPEECH)==='true';}catch(_){}
+      speech.onchange=()=>filter.setShowSensitiveSpeech(speech.checked);chipper.onchange=()=>filter.setChipperShowSensitiveSpeech(chipper.checked);mature.onchange=()=>filter.setShowNsfw(mature.checked);
+    }
           applyAndRefresh({});
         });
       });
@@ -139,6 +153,13 @@
         if (file) file.value = "";
         if (wallStatus) wallStatus.textContent = "Wallpaper cleared.";
         syncPickersFromStorage();
+    const filter=window.CoolbradorSensitiveFilter;
+    if(filter){
+      const speech=document.getElementById('showSensitive'),chipper=document.getElementById('showChipperSensitive'),mature=document.getElementById('showMature');
+      speech.checked=filter.showSensitiveSpeech();mature.checked=filter.showNsfw();
+      try{chipper.checked=localStorage.getItem(filter.KEY_CHIPPER_SPEECH)==='true';}catch(_){}
+      speech.onchange=()=>filter.setShowSensitiveSpeech(speech.checked);chipper.onchange=()=>filter.setChipperShowSensitiveSpeech(chipper.checked);mature.onchange=()=>filter.setShowNsfw(mature.checked);
+    }
         applyAndRefresh({});
       });
     }

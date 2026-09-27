@@ -12,6 +12,10 @@
 const functions = require("firebase-functions");
 const Busboy = require("busboy");
 const fetch = require("node-fetch");
+const admin = require('firebase-admin');
+const {Timestamp}=require('firebase-admin/firestore');
+const {mediaVerdict}=require('./mediaVerdict');
+if(!admin.apps.length)admin.initializeApp();
 
 const SHIELD_URL = "https://api.shield.projectarachnid.com/v1/media";
 
@@ -39,12 +43,25 @@ function readMultipart(req) {
   });
 }
 
-exports.mediaScan = functions.https.onRequest(async function (req, res) {
+exports.mediaScan = functions.runWith({secrets:["ARACHNID_SHIELD_USER","ARACHNID_SHIELD_PASS"],timeoutSeconds:60,memory:"256MB"}).https.onRequest(async function (req, res) {
   res.set("Access-Control-Allow-Origin", req.get("origin") || "*");
   res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.set("Access-Control-Allow-Headers", "Content-Type");
+  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
   if (req.method === "OPTIONS") return res.status(204).send("");
   if (req.method !== "POST") return res.status(405).json({ ok: false, classification: "error" });
+
+  let identity;
+  try { identity=await admin.auth().verifyIdToken((req.get('authorization')||'').replace(/^Bearer /,''),true); }
+  catch (_) { return res.status(401).json({ok:false,classification:'unauthorized'}); }
+  try {
+    const db=admin.firestore(),quota=db.doc('scanQuota/'+identity.uid);
+    await db.runTransaction(async tx=>{
+      const [previous,deletion]=await Promise.all([tx.get(quota),tx.get(db.doc('accountDeletions/'+identity.uid))]);
+      if(deletion.exists)throw Error('disabled');
+      if(previous.exists&&Date.now()-previous.data().at.toMillis()<2000)throw Error('rate');
+      tx.set(quota,{at:Timestamp.now()});
+    });
+  } catch(error) { return res.status(error.message==='disabled'?403:429).json({ok:false,classification:'try_later'}); }
 
   const user = process.env.ARACHNID_SHIELD_USER || (functions.config().arachnid && functions.config().arachnid.user);
   const pass = process.env.ARACHNID_SHIELD_PASS || (functions.config().arachnid && functions.config().arachnid.pass);
@@ -62,28 +79,16 @@ exports.mediaScan = functions.https.onRequest(async function (req, res) {
     const upstream = await fetch(SHIELD_URL, {
       method: "POST",
       headers: Object.assign({ Authorization: "Basic " + auth }, form.getHeaders()),
-      body: form
+      body: form, timeout: 30000
     });
 
     let data = {};
     try { data = await upstream.json(); } catch (_) { data = {}; }
 
-    // Normalize — treat known-match statuses as hard block. Keep response minimal.
-    const status = String(data.status || data.classification || data.result || "").toLowerCase();
-    const matched = upstream.status === 200 && (
-      status.indexOf("match") !== -1 ||
-      status === "csam" ||
-      status === "block" ||
-      data.match === true ||
-      data.matched === true
-    );
-
-    if (matched) {
-      return res.status(200).json({ ok: false, classification: "match" });
-    }
-    return res.status(200).json({ ok: true, classification: status || "clear" });
+    const verdict=mediaVerdict(upstream.status,data);
+    return res.status(verdict.classification==='unavailable'?503:200).json(verdict);
   } catch (err) {
     console.error("mediaScan error", err && err.message);
-    return res.status(200).json({ ok: true, classification: "error_soft", skipped: true });
+    return res.status(503).json({ ok: false, classification: "unavailable" });
   }
 });

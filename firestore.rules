@@ -5,6 +5,7 @@ service cloud.firestore {
     function mine(uid) { return signedIn() && request.auth.uid == uid; }
     function moderator() { return signedIn() && request.auth.token.get('moderator', false) == true; }
     function shortText(value, max) { return value is string && value.size() > 0 && value.size() <= max; }
+    function validSearch() { return request.resource.data.get('searchTokens',[]) is list && request.resource.data.get('searchTokens',[]).size() <= 100; }
     function validProfile(id) {
       return get(/databases/$(database)/documents/profiles/$(id)).data.uid == request.auth.uid;
     }
@@ -16,20 +17,33 @@ service cloud.firestore {
     function postExists(id) { return exists(/databases/$(database)/documents/posts/$(id)); }
     function canEngage(id) { return signedIn() && postExists(id) && !blocked(request.auth.uid, get(/databases/$(database)/documents/posts/$(id)).data.authorId); }
 
+    function rate(kind, id) {
+      let activity = getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/activity/$(kind)).data;
+      return activity.at == request.time && activity.operationId == id;
+    }
+    match /users/{uid}/activity/{kind} {
+      function interval() { return kind == 'board' ? 60 : kind == 'poll' ? 30 : kind == 'report' ? 10 : kind == 'post' ? 5 : kind == 'message' ? 1 : 2; }
+      function valid() { return mine(uid) && kind in ['post','reply','message','friend','poll','report','board']
+        && request.resource.data.keys().hasOnly(['at','operationId']) && request.resource.data.at == request.time
+        && shortText(request.resource.data.operationId,150); }
+      allow read: if mine(uid);
+      allow create: if valid();
+      allow update: if valid() && request.time >= resource.data.at + duration.value(interval(),'s');
+    }
     match /profiles/{id} {
       allow read: if true;
-      allow create: if mine(id) && request.resource.data.keys().hasOnly(['uid','displayName','bio','avatarUrl','createdAt'])
-        && request.resource.data.uid == request.auth.uid && shortText(request.resource.data.displayName,48)
+      allow create: if mine(id) && request.resource.data.keys().hasOnly(['uid','displayName','bio','avatarUrl','createdAt','searchTokens'])
+        && request.resource.data.uid == request.auth.uid && validSearch() && shortText(request.resource.data.displayName,48)
         && request.resource.data.bio is string && request.resource.data.bio.size() <= 500
         && safeUrl(request.resource.data.avatarUrl) && request.resource.data.createdAt == request.time;
       // Legacy numeric profiles remain readable/editable by their established owner.
-      allow update: if mine(resource.data.uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','bio','avatarUrl'])
-        && shortText(request.resource.data.displayName,48) && request.resource.data.bio is string
+      allow update: if mine(resource.data.uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','bio','avatarUrl','searchTokens'])
+        && validSearch() && shortText(request.resource.data.displayName,48) && request.resource.data.bio is string
         && request.resource.data.bio.size() <= 500 && safeUrl(request.resource.data.avatarUrl);
     }
     match /boards/{id} {
       allow read: if true;
-      allow create: if signedIn() && !builtinBoard(id) && id.matches('[a-z0-9-]{3,32}')
+      allow create: if signedIn() && rate('board',id) && !builtinBoard(id) && id.matches('[a-z0-9-]{3,32}')
         && request.resource.data.keys().hasOnly(['name','description','ownerId','createdAt'])
         && mine(request.resource.data.ownerId) && shortText(request.resource.data.name,48)
         && request.resource.data.description is string && request.resource.data.description.size() <= 280
@@ -39,15 +53,15 @@ service cloud.firestore {
     }
     match /posts/{id} {
       allow read: if true;
-      allow create: if signedIn() && request.resource.data.keys().hasOnly(['authorId','profileId','board','text','media','contentWarnings','inGame','createdAt','editedAt'])
+      allow create: if signedIn() && rate('post',id) && request.resource.data.keys().hasOnly(['authorId','profileId','board','text','media','contentWarnings','inGame','createdAt','editedAt','searchTokens'])
         && mine(request.resource.data.authorId) && validProfile(request.resource.data.profileId)
         && board(request.resource.data.board) && request.resource.data.text is string && request.resource.data.text.size() <= 2000
-        && (request.resource.data.text.size() > 0 || request.resource.data.media != null) && media(request.resource.data.media)
+        && validSearch() && (request.resource.data.text.size() > 0 || request.resource.data.media != null) && media(request.resource.data.media)
         && request.resource.data.get('contentWarnings', []) is list && request.resource.data.get('contentWarnings', []).size() <= 6
         && request.resource.data.inGame == (request.resource.data.board == 'BeeSid')
         && request.resource.data.createdAt == request.time && request.resource.data.editedAt == null;
-      allow update: if mine(resource.data.authorId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text','editedAt'])
-        && shortText(request.resource.data.text,2000) && request.resource.data.editedAt == request.time;
+      allow update: if mine(resource.data.authorId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text','editedAt','searchTokens'])
+        && validSearch() && shortText(request.resource.data.text,2000) && request.resource.data.editedAt == request.time;
       allow delete: if mine(resource.data.authorId) || moderator();
       match /reactions/{uid} {
         allow read: if postExists(id);
@@ -57,7 +71,7 @@ service cloud.firestore {
       }
       match /comments/{commentId} {
         allow read: if postExists(id);
-        allow create: if canEngage(id) && request.resource.data.keys().hasOnly(['authorId','profileId','text','media','createdAt'])
+        allow create: if canEngage(id) && rate('reply',commentId) && request.resource.data.keys().hasOnly(['authorId','profileId','text','media','createdAt'])
           && mine(request.resource.data.authorId) && validProfile(request.resource.data.profileId)
           && shortText(request.resource.data.text,2000) && media(request.resource.data.media) && request.resource.data.createdAt == request.time;
         allow delete: if mine(resource.data.authorId) || (postExists(id) && mine(get(/databases/$(database)/documents/posts/$(id)).data.authorId)) || moderator();
@@ -74,7 +88,7 @@ service cloud.firestore {
     }
     match /friendships/{id} {
       allow read: if signedIn() && request.auth.uid in resource.data.participants;
-      allow create: if signedIn() && request.resource.data.keys().hasOnly(['participants','requester','status','createdAt'])
+      allow create: if signedIn() && rate('friend',id) && request.resource.data.keys().hasOnly(['participants','requester','status','createdAt'])
         && request.resource.data.participants is list && request.resource.data.participants.size() == 2
         && request.auth.uid in request.resource.data.participants && request.resource.data.participants[0] < request.resource.data.participants[1]
         && id == request.resource.data.participants[0] + '__' + request.resource.data.participants[1]
@@ -104,7 +118,7 @@ service cloud.firestore {
       match /messages/{messageId} {
         function parent() { return get(/databases/$(database)/documents/conversations/$(id)).data; }
         allow read: if signedIn() && request.auth.uid in parent().participants;
-        allow create: if signedIn() && request.auth.uid in parent().participants
+        allow create: if signedIn() && rate('message',messageId) && request.auth.uid in parent().participants
           && !blocked(parent().participants[0],parent().participants[1])
           && request.resource.data.keys().hasOnly(['senderId','text','createdAt']) && mine(request.resource.data.senderId)
           && shortText(request.resource.data.text,2000) && request.resource.data.createdAt == request.time;
@@ -133,7 +147,7 @@ service cloud.firestore {
     }
     match /polls/{id} {
       allow read: if true;
-      allow create: if signedIn() && request.resource.data.keys().hasOnly(['authorId','profileId','title','options','board','createdAt'])
+      allow create: if signedIn() && rate('poll',id) && request.resource.data.keys().hasOnly(['authorId','profileId','title','options','board','createdAt'])
         && mine(request.resource.data.authorId) && validProfile(request.resource.data.profileId) && shortText(request.resource.data.title,180)
         && board(request.resource.data.board) && request.resource.data.options is list && request.resource.data.options.size() >= 2
         && request.resource.data.options.size() <= 6 && request.resource.data.options.toSet().size() == request.resource.data.options.size()
@@ -155,8 +169,15 @@ service cloud.firestore {
       }
     }
     match /reports/{id} {
-      allow create: if signedIn() && request.resource.data.keys().hasOnly(['reporter','postId','reason','createdAt']) && mine(request.resource.data.reporter)
-        && postExists(request.resource.data.postId) && shortText(request.resource.data.reason,1000) && request.resource.data.createdAt == request.time;
+      function target() {
+        let data=request.resource.data;
+        return ('pollId' in data && !('postId' in data) && !('commentId' in data) && exists(/databases/$(database)/documents/polls/$(data.pollId)))
+          || ('postId' in data && !('pollId' in data) && postExists(data.postId)
+            && (!('commentId' in data) || exists(/databases/$(database)/documents/posts/$(data.postId)/comments/$(data.commentId))));
+      }
+      allow create: if signedIn() && rate('report',id)
+        && request.resource.data.keys().hasOnly(['reporter','postId','commentId','pollId','reason','createdAt']) && mine(request.resource.data.reporter)
+        && target() && shortText(request.resource.data.reason,1000) && request.resource.data.createdAt == request.time;
       allow read, update, delete: if moderator();
     }
     // Only trusted moderators/server code can publish the curated in-game feed.

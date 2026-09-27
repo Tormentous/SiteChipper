@@ -1,4 +1,5 @@
 // Shared social data. Firebase Auth is the authority; browser storage is only a UI cache.
+import { searchWords, searchTokens } from './search-utils.mjs';
 import { auth, db, getStorageInstance } from './firebase.js';
 import { onAuthStateChanged, updateProfile, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc,
@@ -26,7 +27,7 @@ function text(value, max, label) {
   return value;
 }
 export function friendlyError(error) {
-  if (error?.code === 'permission-denied' || error?.code === 'storage/unauthorized') return 'You do not have permission to do that. Check that you are signed in.';
+  if (error?.code === 'permission-denied' || error?.code === 'storage/unauthorized') return 'This action was not allowed. If you just posted or sent a request, wait a few seconds and try again; otherwise check your account permissions.';
   if (error?.code === 'unavailable' || error?.code === 'auth/network-request-failed') return 'Connection lost. Your draft is still here; please try again.';
   return error?.message || 'Something went wrong. Please try again.';
 }
@@ -39,7 +40,7 @@ export async function ensureProfile(user, displayName) {
     return profile;
   }
   const profile = { uid: user.uid, displayName: text(displayName || user.displayName || 'New Labrador', 48, 'Display name'),
-    bio: '', avatarUrl: '/users/default/pfp.jpg', createdAt: serverTimestamp() };
+    bio: '', avatarUrl: '/users/default/pfp.jpg', createdAt: serverTimestamp(), searchTokens:searchTokens(displayName || user.displayName || 'New Labrador') };
   await runTransaction(db, async tx => {
     const ref = doc(db, 'profiles', user.uid);
     if (!(await tx.get(ref)).exists()) tx.set(ref, profile);
@@ -112,6 +113,7 @@ export function liveWindow(makeQuery, success, error, size = 30) {
 export async function saveProfile(fields) {
   signedIn();
   const value = { displayName: text(fields.displayName, 48, 'Display name'), bio: String(fields.bio || '').trim().slice(0, 500) };
+  value.searchTokens=searchTokens(value.displayName+' '+value.bio);
   if (fields.avatarUrl) value.avatarUrl = fields.avatarUrl;
   await updateDoc(doc(db, 'profiles', state.profile.id), value);
   state.profile = { ...state.profile, ...value };
@@ -130,6 +132,13 @@ export async function upload(file) {
   await uploadBytes(target, file, { contentType: file.type });
   return { url: await getDownloadURL(target), type: file.type.startsWith('video/') ? 'video' : 'image', path };
 }
+function activity(batch, kind, operationId) {
+  batch.set(doc(db,'users',signedIn(),'activity',kind),{at:serverTimestamp(),operationId});
+}
+async function limitedCreate(kind, collectionName, value) {
+  const target=doc(collection(db,collectionName)), batch=writeBatch(db);
+  activity(batch,kind,target.id); batch.set(target,value); await batch.commit();return target;
+}
 export async function createPost({ body, board = 'General', media = null, contentWarnings = [] }) {
   const uid = signedIn();
   body = String(body || '').trim();
@@ -138,8 +147,8 @@ export async function createPost({ body, board = 'General', media = null, conten
   if (window.CoolbradorMediaSafety?.scanText(body)?.blocked) throw new Error('This content cannot be posted.');
   const classified = window.CoolbradorSensitiveFilter?.classifyPost({ text: body, contentWarnings });
   contentWarnings = classified?.contentWarnings || contentWarnings;
-  const ref = await addDoc(collection(db, 'posts'), { authorId: uid, profileId: state.profile.id, board, text: body,
-    media, contentWarnings, inGame: board === 'BeeSid', createdAt: serverTimestamp(), editedAt: null });
+  const ref = await limitedCreate('post','posts', { authorId: uid, profileId: state.profile.id, board, text: body,
+    media, contentWarnings, searchTokens:searchTokens(body), inGame: board === 'BeeSid', createdAt: serverTimestamp(), editedAt: null });
   return ref.id;
 }
 export function watchPosts({ board, authorId, authorIds, after, count = 30 } = {}, success, error) {
@@ -155,7 +164,7 @@ export function watchPosts({ board, authorId, authorIds, after, count = 30 } = {
 export function watchPost(id, success, error) {
   return onSnapshot(doc(db, 'posts', id), snap => success(snap.exists() ? row(snap) : null), error);
 }
-export async function editPost(id, body) { signedIn(); await updateDoc(doc(db, 'posts', id), { text: text(body, 2000, 'Post'), editedAt: serverTimestamp() }); }
+export async function editPost(id, body) { signedIn(); await updateDoc(doc(db, 'posts', id), { text: text(body, 2000, 'Post'), searchTokens:searchTokens(body), editedAt: serverTimestamp() }); }
 export async function removePost(id) { signedIn(); await deleteDoc(doc(db, 'posts', id)); }
 export function watchReactions(id, success, error) {
   return onSnapshot(collection(db, 'posts', id, 'reactions'), snap => success(snap.docs.map(row)), error);
@@ -183,6 +192,7 @@ export async function comment(post, body, media = null) {
   const ref = doc(collection(db, 'posts', post.id, 'comments'));
   const batch = writeBatch(db);
   const value = text(body, 2000, 'Reply');
+  activity(batch,'reply',ref.id);
   batch.set(ref, { authorId: uid, profileId: state.profile.id, text: value, media, createdAt: serverTimestamp() });
   if (post.authorId !== uid) batch.set(doc(db, 'users', post.authorId, 'notifications', ref.id), {
     senderId: uid, profileId: state.profile.id, kind: 'reply', postId: post.id, commentId: ref.id,
@@ -197,7 +207,8 @@ export function watchFriends(success, error) {
 export async function requestFriend(target) {
   const uid = signedIn();
   if (target === uid) throw new Error('That is your account.');
-  await setDoc(doc(db, 'friendships', pairId(uid, target)), { participants: [uid, target].sort(), requester: uid, status: 'pending', createdAt: serverTimestamp() });
+  const id=pairId(uid,target),batch=writeBatch(db);activity(batch,'friend',id);
+  batch.set(doc(db,'friendships',id), { participants: [uid,target].sort(), requester:uid,status:'pending',createdAt:serverTimestamp() });await batch.commit();
 }
 export async function acceptFriend(id) { signedIn(); await updateDoc(doc(db, 'friendships', id), { status: 'accepted' }); }
 export async function removeFriend(id) { signedIn(); await deleteDoc(doc(db, 'friendships', id)); }
@@ -208,8 +219,9 @@ export async function block(target, blocked) {
   const ref = doc(db, 'users', signedIn(), 'blocks', target);
   if (blocked) await setDoc(ref, { createdAt: serverTimestamp() }); else await deleteDoc(ref);
 }
-export async function report(post, reason) {
-  await addDoc(collection(db, 'reports'), { reporter: signedIn(), postId: post.id, reason: text(reason, 1000, 'Report'), createdAt: serverTimestamp() });
+export async function report(post, reason) { return reportContent({postId:post.id},reason); }
+export async function reportContent(target, reason) {
+  await limitedCreate('report','reports', { ...target, reporter: signedIn(), reason: text(reason, 1000, 'Report'), createdAt: serverTimestamp() });
 }
 export async function openConversation(target) {
   const uid = signedIn();
@@ -229,6 +241,7 @@ export function watchMessages(id, success, error) {
 export async function sendMessage(id, body) {
   const uid = signedIn(), batch = writeBatch(db);
   const message=doc(collection(db, 'conversations', id, 'messages'));
+  activity(batch,'message',message.id);
   batch.set(message, { senderId: uid, text: text(body, 2000, 'Message'), createdAt: serverTimestamp() });
   batch.update(doc(db, 'conversations', id), { updatedAt: serverTimestamp(), lastSenderId:uid, lastMessageId:message.id });
   await batch.commit();
@@ -242,7 +255,7 @@ export async function createPoll(title, options, board) {
   options = options.map(v => text(v, 80, 'Choice'));
   if (options.length < 2 || options.length > 6 || new Set(options.map(v => v.toLowerCase())).size !== options.length) throw new Error('Use 2–6 different choices.');
   if (!BOARDS.includes(board)) throw new Error('Choose a community.');
-  return addDoc(collection(db, 'polls'), { authorId: uid, profileId: state.profile.id, title: text(title, 180, 'Question'), options, board, createdAt: serverTimestamp() });
+  return limitedCreate('poll','polls', { authorId: uid, profileId: state.profile.id, title: text(title, 180, 'Question'), options, board, createdAt: serverTimestamp() });
 }
 export function watchPolls(success, error) { return liveWindow(count => query(collection(db, 'polls'), orderBy('createdAt', 'desc'), limit(count)), success, error); }
 export function watchVotes(id, success, error) { return onSnapshot(query(collection(db, 'polls', id, 'votes'), orderBy('createdAt')), snap => success(snap.docs.map(row)), error); }
@@ -274,6 +287,7 @@ export async function createBoard(name, description) {
   await runTransaction(db, async tx => {
     const target = doc(db, 'boards', id);
     if ((await tx.get(target)).exists()) throw new Error('That community name is already taken.');
+    activity(tx,'board',id);
     tx.set(target, value);
   });
   return id;
@@ -299,3 +313,24 @@ export async function markConversationRead(id) {
 }
 export async function closePoll(id) { signedIn(); await updateDoc(doc(db,'polls',id),{closedAt:serverTimestamp()}); }
 export async function removePoll(id) { signedIn(); await deleteDoc(doc(db,'polls',id)); }
+
+function pinnedWindow(base, target, success, error) {
+  let rows=[],more=false,pinned=null;
+  const emit=()=>success(pinned&&!rows.some(r=>r.id===pinned.id)?[pinned,...rows]:rows,more);
+  const stop=base((data,hasMore)=>{rows=data;more=hasMore;emit();},error);
+  const stopPin=target?onSnapshot(target,snap=>{pinned=snap.exists()?row(snap):null;emit();},error):()=>{};
+  const dispose=()=>{stop();stopPin();};dispose.more=()=>stop.more();return dispose;
+}
+export function watchLinkedComments(id, focus, success, error) {
+  return pinnedWindow((next,fail)=>watchComments(id,next,fail),focus?doc(db,'posts',id,'comments',focus):null,success,error);
+}
+export function watchLinkedPolls(focus, success, error) {
+  return pinnedWindow(watchPolls,focus?doc(db,'polls',focus):null,success,error);
+}
+
+export async function searchPublic(kind, term, after) {
+ const words=searchWords(term);if(!words.length)return{rows:[],hasMore:false};
+ if(!['posts','profiles'].includes(kind))throw Error('Unknown search type.');
+ const snap=await getDocs(query(collection(db,kind),where('searchTokens','array-contains',words[0]),orderBy(documentId()),...(after?[startAfter(after)]:[]),limit(30)));
+ return {rows:snap.docs.map(row).filter(r=>words.every(w=>r.searchTokens.includes(w))),hasMore:snap.size===30,cursor:snap.docs.at(-1)};
+}

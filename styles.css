@@ -7122,3 +7122,6 @@ body.messages-page .cb-msg-shell {
 .account-email { overflow-wrap: anywhere; }
 .account-settings [role=status] { line-height: 1.5; }
 .account-settings [hidden] { display: none !important; }
+
+#contentPreferences label { display: flex; align-items: center; gap: 12px; margin: 18px 0; }
+#contentPreferences input { width: 20px; height: 20px; flex: 0 0 auto; }

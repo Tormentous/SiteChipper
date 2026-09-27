@@ -29,3 +29,4 @@ Thumbs.db
 .hosting/
 .hosting-build-*/
 functions/data/
+functions/.secret.local

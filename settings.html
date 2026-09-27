@@ -258,6 +258,12 @@
       </div>
       <p class="settings-note" id="wallpaperStatus">Images are compressed and saved on this device only.</p>
     </section>
+    <section class="settings-card account-settings" id="contentPreferences">
+      <h2>Content preferences</h2><p>These preferences are saved on this device. Hidden posts can be revealed individually.</p>
+      <label><input type="checkbox" id="showSensitive"> Show sensitive speech on the website</label>
+      <label><input type="checkbox" id="showChipperSensitive"> Show sensitive speech in Chipper</label>
+      <label><input type="checkbox" id="showMature"> Show mature content</label>
+    </section>
     <section class="settings-card" id="chipper">
       <h2>Connect to Chipper</h2>
       <p>Share your public Coolbrador profile with Chipper. This card is for in-game display; it does not grant access to your account.</p>
@@ -281,6 +287,7 @@
   <div id="shared-footer"></div>
   <script src="/js/layout.js"></script>
   <script type="module" src="/js/chipper-link.js"></script>
+  <script src="/js/cb-sensitive-filter.js"></script>
   <script src="/js/settings.js"></script>
   <script type="module" src="/js/account-settings.js"></script>
 </body>

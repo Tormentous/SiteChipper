@@ -29,5 +29,6 @@ exports.cleanupDeletedPost = retrying.firestore.document('posts/{id}').onDelete(
 exports.cleanupDeletedReply = retrying.firestore.document('posts/{postId}/comments/{id}').onDelete(async (snap, context) => {
   await eraseMedia(snap.data().media, snap.data().authorId);
   await require('./socialCleanup').eraseQuery(admin.firestore().collectionGroup('notifications').where('commentId', '==', context.params.id));
+  await require('./socialCleanup').eraseQuery(admin.firestore().collection('reports').where('commentId', '==', context.params.id));
 });
-exports.cleanupDeletedPoll = retrying.firestore.document('polls/{id}').onDelete((_, context) => admin.firestore().recursiveDelete(admin.firestore().doc('polls/' + context.params.id)));
+exports.cleanupDeletedPoll = retrying.firestore.document('polls/{id}').onDelete(async (_, context) => { await admin.firestore().recursiveDelete(admin.firestore().doc('polls/' + context.params.id));await require('./socialCleanup').eraseQuery(admin.firestore().collection('reports').where('pollId','==',context.params.id)); });

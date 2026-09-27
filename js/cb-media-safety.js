@@ -185,7 +185,10 @@
     var endpoint = proxyEndpoint();
     var body = new FormData();
     body.append("file", file, file.name || "upload.bin");
-    return fetch(endpoint, { method: "POST", body: body, credentials: "same-origin" })
+    return import('/js/firebase.js').then(async function (firebase) {
+      if(!firebase.auth.currentUser)throw new Error('Sign in before scanning an upload.');
+      return fetch(endpoint, { method: "POST", body: body, credentials: "same-origin", headers:{Authorization:'Bearer '+await firebase.auth.currentUser.getIdToken()} });
+    })
       .then(function (res) {
         if (res.status === 404 || res.status === 501 || res.status === 502) {
           global.__cbArachnidSkip = true;

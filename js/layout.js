@@ -1491,74 +1491,7 @@ function wireRightRail() {
   }
 
   function collectSearchTargets() {
-    function searchPfp(id) {
-      try {
-        if (window.CoolbradorPosts && window.CoolbradorPosts.getPfp) return window.CoolbradorPosts.getPfp(id);
-      } catch (_) {}
-      try {
-        return localStorage.getItem("pfp_" + id) || "/users/default/pfp.jpg";
-      } catch (_) {
-        return "/users/default/pfp.jpg";
-      }
-    }
-
-    const items = KNOWN.map(function (p) {
-      const copy = Object.assign({}, p);
-      if (copy.title === "Chipper") copy.photo = "/img/PlanetChipperHomepage.png";
-      return copy;
-    });
-    const seenPeople = {};
-
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith("posts_/b/")) {
-        const board = key.replace("posts_/b/", "");
-        if (!board) continue;
-        items.push({ title: board, url: "/b/" + board + "/board.html", hint: "Board discussion", section: "Discussions" });
-      }
-      if (key && key.startsWith("user_")) {
-        try {
-          const u = JSON.parse(localStorage.getItem(key) || "{}");
-          const id = key.replace("user_", "");
-          const name = u.username || u.displayName;
-          if (!name) continue;
-          const url = "/users/" + encodeURIComponent(id);
-          if (seenPeople[url]) continue;
-          seenPeople[url] = true;
-          items.push({
-            title: name,
-            url: url,
-            hint: "Profile",
-            section: "People",
-            userId: id,
-            photo: searchPfp(id)
-          });
-        } catch (_) {}
-      }
-    }
-
-    [
-      { title: "Cardbrador", id: "2" },
-      { title: "BeeSid", id: "3" }
-    ].forEach(function (demo) {
-      const url = "/users/" + demo.id;
-      if (seenPeople[url]) return;
-      seenPeople[url] = true;
-      items.push({
-        title: demo.title,
-        url: url,
-        hint: "Profile",
-        section: "People",
-        userId: demo.id,
-        photo: searchPfp(demo.id)
-      });
-    });
-
-    items.push(
-      { title: "Simulations", url: "/simulations.html", hint: "Polls to LabradorSim scenarios", section: "Pages" },
-      { title: "La Brador", url: "/simulations.html", hint: "Democracy desk", section: "Pages" }
-    );
-    return items;
+    return KNOWN.map(p=>({...p,...(p.title==='Chipper'?{photo:'/img/PlanetChipperHomepage.png'}:{})}));
   }
 
   function searchItemIconHtml(p, sec) {
@@ -1598,7 +1531,7 @@ function sectionIcon(section) {
       }
     } catch (e) {}
     q = q.split("?")[0].split("#")[0];
-    var m = q.match(/^\/?users\/(\d+)(?:\/(card|links|profile))?\/?$/i);
+    var m = q.match(/^\/?users\/([A-Za-z0-9_-]+)(?:\/(card|links|profile))?\/?$/i);
     if (!m) return null;
     var id = m[1];
     var layout = (m[2] || "profile").toLowerCase();
@@ -1647,11 +1580,12 @@ function sectionIcon(section) {
       }).slice(0, 10);
 
       if (!matches.length) {
-        overlay.innerHTML = '<div class="search-empty">Nothing found in this galaxy...</div>';
+        overlay.innerHTML = '<a class="search-item" href="/search?q='+encodeURIComponent(q.trim())+'">Search public posts and people →</a>';
         overlay.classList.add("open");
         return;
       }
 
+      if(query)matches.unshift({title:'Search public posts and people',url:'/search?q='+encodeURIComponent(q.trim()),hint:q.trim(),section:'People'});
       const order = ["People", "Discussions", "Pages", "Games"];
       const grouped = {};
       matches.forEach((m) => {
@@ -1665,7 +1599,7 @@ function sectionIcon(section) {
         if (!grouped[sec] || !grouped[sec].length) return;
         html += '<div class="search-section"><div class="search-section-label"><i class="' + sectionIcon(sec) + '"></i> ' + escapeHtml(sec) + "</div>";
         html += grouped[sec].map((p) =>
-          '<a class="search-item" href="' + p.url + '">' +
+          '<a class="search-item" href="' + escapeHtml(p.url) + '">' +
           searchItemIconHtml(p, sec) +
           '<span class="search-item-text"><strong>' + escapeHtml(p.title) + "</strong><small>" + escapeHtml(p.hint || p.url) + "</small></span>" +
           "</a>"

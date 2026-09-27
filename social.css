@@ -182,3 +182,17 @@ body.social-page.cb-signed-out a[href="/friends.html"] { display: inline-flex !i
   .social-page :is(input,textarea,button,a) { scroll-margin-top: 90px; scroll-margin-bottom: 110px; }
   .social-chat-compose { padding-bottom: 24px; }
 }
+
+.social-drawing { margin-top: 18px; border-top: 1px solid var(--cb-border, #333348); padding-top: 14px; }
+.social-drawing summary { font-weight: 700; color: var(--cb-link, #7baaff); }
+.social-drawing p, .social-drawing [role=status] { font-size: 12px; line-height: 1.6; color: var(--cb-muted, #9eabc5); }
+.drawing-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 14px 0; }
+.drawing-tools label { max-width: 140px; font-size: 12px; }
+.social-page .drawing-tools input[type=color] { width: 54px; height: 36px; padding: 3px; }
+.social-drawing canvas { display: block; width: 100%; height: auto; background: white; border: 1px solid var(--cb-border, #333348); border-radius: 8px; touch-action: none; margin-bottom: 14px; }
+.social-page .social-unread { font-size: 11px; color: var(--cb-accent, #84a8ff); }
+html { scroll-padding-top: 85px; scroll-padding-bottom: 90px; }
+
+.social-boards.is-carousel { display: flex; overflow-x: auto; padding-bottom: 12px; margin-top: 24px; }
+.social-boards.is-carousel a { flex: 0 0 185px; }
+.search-results .social-person { margin: 14px 0; }

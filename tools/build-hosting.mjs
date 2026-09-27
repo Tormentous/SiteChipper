@@ -4,7 +4,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 export const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const directories=new Set(['b','data','fonts','games','img','js','models','secret','shared','simulations','users']);
-const extensions=new Set(['.html','.css','.js','.json','.svg','.png','.jpg','.jpeg','.webp','.gif','.ico','.mp4','.webm','.mp3','.wav','.ogg','.ttf','.otf','.woff','.woff2','.glb','.gltf','.bin','.wasm','.xml','.txt','.webmanifest']);
+const extensions=new Set(['.html','.css','.js','.mjs','.json','.svg','.png','.jpg','.jpeg','.webp','.gif','.ico','.mp4','.webm','.mp3','.wav','.ogg','.ttf','.otf','.woff','.woff2','.glb','.gltf','.bin','.wasm','.xml','.txt','.webmanifest']);
 const gameFiles=new Set(['data/chipper_game_board_feed.json','data/chipper-miiverse.json','data/boards/BeeSid.json']);
 export function publicFile(relative, live=true) {
  const parts=relative.split('/');

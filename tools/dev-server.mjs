@@ -83,7 +83,7 @@ function resolveFile(urlPath) {
   const abs = path.normalize(path.join(ROOT, decoded));
   if (abs !== ROOT && !abs.startsWith(ROOT + path.sep)) return null;
   const rel = path.relative(ROOT, abs).split(path.sep).join("/");
-  if (rel && isIgnored(rel)) return null;
+  if (rel && (rel.split('/').some(part=>part.startsWith('.')) || isIgnored(rel))) return null;
   let st;
   try { st = fs.statSync(abs); } catch { return null; }
   if (st.isFile()) return abs;
@@ -191,5 +191,5 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, HOST, () => {
   const mode = EMULATORS ? `emulators (${PROJECT})` : "production Firebase";
-  console.log(`Coolbrador dev server on http://${HOST}:${PORT} using ${mode}`);
+  console.log(`Coolbrador dev server on http://${HOST}:${server.address().port} using ${mode}`);
 });

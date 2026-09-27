@@ -2,9 +2,26 @@ const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { initializeTestEnvironment, assertSucceeds, assertFails } = require('@firebase/rules-unit-testing');
-const { doc, collection, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch, query, where, runTransaction } = require('firebase/firestore');
+const { doc, collection, setDoc: rawSetDoc, getDoc, getDocs, addDoc: rawAddDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch, query, where, runTransaction } = require('firebase/firestore');
 const { ref, uploadBytes } = require('firebase/storage');
 let env, alice, bob, outsider, guest;
+function kindFor(path) {
+ const p=path.split('/');
+ if(p.length===2)return {posts:'post',polls:'poll',boards:'board',reports:'report',friendships:'friend'}[p[0]];
+ if(p[0]==='posts'&&p[2]==='comments')return 'reply';
+ if(p[0]==='conversations'&&p[2]==='messages')return 'message';
+}
+function actor(db) { return db===alice||db===alice?._delegate?'alice':db===bob||db===bob?._delegate?'bob':db===outsider||db===outsider?._delegate?'outsider':null; }
+function stamp(batch,db,kind,id) { batch.set(doc(db,'users',actor(db)||'guest','activity',kind),{at:serverTimestamp(),operationId:id}); }
+// Existing authorization cases isolate each operation from its rate-limit history.
+// Dedicated tests below exercise quota reuse without this fixture reset.
+async function setDoc(ref,value) {
+ const kind=kindFor(ref.path),uid=actor(ref.firestore);if(!kind)return rawSetDoc(ref,value);
+ if(uid)await env.withSecurityRulesDisabled(context=>deleteDoc(doc(context.firestore(),'users',uid,'activity',kind)));
+ const batch=writeBatch(ref.firestore);stamp(batch,ref.firestore,kind,ref.id);batch.set(ref,value);return batch.commit();
+}
+async function addDoc(ref,value) { const target=doc(ref);await setDoc(target,value);return target; }
+
 const profile = uid => ({uid, displayName:uid,bio:'',avatarUrl:'/users/default/pfp.jpg',createdAt:serverTimestamp()});
 const post = uid => ({authorId:uid,profileId:uid,board:'BeeSid',text:'Hello Chipper',media:null,inGame:true,createdAt:serverTimestamp(),editedAt:null});
 before(async () => {
@@ -46,7 +63,7 @@ test('concurrent reactions preserve both users and prohibit spoofing', async () 
 });
 test('reply + notification batch is private and cannot be forged', async () => {
   await setDoc(doc(alice,'posts','reply-test'),post('alice'));
-  const batch=writeBatch(bob);
+  const batch=writeBatch(bob);stamp(batch,bob,'reply','comment-1');
   batch.set(doc(bob,'posts','reply-test','comments','comment-1'),{authorId:'bob',profileId:'bob',text:'Nice!',media:null,createdAt:serverTimestamp()});
   const note={senderId:'bob',profileId:'bob',kind:'reply',postId:'reply-test',commentId:'comment-1',text:'Nice!',read:false,createdAt:serverTimestamp()};
   batch.set(doc(bob,'users','alice','notifications','comment-1'),note);
@@ -146,6 +163,7 @@ test('deletion tombstone locks stale sessions out of all social writes',async()=
 
 test('conversation unread state is participant-private and message activity cannot be forged',async()=>{
  const message=doc(bob,'conversations','alice__bob','messages','activity');const batch=writeBatch(bob);
+ await env.withSecurityRulesDisabled(context=>deleteDoc(doc(context.firestore(),'users','bob','activity','message')));stamp(batch,bob,'message','activity');
  batch.set(message,{senderId:'bob',text:'New message',createdAt:serverTimestamp()});
  batch.update(doc(bob,'conversations','alice__bob'),{lastMessageId:'activity',lastSenderId:'bob',updatedAt:serverTimestamp()});
  await assertSucceeds(batch.commit());
@@ -161,4 +179,34 @@ test('poll owner may close voting permanently and remove a poll, with other owne
  await assertFails(updateDoc(doc(alice,'polls','test'),{closedAt:null}));
  await assertFails(deleteDoc(doc(bob,'polls','test')));
  await assertSucceeds(deleteDoc(doc(alice,'polls','test')));
+});
+
+test('posting throttles are atomic, cannot be bypassed with direct writes or reset by clients',async()=>{
+ await env.withSecurityRulesDisabled(context=>deleteDoc(doc(context.firestore(),'users','alice','activity','post')));
+ const first=writeBatch(alice);stamp(first,alice,'post','rate-first');first.set(doc(alice,'posts','rate-first'),post('alice'));await assertSucceeds(first.commit());
+ await assertFails(rawSetDoc(doc(alice,'posts','rate-no-stamp'),post('alice')));
+ const second=writeBatch(alice);stamp(second,alice,'post','rate-second');second.set(doc(alice,'posts','rate-second'),post('alice'));await assertFails(second.commit());
+ await assertFails(deleteDoc(doc(alice,'users','alice','activity','post')));
+ await env.withSecurityRulesDisabled(context=>deleteDoc(doc(context.firestore(),'users','alice','activity','post')));
+ const bulk=writeBatch(alice);stamp(bulk,alice,'post','bulk-one');bulk.set(doc(alice,'posts','bulk-one'),post('alice'));bulk.set(doc(alice,'posts','bulk-two'),post('alice'));await assertFails(bulk.commit());
+});
+
+test('reply and poll reports require a real target and remain moderator-private',async()=>{
+ await assertSucceeds(addDoc(collection(bob,'reports'),{reporter:'bob',postId:'reply-test',commentId:'comment-1',reason:'Reply report',createdAt:serverTimestamp()}));
+ await assertFails(addDoc(collection(bob,'reports'),{reporter:'bob',postId:'reply-test',commentId:'missing',reason:'Fake reply',createdAt:serverTimestamp()}));
+ await setDoc(doc(alice,'polls','reported-poll'),{authorId:'alice',profileId:'alice',title:'Report me',options:['A','B'],board:'General',createdAt:serverTimestamp()});
+ await assertSucceeds(addDoc(collection(bob,'reports'),{reporter:'bob',pollId:'reported-poll',reason:'Poll report',createdAt:serverTimestamp()}));
+ await assertFails(addDoc(collection(bob,'reports'),{reporter:'bob',pollId:'reported-poll',postId:'shared',reason:'Ambiguous target',createdAt:serverTimestamp()}));
+ await assertFails(getDocs(collection(bob,'reports')));
+ const mod=env.authenticatedContext('moderator',{moderator:true}).firestore();
+ await assertSucceeds(getDocs(collection(mod,'reports')));
+ await assertSucceeds(deleteDoc(doc(mod,'posts','reply-test','comments','comment-1')));
+ await assertSucceeds(deleteDoc(doc(mod,'polls','reported-poll')));
+});
+
+test('friends feeds may query author batches without making friendships public',async()=>{
+ const {orderBy,limit}=require('firebase/firestore');
+ await assertSucceeds(getDocs(query(collection(alice,'posts'),where('authorId','in',['bob']),orderBy('createdAt','desc'),limit(30))));
+ await assertSucceeds(getDocs(query(collection(alice,'posts'),where('board','==','BeeSid'),where('authorId','in',['bob']),orderBy('createdAt','desc'),limit(30))));
+ await assertFails(getDocs(collection(guest,'friendships')));
 });

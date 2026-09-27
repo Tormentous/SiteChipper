@@ -46,6 +46,10 @@
     ],
     "rewrites": [
       {
+        "source": "/search",
+        "destination": "/search.html"
+      },
+      {
         "source": "/api/account/delete",
         "function": "requestAccountDeletion"
       },

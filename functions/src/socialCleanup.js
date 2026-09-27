@@ -54,6 +54,7 @@ async function cleanAccount(uid) {
   await eraseQuery(db.collection('profiles').where('uid', '==', uid));
   await db.recursiveDelete(db.doc('users/' + uid));
   await db.doc('accountPrivate/' + uid).delete();
+  await db.doc('scanQuota/' + uid).delete();
   await admin.storage().bucket().deleteFiles({ prefix: `media/${uid}/` });
   try { await admin.auth().deleteUser(uid); } catch (error) { if (error.code !== 'auth/user-not-found') throw error; }
   await db.doc('accountDeletions/' + uid).set({ status: 'complete', completedAt: FieldValue.serverTimestamp() }, { merge: true });
