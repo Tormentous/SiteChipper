@@ -95,6 +95,7 @@ function resolveFile(urlPath) {
 }
 
 const functionRoutes = {
+  '/api/staff/moderation':'staffModeration',
   '/api/account/delete':'requestAccountDeletion',
   '/api/account/export':'exportAccountData',
   '/api/chipper-game-board-feed':'getChipperFeed', '/api/chipper-miiverse':'getChipperFeed',

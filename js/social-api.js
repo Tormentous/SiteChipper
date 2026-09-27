@@ -268,7 +268,7 @@ export function watchReposts({ authorId, authorIds, count = 30 } = {}, success, 
 export async function getPost(id) { const snap = await getDoc(doc(db, 'posts', id)); return snap.exists() ? row(snap) : null; }
 export async function isModerator() { return !!auth.currentUser && (await auth.currentUser.getIdTokenResult()).claims.moderator === true; }
 export function watchReports(success, error) { return liveWindow(count => query(collection(db, 'reports'), orderBy('createdAt','desc'), limit(count)), success, error); }
-export async function dismissReport(id) { await deleteDoc(doc(db, 'reports', id)); }
+
 
 export async function loadBoards() {
   let cursor;
@@ -346,23 +346,4 @@ export function watchOwnReports(success,error) {
 }
 export function watchDecisions(success,error) {
   return onSnapshot(query(collection(db,'moderationDecisions'),where('recipients','array-contains',signedIn())),snap=>success(snap.docs.map(row)),error);
-}
-export async function resolveReport(report, {action,basis,ground,reason}) {
-  signedIn();
-  const ref=doc(db,'reports',report.id),decision=doc(collection(db,'moderationDecisions'));
-  await runTransaction(db, async tx=>{
-    const current=await tx.get(ref);if(!current.exists())throw Error('This report has already been handled.');
-    const item=current.data();
-    const target=item.pollId?doc(db,'polls',item.pollId):item.commentId?doc(db,'posts',item.postId,'comments',item.commentId):doc(db,'posts',item.postId);
-    const content=await tx.get(target), author=content.data()?.authorId;
-    if(action==='remove'&&!content.exists())throw Error('Content is already unavailable. Record a no-removal decision.');
-    const recipients=[...new Set([item.reporter,author].filter(Boolean))];
-    // Separate copies prevent revealing the reporter's UID to the author.
-    for(const recipient of recipients) {
-      const copy=doc(db,'moderationDecisions',decision.id+'_'+recipient);
-      tx.set(copy,{recipients:[recipient],reportId:report.id,target:target.path,action,basis,ground:text(ground,300,'Rule or law'),reason:text(reason,2000,'Decision explanation'),createdAt:serverTimestamp()});
-    }
-    if(action==='remove')tx.delete(target);
-    tx.delete(ref);
-  });
 }

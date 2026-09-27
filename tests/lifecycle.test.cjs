@@ -28,6 +28,7 @@ test('post cleanup removes descendants, related feed records and only its own me
 test('account cleanup is repeatable, erases legacy identity and own content while retaining other people content',async()=>{
  const uid='delete-me';await admin.auth().createUser({uid,email:'delete-me@example.test'});
  await db.doc('moderationDecisions/own-copy').set({recipients:[uid]});await db.doc('moderationDecisions/other-copy').set({recipients:['other']});
+ await db.doc('staff/'+uid).set({active:true,role:'moderator',name:'Old name'});
  await db.doc('exportQuota/'+uid).set({at:admin.firestore.Timestamp.now()});
  await db.doc('profiles/12345').set({uid,displayName:'Legacy'});await db.doc('profiles/keep').set({uid:'other'});
  await db.doc('posts/own').set({authorId:uid});await db.doc('posts/keep/comments/own').set({authorId:uid});
@@ -40,6 +41,7 @@ test('account cleanup is repeatable, erases legacy identity and own content whil
  await db.doc('users/'+uid+'/blocks/other').set({});await db.doc('accountPrivate/'+uid).set({email:'private@example.test'});
  await admin.storage().bucket().file('media/'+uid+'/orphan').save('unused image');
  await cleanAccount(uid);await cleanAccount(uid);
+ assert.equal((await db.doc('staff/'+uid).get()).get('active'),false);assert.equal((await db.doc('staff/'+uid).get()).get('name'),'Deleted account');
  for(const path of ['profiles/12345','posts/own','posts/keep/comments/own','posts/keep/reactions/'+uid,'polls/own','polls/own/votes/other','polls/keep/votes/'+uid,'conversations/thread/messages/own','friendships/f','moderationDecisions/own-copy','exportQuota/'+uid,'accountPrivate/'+uid,'users/'+uid+'/blocks/other'])assert.equal((await db.doc(path).get()).exists,false,path);
  for(const path of ['profiles/keep','moderationDecisions/other-copy','posts/keep','polls/keep','conversations/thread/messages/keep','boards/keep'])assert.equal((await db.doc(path).get()).exists,true,path);
  assert.equal((await db.doc('boards/keep').get()).data().ownerId,null);

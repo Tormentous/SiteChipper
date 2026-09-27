@@ -220,7 +220,8 @@ test('reporters see only their reports and decision recipients cannot forge or a
  await assertFails(getDocs(query(collection(alice,'reports'),where('reporter','==','bob'))));
  const decision={recipients:['bob'],reportId:'report-reference',target:'posts/shared',action:'keep',basis:'Community rules',ground:'No breach',reason:'Reviewed context; no rule violation found.',createdAt:serverTimestamp()};
  await assertFails(setDoc(doc(bob,'moderationDecisions','forged'),decision));
- await assertSucceeds(setDoc(doc(mod,'moderationDecisions','private-outcome'),decision));
+ await assertFails(setDoc(doc(mod,'moderationDecisions','private-outcome'),decision));
+ await env.withSecurityRulesDisabled(context=>setDoc(doc(context.firestore(),'moderationDecisions','private-outcome'),decision));
  await assertSucceeds(getDoc(doc(bob,'moderationDecisions','private-outcome')));
  await assertFails(getDoc(doc(alice,'moderationDecisions','private-outcome')));
  await assertFails(getDoc(doc(guest,'moderationDecisions','private-outcome')));
@@ -232,6 +233,19 @@ test('reporters see only their reports and decision recipients cannot forge or a
  const batch=writeBatch(mod);
  batch.set(doc(mod,'moderationDecisions','atomic-removal'),{...decision,action:'remove'});
  batch.delete(doc(mod,'posts','shared'));
- await assertSucceeds(batch.commit());
- assert.equal((await getDoc(doc(guest,'posts','shared'))).exists(),false);
+ await assertFails(batch.commit());
+ assert.equal((await getDoc(doc(guest,'posts','shared'))).exists(),true);
+});
+
+test('staff cannot bypass audited server workflows or elevate their own role',async()=>{
+ const mod=env.authenticatedContext('workflow-mod',{moderator:true}).firestore();
+ await assertFails(setDoc(doc(mod,'staff','workflow-mod'),{role:'admin',active:true}));
+ await assertFails(setDoc(doc(mod,'moderationCases','case'),{assignee:'workflow-mod'}));
+ await assertFails(getDocs(collection(mod,'staffAudit')));
+ await assertFails(deleteDoc(doc(mod,'posts','shared')));
+ const reports=await getDocs(collection(mod,'reports'));assert.ok(reports.size>0);
+ await assertFails(deleteDoc(doc(mod,'reports',reports.docs[0].id)));
+ await env.withSecurityRulesDisabled(context=>setDoc(doc(context.firestore(),'staff','workflow-mod'),{active:false,role:'moderator'}));
+ await assertFails(getDocs(collection(mod,'reports')));
+ await assertFails(setDoc(doc(mod,'chipper','feed'),{payload:'{}'}));
 });

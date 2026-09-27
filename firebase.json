@@ -46,6 +46,10 @@
     ],
     "rewrites": [
       {
+        "source": "/api/staff/moderation",
+        "function": "staffModeration"
+      },
+      {
         "source": "/api/account/export",
         "function": "exportAccountData"
       },

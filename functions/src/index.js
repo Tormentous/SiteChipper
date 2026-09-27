@@ -9,3 +9,5 @@ exports.getBeeSidBoard = chipper.getBeeSidBoard;
 Object.assign(exports, require('./socialLifecycle'));
 
 exports.exportAccountData = require('./accountExport').exportAccountData;
+
+exports.staffModeration = require('./staffModeration').staffModeration;

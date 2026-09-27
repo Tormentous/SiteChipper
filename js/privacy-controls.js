@@ -1,4 +1,5 @@
-import { auth, watchAuth, friendlyError } from './social-api.js';
+import { readFeedPreferences } from './feed-ranking.mjs';
+import { auth, watchAuth, friendlyError, loadBoards, BOARDS } from './social-api.js';
 import { MUTED_KEY, normalizeMuted, readMuted } from './content-preferences.mjs';
 const form = document.querySelector('#mutedWordsForm');
 form.elements.mutedWords.value = readMuted().join('\n');
@@ -27,4 +28,14 @@ watchAuth(state => {
     } catch (error) { host.querySelector('[role=status]').textContent = friendlyError(error); }
     finally { button.disabled = false; }
   };
+});
+
+try{await loadBoards();}catch{document.querySelector('#feedPreferencesForm [role=status]').textContent='Some communities could not be loaded. Refresh to retry.';}
+watchAuth(state=>{
+  const key='cb_feed_'+(state.user?.uid||'guest'),form=document.querySelector('#feedPreferencesForm');
+  let prefs;try{prefs=readFeedPreferences(localStorage,key);}catch{prefs={interests:[],seen:{}};}
+  const host=document.querySelector('#feedInterests');host.replaceChildren();
+  for(const board of BOARDS){const label=document.createElement('label');label.className='social-check';const input=document.createElement('input');input.type='checkbox';input.name='interest';input.value=board;input.checked=prefs.interests.includes(board);label.append(input,document.createTextNode(board));host.append(label);}
+  form.onsubmit=event=>{event.preventDefault();try{const current=readFeedPreferences(localStorage,key);current.interests=new FormData(form).getAll('interest').slice(0,30);localStorage.setItem(key,JSON.stringify(current));form.querySelector('[role=status]').textContent='Interests saved. Choose For you in the feed to use them.';}catch{form.querySelector('[role=status]').textContent='Could not save preferences on this device.';}};
+  document.querySelector('#resetFeed').onclick=()=>{try{localStorage.removeItem(key);form.querySelectorAll('input').forEach(input=>input.checked=false);form.querySelector('[role=status]').textContent='Interests and seen history cleared.';}catch{form.querySelector('[role=status]').textContent='Could not clear preferences.';}};
 });

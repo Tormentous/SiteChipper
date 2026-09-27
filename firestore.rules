@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null && !exists(/databases/$(database)/documents/accountDeletions/$(request.auth.uid)); }
     function mine(uid) { return signedIn() && request.auth.uid == uid; }
-    function moderator() { return signedIn() && request.auth.token.get('moderator', false) == true; }
+    function moderator() { return signedIn() && ((!exists(/databases/$(database)/documents/staff/$(request.auth.uid)) && request.auth.token.get('moderator', false) == true) || (exists(/databases/$(database)/documents/staff/$(request.auth.uid)) && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.active == true && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role in ['moderator','lead','admin'])); }
     function shortText(value, max) { return value is string && value.size() > 0 && value.size() <= max; }
     function validAvatar() { return !('avatarPath' in request.resource.data) || request.resource.data.avatarPath.matches('media/' + request.auth.uid + '/[^/]+'); }
     function validSearch() { return request.resource.data.get('searchTokens',[]) is list && request.resource.data.get('searchTokens',[]).size() <= 100; }
@@ -63,7 +63,7 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time && request.resource.data.editedAt == null;
       allow update: if mine(resource.data.authorId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text','editedAt','searchTokens'])
         && validSearch() && shortText(request.resource.data.text,2000) && request.resource.data.editedAt == request.time;
-      allow delete: if mine(resource.data.authorId) || moderator();
+      allow delete: if mine(resource.data.authorId);
       match /reactions/{uid} {
         allow read: if postExists(id);
         allow create, update: if mine(uid) && canEngage(id) && request.resource.data.keys().hasOnly(['yeah','repost'])
@@ -75,7 +75,7 @@ service cloud.firestore {
         allow create: if canEngage(id) && rate('reply',commentId) && request.resource.data.keys().hasOnly(['authorId','profileId','text','media','createdAt'])
           && mine(request.resource.data.authorId) && validProfile(request.resource.data.profileId)
           && shortText(request.resource.data.text,2000) && media(request.resource.data.media) && request.resource.data.createdAt == request.time;
-        allow delete: if mine(resource.data.authorId) || (postExists(id) && mine(get(/databases/$(database)/documents/posts/$(id)).data.authorId)) || moderator();
+        allow delete: if mine(resource.data.authorId) || (postExists(id) && mine(get(/databases/$(database)/documents/posts/$(id)).data.authorId));
       }
     }
     match /reposts/{id} {
@@ -85,7 +85,7 @@ service cloud.firestore {
         && id == request.auth.uid + '__' + request.resource.data.postId && canEngage(request.resource.data.postId)
         && request.resource.data.createdAt == request.time
         && getAfter(/databases/$(database)/documents/posts/$(request.resource.data.postId)/reactions/$(request.auth.uid)).data.repost == true;
-      allow delete: if mine(resource.data.authorId) || moderator();
+      allow delete: if mine(resource.data.authorId);
     }
     match /friendships/{id} {
       allow read: if signedIn() && request.auth.uid in resource.data.participants;
@@ -160,7 +160,7 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
       allow update: if mine(resource.data.authorId) && !('closedAt' in resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['closedAt']) && request.resource.data.closedAt == request.time;
-      allow delete: if mine(resource.data.authorId) || moderator();
+      allow delete: if mine(resource.data.authorId);
       match /votes/{uid} {
         allow read: if true;
         allow create: if mine(uid) && request.resource.data.keys().hasOnly(['choice','createdAt']) && request.resource.data.choice is int
@@ -180,18 +180,15 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['reporter','postId','commentId','pollId','reason','createdAt']) && mine(request.resource.data.reporter)
         && target() && shortText(request.resource.data.reason,1000) && request.resource.data.createdAt == request.time;
       allow read: if moderator() || mine(resource.data.reporter);
-      allow update, delete: if moderator();
+      allow update, delete: if false;
     }
     match /moderationDecisions/{id} {
       allow read: if moderator() || (signedIn() && request.auth.uid in resource.data.recipients);
-      allow create: if moderator() && request.resource.data.keys().hasOnly(['recipients','reportId','target','action','basis','ground','reason','createdAt'])
-        && request.resource.data.recipients is list && request.resource.data.recipients.size() == 1
-        && request.resource.data.recipients[0] is string
-        && request.resource.data.action in ['remove','keep'] && request.resource.data.basis in ['Community rules','Law']
-        && shortText(request.resource.data.ground,300) && shortText(request.resource.data.reason,2000)
-        && shortText(request.resource.data.reportId,200) && shortText(request.resource.data.target,1000)
-        && request.resource.data.createdAt == request.time;
+      allow write: if false;
     }
+    match /staff/{uid} { allow read, write: if false; }
+    match /moderationCases/{id}/{path=**} { allow read, write: if false; }
+    match /staffAudit/{id} { allow read, write: if false; }
     // Only trusted moderators/server code can publish the curated in-game feed.
     match /chipper/{id} { allow read: if true; allow write: if moderator(); }
     match /{document=**} { allow read, write: if false; }

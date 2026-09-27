@@ -153,7 +153,7 @@ exports.publishChipperFeed = functions.https.onRequest(async (req, res) => {
     const header = req.get('Authorization') || '';
     if (!header.startsWith('Bearer ')) return res.status(401).json({ ok:false, error:'Sign in required' });
     const claims = await admin.auth().verifyIdToken(header.slice(7), true);
-    if (claims.moderator !== true) return res.status(403).json({ ok:false, error:'Moderator access required' });
+    try { await require('./staffModeration').requireStaff(claims); } catch (_) { return res.status(403).json({ ok:false, error:'Active staff access required' }); }
   } catch (_) {
     return res.status(401).json({ ok:false, error:'Invalid authentication' });
   }

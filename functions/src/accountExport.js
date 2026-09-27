@@ -42,6 +42,8 @@ async function collectAccountData(uid, { maxBytes = 8 * 1024 * 1024, maxScanned 
   await walk(db.collection('moderationDecisions').where('recipients', 'array-contains', uid));
   await walk(db.collection('friendships').where('participants', 'array-contains', uid));
   for (const name of ['blocks','notifications','conversationReads','activity']) await walk(db.collection(`users/${uid}/${name}`));
+  const staffRecord=await db.doc('staff/'+uid).get();
+  if(staffRecord.exists)result.staffAccess={role:staffRecord.get('role'),active:staffRecord.get('active'),name:staffRecord.get('name')};
   const privateRecord = await db.doc('accountPrivate/' + uid).get();
   // Legacy migration only stores contact details here; explicitly whitelist them.
   if (privateRecord.exists) result.privateContact = { email: privateRecord.get('email') || null, phone: privateRecord.get('phone') || privateRecord.get('phoneNumber') || null };

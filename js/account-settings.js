@@ -63,7 +63,7 @@ watchAuth(state => {
     if(!response.ok||!result.accepted)throw Error(result.error||'Could not schedule deletion.');
     await logout();
     // Remove this device's account/draft caches, leaving appearance preferences intact.
-    try { for(const key of Object.keys(localStorage)) if((key.startsWith('cb_draft_'+user.uid)||key.startsWith('cb_dm_draft_'+user.uid))||key==='user_'+profileId||key==='profile_'+profileId||key==='pfp_'+profileId)localStorage.removeItem(key); } catch (_) {}
+    try { for(const key of Object.keys(localStorage)) if((key.startsWith('cb_draft_'+user.uid)||key.startsWith('cb_dm_draft_'+user.uid))||key==='cb_feed_'+user.uid||key==='user_'+profileId||key==='profile_'+profileId||key==='pfp_'+profileId)localStorage.removeItem(key); } catch (_) {}
     host.innerHTML='<h2>Account deletion requested</h2><p>You are signed out. Your account is locked while its data is removed. You do not need to keep this page open.</p><a href="/">Return home</a>';
   });
 });
