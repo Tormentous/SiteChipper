@@ -7,7 +7,7 @@ const admin = require('../functions/node_modules/firebase-admin');
 admin.initializeApp({projectId:'demo-coolbrador'});
 async function main() {
  const db=admin.firestore(), original=await db.doc('chipper/feed').get();
- const owner='http-smoke-owner', id='http-smoke-post';
+ const owner='http-smoke-owner-'+require('node:crypto').randomUUID(), id='http-smoke-post';
  const feedURL='http://127.0.0.1:8000/api/chipper-game-board-feed';
  const bucket=admin.storage().bucket('coolbrador.firebasestorage.app');
  const files=['chipper/chipper_game_board_feed.json','chipper/BeeSid.json'];

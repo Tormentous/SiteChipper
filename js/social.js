@@ -137,10 +137,10 @@ function postCard(post, detailed = false) {
   return el;
 }
 function disposeCards() { cardDisposers.splice(0).forEach(fn => fn()); }
-async function confirmDialog(title, label, value, multiline = false) {
+async function confirmDialog(title, label, value, multiline = false, maxLength = 2000, required = true) {
   const dialog = document.createElement('dialog'); dialog.className = 'social-dialog';
   dialog.setAttribute('aria-labelledby','socialDialogTitle');
-  dialog.innerHTML = `<form method="dialog"><h2 id="socialDialogTitle">${escape(title)}</h2>${label ? `<label>${escape(label)}${multiline ? `<textarea name="value" rows="5" maxlength="2000" required>${escape(value || '')}</textarea>` : `<p>${escape(value || '')}</p>`}</label>` : ''}<div class="social-actions"><button value="cancel" formnovalidate>Cancel</button><button class="social-primary" value="confirm">Confirm</button></div></form>`;
+  dialog.innerHTML = `<form method="dialog"><h2 id="socialDialogTitle">${escape(title)}</h2>${label ? `<label>${escape(label)}${multiline ? `<textarea name="value" rows="5" maxlength="${maxLength}" ${required?'required':''}>${escape(value || '')}</textarea>` : `<p>${escape(value || '')}</p>`}</label>` : ''}<div class="social-actions"><button value="cancel" formnovalidate>Cancel</button><button class="social-primary" value="confirm">Confirm</button></div></form>`;
   const previousFocus=document.activeElement;
   document.body.append(dialog); dialog.showModal();
   return new Promise(resolve => dialog.addEventListener('close', () => { const result = dialog.returnValue === 'confirm' ? multiline ? dialog.querySelector('textarea').value : true : null; dialog.remove(); if(previousFocus?.isConnected)previousFocus.focus(); resolve(result); }, { once: true }));
@@ -270,7 +270,7 @@ async function feedPage(board) {
     if (info.ownerId === api.state.user?.uid) {
       const edit = document.createElement('button'); edit.textContent = 'Edit community description';
       root.querySelector('.social-heading').append(edit);
-      edit.onclick = async () => { const text = await confirmDialog('Edit community','Description',info.description,true); if (text !== null) { try { await api.updateBoard(board,text); location.reload(); } catch (error) { failure(error); } } };
+      edit.onclick = async () => { const text = await confirmDialog('Edit community','Description',info.description,true,280,false); if (text !== null) { try { await api.updateBoard(board,text); location.reload(); } catch (error) { failure(error); } } };
     }
   }
 }

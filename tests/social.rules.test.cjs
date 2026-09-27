@@ -202,8 +202,8 @@ test('reply and poll reports require a real target and remain moderator-private'
  await assertFails(getDocs(collection(bob,'reports')));
  const mod=env.authenticatedContext('moderator',{moderator:true}).firestore();
  await assertSucceeds(getDocs(collection(mod,'reports')));
- await assertSucceeds(deleteDoc(doc(mod,'posts','reply-test','comments','comment-1')));
- await assertSucceeds(deleteDoc(doc(mod,'polls','reported-poll')));
+ await assertFails(deleteDoc(doc(mod,'posts','reply-test','comments','comment-1')));
+ await assertFails(deleteDoc(doc(mod,'polls','reported-poll')));
 });
 
 test('friends feeds may query author batches without making friendships public',async()=>{

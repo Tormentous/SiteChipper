@@ -141,3 +141,22 @@ the turn. No alternative API is used to bypass that restriction.
   visually in both modes; no complete sitewide WCAG certification is claimed.
 - Checkpoint5a2dfcf pushed successfully, including the previously blocked commits.
   CodeRabbit review remains disabled by the task setting.
+
+## Ranking and staff operations
+
+Checkpoint536f67a introduced device-only, explainable For you ranking with explicit
+interests and reset; fixed duplicate reposts and own-post omission in Friends.
+Staff workspace now includes transactional claims/assignment, priority/escalation,
+private notes, reasoned decisions, history and administrator-managed staff access.
+See STAFF-AND-RANKING.md for permissions, onboarding and operational limits.
+
+Validation: initial44-case gate43passed/1obsolete direct-delete expectation failed;
+updated denial expectations and fresh23-case security/staff gate passed, with the
+other21cases reused. Staff HTTP auth/conflict/decision/revocation passed. Browser
+claim/assign/release/note/escalation/resolve/history/access audit and failed-request
+draft preservation passed on synthetic local data. Ranking interests/reset,
+explanations, Friends inclusion and deduplication checked. Chipper publisher smoke
+initially hit a retained tombstone for a reused fixture account; switched the test
+to a unique synthetic UID, then all game/publisher checks passed. Staff audit had
+zero accessibility violations; new feed inline links needed underlines, fixed.
+CodeRabbit remains disabled and PR creation remains runtime-owned.
