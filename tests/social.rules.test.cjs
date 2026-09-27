@@ -133,3 +133,12 @@ test('community creation protects built-ins and editing is owner-only',async()=>
  await assertSucceeds(setDoc(doc(bob,'posts','custom-board'),{...post('bob'),board:'drawing-club',inGame:false}));
  await assertFails(setDoc(doc(bob,'posts','unknown-board'),{...post('bob'),board:'unknown-board',inGame:false}));
 });
+
+test('deletion tombstone locks stale sessions out of all social writes',async()=>{
+ await env.withSecurityRulesDisabled(async context=>setDoc(doc(context.firestore(),'accountDeletions','alice'),{status:'pending'}));
+ await assertFails(setDoc(doc(alice,'posts','after-delete'),post('alice')));
+ await assertFails(updateDoc(doc(alice,'profiles','alice'),{displayName:'Resurrected'}));
+ await assertFails(setDoc(doc(alice,'conversations','alice__bob','messages','after-delete'),{senderId:'alice',text:'No',createdAt:serverTimestamp()}));
+ await assertFails(uploadBytes(ref(env.authenticatedContext('alice').storage(),'media/alice/after-delete'),new Uint8Array([1]),{contentType:'image/png'}));
+ await assertFails(deleteDoc(doc(alice,'accountDeletions','alice')));
+});

@@ -7110,3 +7110,15 @@ body.messages-page .cb-msg-shell {
 .cb-sidebar-account-toggle { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; padding: 8px 0; }
 .cb-sidebar-account-toggle:focus-visible { outline: 2px solid var(--cb-accent); outline-offset: 3px; }
 .cb-live-count { margin-left: auto; background: var(--cb-accent); color: var(--cb-accent-text, #08101f); border-radius: 20px; min-width: 22px; padding: 2px 6px; font-size: 11px; font-weight: 700; text-align: center; }
+
+.account-settings details { border-top: 1px solid var(--cb-border, #444); padding: 18px 0; }
+.account-settings summary { cursor: pointer; font-weight: 700; }
+.account-settings form { display: grid; gap: 16px; margin-top: 20px; max-width: 580px; }
+.account-settings label { display: grid; gap: 8px; }
+.account-settings input { box-sizing: border-box; width: 100%; min-width: 0; padding: 12px; background: var(--cb-surface, #111126); color: inherit; border: 1px solid var(--cb-border, #444); border-radius: 8px; font: inherit; }
+.account-settings button { padding: 12px 16px; cursor: pointer; font: inherit; color: inherit; background: var(--cb-surface, #111126); border: 1px solid var(--cb-border, #444); border-radius: 8px; }
+.account-settings .account-danger { border-color: #ee6976; }
+.account-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.account-email { overflow-wrap: anywhere; }
+.account-settings [role=status] { line-height: 1.5; }
+.account-settings [hidden] { display: none !important; }

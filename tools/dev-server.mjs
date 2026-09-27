@@ -95,6 +95,7 @@ function resolveFile(urlPath) {
 }
 
 const functionRoutes = {
+  '/api/account/delete':'requestAccountDeletion',
   '/api/chipper-game-board-feed':'getChipperFeed', '/api/chipper-miiverse':'getChipperFeed',
   '/api/beesid-board':'getBeeSidBoard', '/api/media-scan':'mediaScan',
   '/data/chipper_game_board_feed.json':'getChipperFeed', '/data/chipper-miiverse.json':'getChipperFeed',

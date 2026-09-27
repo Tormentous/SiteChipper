@@ -5,3 +5,5 @@ exports.mediaScan = media.mediaScan;
 exports.publishChipperFeed = chipper.publishChipperFeed;
 exports.getChipperFeed = chipper.getChipperFeed;
 exports.getBeeSidBoard = chipper.getBeeSidBoard;
+
+Object.assign(exports, require('./socialLifecycle'));
