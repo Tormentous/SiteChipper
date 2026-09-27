@@ -51,3 +51,17 @@ full browser journeys, deployment/migration documentation, and CodeRabbit review
 GitHub checkpoint pushes work. Direct draft-PR creation was rejected by the
 runtime-owned Git delivery wrapper, which states it will handle delivery after
 the turn. No alternative API is used to bypass that restriction.
+
+## Checkpoint: verified user journeys and recovery
+- Two independent local accounts exercised shared posts, replies, Yeah/repost,
+  friend request/acceptance, reply notifications and private messages in both
+  directions. Community creation and image upload succeeded in the browser.
+- Poll history verified at the first vote (100/0) and second vote (50/50), including
+  keyboard Home/End controls and the observation table.
+- Mobile testing found and fixed an oversized header avatar covering content;
+  menu Escape now restores focus and closed navigation is not tabbable.
+- Profile sanitation migration passed dry-run/apply/idempotence verification with
+  synthetic local fixtures. See SOCIAL-DEPLOYMENT.md for rollout ordering.
+- CodeRabbit CLI review was attempted but is disabled for this task. This is a
+  review blocker, not a clean-review result. Final emulator suite and full Functions
+  smoke checks remain in progress.

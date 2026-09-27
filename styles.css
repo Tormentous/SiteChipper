@@ -7090,3 +7090,19 @@ body.messages-page .cb-msg-shell {
 .cb-history-data th, .cb-history-data td { padding: 8px; border-bottom: 1px solid var(--cb-border, #333348); white-space: nowrap; }
 .cb-chart-empty { color: var(--cb-muted, #9eabc5); border: 1px dashed var(--cb-border, #333348); border-radius: 12px; padding: 24px; text-align: center; }
 
+
+/* Constrain account controls in the mobile header; percentage-sized avatars
+   otherwise expand the menu button and cover the page. */
+@media (max-width: 767px) {
+  #userSectionMobile { position: static; transform: none; flex: 0 0 44px; min-width: 44px; width: 44px; }
+  #userSectionMobile .cb-user-menu-btn { width: 44px; height: 44px; min-height: 44px; padding: 4px; border: 0; }
+  #userSectionMobile img.cb-user-menu-pfp { width: 36px; height: 36px; max-width: 36px; flex: 0 0 36px; }
+  #userSectionMobile .cb-user-menu-panel a { width: auto; max-width: none; aspect-ratio: auto; }
+  .mobile-top-bar { justify-content: space-between; gap: 10px; }
+  .mobile-top-bar .header-search { min-width: 0; flex: 1; margin: 0; }
+  .mobile-top-bar .header-search input { width: 100%; padding-left: 36px; }
+  #userSectionMobile > a { width: auto; max-width: none; aspect-ratio: auto; }
+  body.cb-sidebar-open { overflow: hidden; }
+  .cb-sidebar:not(.is-open) { visibility: hidden; }
+  .cb-sidebar.is-open { visibility: visible; }
+}

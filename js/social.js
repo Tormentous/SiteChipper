@@ -35,13 +35,16 @@ function bindForm(form, handler) {
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (form.dataset.busy || !requireUser()) return;
+    const values = new FormData(form);
+    const controls = [...form.elements].map(el => [el, el.disabled]);
     form.dataset.busy = '1'; form.setAttribute('aria-busy', 'true');
     const button = form.querySelector('[type=submit]');
     const label = button.textContent; button.disabled = true; button.textContent = 'Saving…';
     const status = form.querySelector('[role=status]');
-    try { if (status) status.textContent = ''; await handler(new FormData(form)); }
+    controls.forEach(([el]) => { el.disabled = true; });
+    try { if (status) status.textContent = ''; await handler(values); }
     catch (error) { if (status) status.textContent = api.friendlyError(error); else failure(error); }
-    finally { delete form.dataset.busy; form.removeAttribute('aria-busy'); button.disabled = false; button.textContent = label; }
+    finally { delete form.dataset.busy; form.removeAttribute('aria-busy'); controls.forEach(([el, disabled]) => { el.disabled = disabled; }); button.textContent = label; }
   });
 }
 function composer(board = '', reply = null) {
@@ -52,7 +55,7 @@ function composer(board = '', reply = null) {
     <div class="social-attachment" hidden></div><div class="social-compose-tools">
     ${reply ? '' : `<label class="social-file">＋ Add media<input name="media" type="file" accept="image/png,image/jpeg,image/gif,image/webp,video/mp4,video/webm"></label>`}
     ${board || reply ? `<span class="social-muted">${reply ? 'Replies are public' : 'Posting to ' + escape(board)}</span>` : `<label class="social-board-picker">Community<select name="board">${options('General')}</select></label>`}
-    <span class="social-counter" aria-live="off">0 / 2000</span><button type="submit" class="social-primary">${reply ? 'Reply' : 'Post'}</button></div><p role="status"></p></form>`;
+    ${reply ? '' : '<label class="social-sensitive-toggle"><input type="checkbox" name="sensitive"> Sensitive content</label>'}<span class="social-counter" aria-live="off">0 / 2000</span><button type="submit" class="social-primary">${reply ? 'Reply' : 'Post'}</button></div><p role="status"></p></form>`;
   const form = container.querySelector('form'), textarea = form.elements.body;
   try { textarea.value = localStorage.getItem(draftKey) || ''; } catch (_) {}
   function remember() { container.querySelector('.social-counter').textContent = textarea.value.length + ' / 2000'; try { localStorage.setItem(draftKey, textarea.value); } catch (_) {} }
@@ -75,12 +78,14 @@ function composer(board = '', reply = null) {
     const body = String(data.get('body') || '').trim();
     if (!body && !file?.files.length) throw new Error('Write something or attach a photo or video.');
     const selected = file?.files[0];
+    let contentWarnings = data.get('sensitive') ? ['sensitive'] : [];
     if (selected && window.CoolbradorMediaSafety) {
       const result = await window.CoolbradorMediaSafety.scan(selected, body);
+      if (result?.softNsfw) contentWarnings.push('nsfw');
       if (result?.ok === false) throw new Error('This attachment could not be accepted. Please choose another file.');
     }
     const media = selected ? await api.upload(selected) : null;
-    if (reply) await api.comment(reply, body); else await api.createPost({ body, media, board: board || data.get('board') });
+    if (reply) await api.comment(reply, body); else await api.createPost({ body, media, contentWarnings, board: board || data.get('board') });
     textarea.value = ''; if (file) file.value = ''; preview.hidden = true; preview.replaceChildren();
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     remember(); toast(reply ? 'Reply posted.' : 'Your post is live.');
@@ -92,13 +97,19 @@ function mediaHTML(media) {
   const url = escape(safeUrl(media.url));
   return media.type === 'video' ? `<video class="social-media" src="${url}" controls preload="metadata" playsinline></video>` : `<a href="${url}" target="_blank" rel="noopener"><img class="social-media" src="${url}" alt="Post attachment" loading="lazy"></a>`;
 }
+function postBody(post) {
+  const content = `<p class="social-post-text">${escape(post.text)}</p>${mediaHTML(post.media)}`;
+  const classification = window.CoolbradorSensitiveFilter?.classifyPost(post);
+  if (classification && !window.CoolbradorSensitiveFilter.shouldShowPost(post)) return `<details class="social-content-warning"><summary>Sensitive content · Show post</summary>${content}</details>`;
+  return content;
+}
 function postCard(post, detailed = false) {
   posts.set(post.id, post);
   const el = document.createElement('article'); el.className = 'social-post'; el.dataset.postId = post.id;
   const own = post.authorId === api.state.user?.uid;
   el.innerHTML = `${post._repost ? `<p class="social-muted">↻ <a href="${profileUrl(post._repost.profileId)}">${escape(post._repost.name)}</a> reposted</p>` : ''}<header class="social-post-head"><a class="social-author" href="${profileUrl(post.profileId)}">${avatar()}<strong>Loading profile…</strong></a><a class="social-board-tag" href="/b/${encodeURIComponent(post.board)}">${escape(post.board)}${post.inGame ? ' · In-game' : ''}</a>
     <details class="social-menu"><summary aria-label="Post options">•••</summary><div><button data-action="share" data-id="${escape(post.id)}">Copy link</button>${own ? `<button data-action="edit" data-id="${escape(post.id)}">Edit post</button><button data-action="delete" data-id="${escape(post.id)}">Delete post</button>` : `<button data-action="report" data-id="${escape(post.id)}">Report post</button><button data-action="block" data-id="${escape(post.id)}">Block author</button>`}</div></details></header>
-    <a class="social-post-time" href="${postUrl(post.id)}">${time(post.createdAt)}${post.editedAt ? ' · edited' : ''}</a><p class="social-post-text">${escape(post.text)}</p>${mediaHTML(post.media)}
+    <a class="social-post-time" href="${postUrl(post.id)}">${time(post.createdAt)}${post.editedAt ? ' · edited' : ''}</a>${postBody(post)}
     <footer class="social-post-actions"><button data-action="yeah" data-id="${escape(post.id)}" aria-pressed="false">♡ Yeah! <span>0</span></button><a href="${postUrl(post.id)}${detailed ? '#reply' : ''}">↩ Reply</a><button data-action="repost" data-id="${escape(post.id)}" aria-pressed="false">↻ Repost <span>0</span></button><button data-action="share" data-id="${escape(post.id)}">↗ Share</button></footer>`;
   api.profile(post.profileId).then(p => {
     if (!p) { el.querySelector('.social-author strong').textContent = 'Former member'; return; }
@@ -138,11 +149,11 @@ root.addEventListener('click', async event => {
   } catch (error) { failure(error); } finally { button.disabled = false; }
 });
 function boardGrid() {
-  return `<nav class="social-boards" aria-label="Communities">${api.BOARDS.map((b,i) => `<a href="/b/${b}"><span aria-hidden="true">${['✦','🎮','☾','🌱','🌎','⚑','🎁','🌾'][i]}</span><strong>${b}</strong><small>${b === 'BeeSid' ? 'The Chipper game board' : 'Join the conversation'}</small></a>`).join('')}</nav>`;
+  return `<nav class="social-boards" aria-label="Communities">${api.BOARDS.map((b,i) => `<a href="/b/${b}"><span aria-hidden="true">${['✦','🎮','☾','🌱','🌎','⚑','🎁','🌾'][i] || '✦'}</span><strong>${escape(api.boardInfo.get(b)?.name || b)}</strong><small>${b === 'BeeSid' ? 'The Chipper game board' : 'Join the conversation'}</small></a>`).join('')}</nav>`;
 }
 function renderFeed(board, authorId) {
   const host = root.querySelector('#liveFeed');
-  let current = [], reposts = [], stop, stopReposts, generation = 0, count = 30;
+  let current = [], reposts = [], stop, stopReposts, repostStops = [], generation = 0, count = 30;
   const load = root.querySelector('#loadMore');
   feedRender = () => {
     disposeCards(); host.replaceChildren();
@@ -170,26 +181,43 @@ function renderFeed(board, authorId) {
     root.querySelectorAll('[data-feed]').forEach(el => { el.setAttribute('aria-selected', String(el === tab)); el.tabIndex = el === tab ? 0 : -1; });
     feedRender();
   }; });
-  stopReposts = api.watchReposts({authorId, count: 100}, async entries => {
-    const currentGeneration = ++generation;
-    const shared = await Promise.all(entries.map(async r => {
-      const p = await api.getPost(r.postId).catch(() => null);
-      if (!p || board && p.board !== board) return null;
-      const sharer = await api.profile(r.profileId).catch(() => null);
-      return { ...p, _repost: { ...r, name: userName(sharer) } };
-    }));
-    if (currentGeneration !== generation) return;
-    reposts = shared.filter(Boolean); feedRender();
+  stopReposts = api.watchReposts({authorId, count: 100}, entries => {
+    ++generation; repostStops.forEach(fn => fn()); repostStops = []; reposts = []; feedRender();
+    const version = generation;
+    entries.forEach(r => {
+      repostStops.push(api.watchPost(r.postId, async p => {
+        const sharer = await api.profile(r.profileId).catch(() => null);
+        if (version !== generation) return;
+        reposts = reposts.filter(existing => existing._repost.id !== r.id);
+        if (p && (!board || p.board === board)) reposts.push({ ...p, _repost: { ...r, name: userName(sharer) } });
+        feedRender();
+      }, failure));
+    });
   }, failure);
-  disposers.push(() => { stop?.(); stopReposts?.(); generation++; }); subscribe();
+  disposers.push(() => { stop?.(); stopReposts?.(); repostStops.forEach(fn => fn()); generation++; }); subscribe();
 }
 async function feedPage(board) {
-  const title = board || (page === 'home' ? 'Your corner of the cosmos' : 'Community');
+  const title = (api.boardInfo.get(board)?.name || board) || (page === 'home' ? 'Your corner of the cosmos' : 'Community');
   root.innerHTML = heading(title, board === 'BeeSid' ? 'The Miiverse-style home for Chipper moments, drawings, and in-game discoveries.' : 'Small moments. Big conversations. A place for the whole pack.') +
     (page === 'home' || !board ? boardGrid() : '') +
     `<div id="composer"></div>${board === 'BeeSid' ? '<aside class="social-callout">🎮 Posts on this board are marked for Chipper. <a href="?archive=1">Explore the original game feed →</a></aside>' : ''}
     <div class="social-feed-toolbar"><div role="tablist" aria-label="Feed"><button role="tab" data-feed="latest" aria-selected="true">Latest</button><button role="tab" data-feed="friends" aria-selected="false" tabindex="-1">Friends</button></div><label>Search posts<input id="feedSearch" type="search" placeholder="Find a conversation"></label></div><section id="liveFeed" aria-label="Posts"><p>Loading posts…</p></section><button id="loadMore" class="social-load" hidden>Load more posts</button>`;
   root.querySelector('#composer').append(composer(board)); renderFeed(board);
+  if (!board) {
+    const create = document.createElement('details'); create.className = 'social-poll-compose';
+    create.innerHTML = '<summary>＋ Start a community</summary><form class="social-compose"><label>Community name<input name="name" maxlength="48" required></label><label>Description<textarea name="description" maxlength="280" rows="2"></textarea></label><button type="submit" class="social-primary">Create community</button><p role="status"></p></form>';
+    root.querySelector('.social-boards').after(create);
+    bindForm(create.querySelector('form'), async data => { location.assign('/b/' + await api.createBoard(data.get('name'),data.get('description'))); });
+  }
+  const info = api.boardInfo.get(board);
+  if (info) {
+    root.querySelector('.social-heading > p:last-child').textContent = info.description;
+    if (info.ownerId === api.state.user?.uid) {
+      const edit = document.createElement('button'); edit.textContent = 'Edit community description';
+      root.querySelector('.social-heading').append(edit);
+      edit.onclick = async () => { const text = await confirmDialog('Edit community','Description',info.description,true); if (text !== null) { try { await api.updateBoard(board,text); location.reload(); } catch (error) { failure(error); } } };
+    }
+  }
 }
 async function threadPage() {
   const id = decodeURIComponent(location.pathname.split('/')[2] || '');
@@ -330,7 +358,7 @@ async function pollsPage() {
     if (!polls.length) host.innerHTML = empty('A question starts a conversation', 'Create the first community poll.');
     polls.forEach(poll => {
       const card = document.createElement('article'); card.className = 'social-poll'; card.id = 'poll-' + poll.id;
-      card.innerHTML = `<span class="social-board-tag">${escape(poll.board)}</span><h2>${escape(poll.title)}</h2><div class="social-vote-options">${poll.options.map((option,i) => `<button data-choice="${i}"><span>${escape(option)}</span><strong>0%</strong></button>`).join('')}</div><p class="social-vote-status" role="status"></p><div class="social-chart"></div><p class="social-muted">Share of votes, not betting odds. One vote per account.</p>`;
+      card.innerHTML = `<span class="social-board-tag">${escape(poll.board)}</span><h2>${escape(poll.title)}</h2><div class="social-vote-options">${poll.options.map((option,i) => `<button data-choice="${i}"><span>${escape(option)}</span><strong>0%</strong></button>`).join('')}</div><p class="social-vote-status" role="status"></p><div class="social-chart"></div><p class="social-muted">Share of votes, not betting odds. One vote per account. Votes are public.</p>`;
       host.append(card); let myVote, chart;
       card.querySelectorAll('[data-choice]').forEach(button => { button.onclick = async () => {
         if (!requireUser() || myVote) return;
@@ -354,9 +382,9 @@ async function pollsPage() {
 }
 async function archivePage() {
   const board = decodeURIComponent(location.pathname.split('/')[2] || 'BeeSid');
-  const response = await fetch(board === 'BeeSid' ? '/data/boards/BeeSid.json' : '/data/community-archive.json'); if (!response.ok) throw new Error('The game archive is temporarily unavailable.');
+  const response = await fetch('/data/community-archive.json'); if (!response.ok) throw new Error('The game archive is temporarily unavailable.');
   const data = await response.json();
-  const all = board === 'BeeSid' ? data.posts || [] : data[board] || [];
+  const all = data[board] || [];
   root.innerHTML = heading(board === 'BeeSid' ? 'Chipper game archive' : board + ' archive', 'Original Miiverse-style posts, preserved for the game. New conversations happen on the live BeeSid board.') + '<a class="social-primary" href="/b/BeeSid">Join the live board →</a><section id="archivePosts"></section>';
   const route = location.pathname.match(/\/post\/(\d+)\/comments/);
   const chronological = all.slice().sort((a,b) => (Date.parse(a.timestamp) || Number(a.id) || 0)-(Date.parse(b.timestamp) || Number(b.id) || 0));
@@ -391,9 +419,11 @@ async function boot() {
     disposers.push(api.watchBlocks(rows => { blocks = rows; feedRender(); }, failure));
   }
   try {
+    await api.loadBoards();
     if (page === 'home' || page === 'community') await feedPage();
     else if (page === 'board') {
-      const board = decodeURIComponent(location.pathname.split('/')[2] || 'General');
+      const requested = decodeURIComponent(location.pathname.split('/')[2] || 'General');
+      const board = api.BOARDS.find(b => b.toLowerCase() === requested.toLowerCase()) || requested;
       if (!api.BOARDS.includes(board)) root.innerHTML = heading('Community') + empty('Community not found', 'Choose a community below.') + boardGrid();
       else if (board === 'BeeSid' && new URLSearchParams(location.search).has('archive')) await archivePage();
       else await feedPage(board);

@@ -28,3 +28,9 @@ firebase deploy --only hosting,firestore:rules,storage,functions
 
 Hosting deploys the repository root; `firebase.json` `hosting.ignore` keeps
 tooling, tests, backups and server code out of the public site.
+
+## Shared social features
+
+See [social deployment and migration](docs/SOCIAL-DEPLOYMENT.md) before deploying
+the new rules. Existing profiles must be sanitized before opening public reads.
+Progress and known baseline issues are in [the work log](docs/SOCIAL-READINESS.md).

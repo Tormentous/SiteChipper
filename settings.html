@@ -259,12 +259,12 @@
     </section>
     <section class="settings-card" id="chipper">
       <h2>Connect to Chipper</h2>
-      <p>Link this Coolbrador account to Chipper in-game. Chipper gets a one-shot profile payload only (no refresh tokens).</p>
+      <p>Share your public Coolbrador profile with Chipper. This card is for in-game display; it does not grant access to your account.</p>
       <div class="chipper-connect-box">
         <pre id="chipperLinkJson" class="chipper-link-pre">Sign in to generate a link.</pre>
         <div class="chipper-connect-actions">
           <button type="button" id="chipperCopyBtn" class="settings-btn">Copy link JSON</button>
-          <button type="button" id="chipperRegenBtn" class="settings-btn settings-btn-secondary">New one-shot code</button>
+          <button type="button" id="chipperRegenBtn" class="settings-btn settings-btn-secondary">Refresh profile card</button>
           <a id="chipperOpenLink" class="settings-btn settings-btn-secondary" href="/chipper-link.html">Open link page</a>
         </div>
         <p class="settings-note" id="chipperLinkStatus">Payload fields: userId, handle, displayName, avatarUrl, openUrl.</p>
@@ -273,13 +273,13 @@
   
     <section class="settings-card">
       <h2>Moderation</h2>
-      <p>Edit any username, display name, profile picture, or post text.</p>
+      <p>Moderators can review community reports and remove reported posts.</p>
       <p><a href="/mod.html">Open mod panel</a></p>
     </section>
 </main>
   <div id="shared-footer"></div>
   <script src="/js/layout.js"></script>
-  <script src="/js/chipper-link.js"></script>
+  <script type="module" src="/js/chipper-link.js"></script>
   <script src="/js/settings.js"></script>
 </body>
 </html>

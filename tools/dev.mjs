@@ -11,6 +11,7 @@ const DATA = path.join(ROOT, ".emulator-data");
 const PROJECT = process.env.CB_PROJECT || "demo-coolbrador";
 const PORT = process.env.PORT || "8000";
 const extra = process.argv.slice(2);
+const withFunctions = extra.includes("--functions");
 
 const serverCmd = ["node", "tools/dev-server.mjs", "--emulators", "--port", PORT, "--project", PROJECT, ...extra].join(" ");
 const hasData = fs.existsSync(path.join(DATA, "firebase-export-metadata.json"));
@@ -18,7 +19,7 @@ const canSeed = fs.existsSync(path.join(ROOT, "tools", "seed-emulator.mjs"));
 // emulators:exec runs its command through a shell, so && chaining works.
 const execCmd = !hasData && canSeed ? `node tools/seed-emulator.mjs && ${serverCmd}` : serverCmd;
 
-const fbArgs = ["emulators:exec", "--project", PROJECT, "--only", "auth,firestore,storage"];
+const fbArgs = ["emulators:exec", "--project", PROJECT, "--only", withFunctions ? "auth,firestore,storage,functions" : "auth,firestore,storage"];
 if (hasData) fbArgs.push("--import", DATA);
 fbArgs.push("--export-on-exit", DATA, execCmd);
 

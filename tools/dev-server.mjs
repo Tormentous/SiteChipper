@@ -20,6 +20,7 @@ function arg(name, fallback) {
 const PORT = Number(arg("--port", process.env.PORT || 8000));
 const HOST = String(arg("--host", "0.0.0.0"));
 const EMULATORS = Boolean(arg("--emulators", process.env.CB_EMULATORS === "1"));
+const FUNCTIONS = Boolean(arg("--functions", false));
 const PROJECT = String(arg("--project", process.env.GCLOUD_PROJECT || "demo-coolbrador"));
 const EMU = {
   auth: process.env.FIREBASE_AUTH_EMULATOR_HOST || "127.0.0.1:9099",
@@ -93,6 +94,12 @@ function resolveFile(urlPath) {
   return null;
 }
 
+const functionRoutes = {
+  '/api/chipper-game-board-feed':'getChipperFeed', '/api/chipper-miiverse':'getChipperFeed',
+  '/api/beesid-board':'getBeeSidBoard', '/api/media-scan':'mediaScan',
+  '/data/chipper_game_board_feed.json':'getChipperFeed', '/data/chipper-miiverse.json':'getChipperFeed',
+  '/data/boards/BeeSid.json':'getBeeSidBoard'
+};
 const EMULATOR_SNIPPET = () =>
   `<script>window.__CB_EMULATOR__=${JSON.stringify({ projectId: PROJECT })};</script>`;
 
@@ -142,6 +149,12 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://localhost");
   const p = url.pathname;
 
+  if (EMULATORS && FUNCTIONS && functionRoutes[p]) {
+    // Explicit opt-in mirrors the post-deployment live-feed routes. The normal
+    // dev command still serves the bundled archive and requires no functions.
+    req.url = '/' + PROJECT + '/us-central1/' + functionRoutes[p] + url.search;
+    return proxy(req, res, '127.0.0.1:5001');
+  }
   const target = proxyTarget(p);
   if (target) return proxy(req, res, target);
 

@@ -8,7 +8,8 @@ service cloud.firestore {
     function validProfile(id) {
       return get(/databases/$(database)/documents/profiles/$(id)).data.uid == request.auth.uid;
     }
-    function board(value) { return value in ['General','BeeSid','Starry','ChipperCorner','Labradoria','MutinyDesk','GiftDrive','FarmReport']; }
+    function builtinBoard(value) { return value in ['general','beesid','starry','chippercorner','labradoria','mutinydesk','giftdrive','farmreport','farmdestroyersclub','invasions','mutinies4lyfe','testboard']; }
+    function board(value) { return value is string && (builtinBoard(value.lower()) || exists(/databases/$(database)/documents/boards/$(value))); }
     function safeUrl(value) { return value is string && value.size() <= 2048 && (value.matches('https://.*') || value.matches('/[^/].*') || (value.matches('http://(localhost|127[.]0[.]0[.]1)(:[0-9]+)?/.*'))); }
     function media(value) { return value == null || (value is map && value.keys().hasOnly(['url','type','path']) && safeUrl(value.url) && value.type in ['image','video'] && value.path.matches('media/' + request.auth.uid + '/[^/]+')); }
     function blocked(a, b) { return exists(/databases/$(database)/documents/users/$(a)/blocks/$(b)) || exists(/databases/$(database)/documents/users/$(b)/blocks/$(a)); }
@@ -26,12 +27,23 @@ service cloud.firestore {
         && shortText(request.resource.data.displayName,48) && request.resource.data.bio is string
         && request.resource.data.bio.size() <= 500 && safeUrl(request.resource.data.avatarUrl);
     }
+    match /boards/{id} {
+      allow read: if true;
+      allow create: if signedIn() && !builtinBoard(id) && id.matches('[a-z0-9-]{3,32}')
+        && request.resource.data.keys().hasOnly(['name','description','ownerId','createdAt'])
+        && mine(request.resource.data.ownerId) && shortText(request.resource.data.name,48)
+        && request.resource.data.description is string && request.resource.data.description.size() <= 280
+        && request.resource.data.createdAt == request.time;
+      allow update: if mine(resource.data.ownerId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['description'])
+        && request.resource.data.description is string && request.resource.data.description.size() <= 280;
+    }
     match /posts/{id} {
       allow read: if true;
-      allow create: if signedIn() && request.resource.data.keys().hasOnly(['authorId','profileId','board','text','media','inGame','createdAt','editedAt'])
+      allow create: if signedIn() && request.resource.data.keys().hasOnly(['authorId','profileId','board','text','media','contentWarnings','inGame','createdAt','editedAt'])
         && mine(request.resource.data.authorId) && validProfile(request.resource.data.profileId)
         && board(request.resource.data.board) && request.resource.data.text is string && request.resource.data.text.size() <= 2000
         && (request.resource.data.text.size() > 0 || request.resource.data.media != null) && media(request.resource.data.media)
+        && request.resource.data.get('contentWarnings', []) is list && request.resource.data.get('contentWarnings', []).size() <= 6
         && request.resource.data.inGame == (request.resource.data.board == 'BeeSid')
         && request.resource.data.createdAt == request.time && request.resource.data.editedAt == null;
       allow update: if mine(resource.data.authorId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text','editedAt'])

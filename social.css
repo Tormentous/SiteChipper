@@ -174,3 +174,11 @@ body.social-page { --social-panel: var(--cb-surface, #111126); background-color:
 
 body.social-page.cb-signed-out a[href="/friends.html"] { display: inline-flex !important; }
 .social-page .header-search input { padding-left: 42px; border-radius: 24px; }
+.social-sensitive-toggle { display: flex !important; align-items: center; gap: 5px !important; font-size: 11px !important; }
+.social-sensitive-toggle input { width: auto !important; }
+.social-content-warning { padding: 20px; margin: 12px 0; border: 1px dashed var(--cb-border, #333348); border-radius: 12px; }
+@media (max-width: 767px) {
+  html:has(body.social-page) { scroll-padding-top: 85px; scroll-padding-bottom: 100px; }
+  .social-page :is(input,textarea,button,a) { scroll-margin-top: 90px; scroll-margin-bottom: 110px; }
+  .social-chat-compose { padding-bottom: 24px; }
+}

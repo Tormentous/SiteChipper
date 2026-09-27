@@ -465,10 +465,19 @@
       scheduleCloseUserMenu(root, panel, btn);
     }
 
-    root.addEventListener("mouseenter", onEnter);
+
     root.addEventListener("mouseleave", onLeave);
-    btn.addEventListener("focus", onEnter);
+
     panel.addEventListener("focusin", cancelClose);
+    root.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') { closeAllUserMenus(); btn.focus(); event.preventDefault(); }
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault(); cancelClose(); openUserMenu(btn, panel);
+        const items = Array.from(panel.querySelectorAll('a,button'));
+        const index = items.indexOf(document.activeElement);
+        items[(index + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length]?.focus();
+      }
+    });
     panel.addEventListener("focusout", function (e) {
       if (!root.contains(e.relatedTarget)) onLeave();
     });
@@ -884,6 +893,7 @@
       else if (nav === "support") active = path.indexOf("/support") === 0;
       else active = pathMatches(href, path, search);
       a.classList.toggle("active", !!active);
+      if (active) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
   }
 
@@ -899,6 +909,8 @@
       else backdrop.setAttribute("hidden", "");
     }
     if (toggle) toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open) sidebar.querySelector('a,button')?.focus();
+    else if (sidebar.contains(document.activeElement)) toggle?.focus();
   }
 
   function setSidebarCollapsed(collapsed) {
@@ -1409,6 +1421,19 @@ function wireRightRail() {
       });
     });
 
+    if (!sidebar.dataset.keyboardWired) {
+      sidebar.dataset.keyboardWired = '1';
+      document.addEventListener('keydown', event => {
+        if (!document.body.classList.contains('cb-sidebar-open')) return;
+        if (event.key === 'Escape') { event.preventDefault(); setSidebarOpen(false); }
+        if (event.key === 'Tab') {
+          const focusable = Array.from(sidebar.querySelectorAll('a,button,[tabindex="0"]')).filter(el => el.getClientRects().length);
+          const first = focusable[0], last = focusable[focusable.length - 1];
+          if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+          else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+        }
+      });
+    }
     window.addEventListener("resize", () => {
       if (window.matchMedia("(min-width: 768px)").matches) setSidebarOpen(false);
     });

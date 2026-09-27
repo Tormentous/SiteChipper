@@ -112,3 +112,24 @@ test('media: authenticated owner, size/type validation and public reads', async 
   await assertFails(uploadBytes(ref(owner,'media/alice/script'),new Uint8Array([1]),{contentType:'text/html'}));
   await assertFails(uploadBytes(ref(owner,'media/alice/huge'),new Uint8Array(10*1024*1024+1),{contentType:'image/png'}));
 });
+
+test('reposts require ownership and a matching reaction in the same atomic write', async () => {
+  await setDoc(doc(alice,'posts','repost-test'),post('alice'));
+  const value={authorId:'bob',profileId:'bob',postId:'repost-test',createdAt:serverTimestamp()};
+  await assertFails(setDoc(doc(bob,'reposts','bob__repost-test'),value));
+  const batch=writeBatch(bob);
+  batch.set(doc(bob,'posts','repost-test','reactions','bob'),{yeah:false,repost:true});
+  batch.set(doc(bob,'reposts','bob__repost-test'),value);
+  await assertSucceeds(batch.commit());
+  assert.equal((await getDoc(doc(guest,'reposts','bob__repost-test'))).data().postId,'repost-test');
+  await assertFails(deleteDoc(doc(alice,'reposts','bob__repost-test')));
+  await assertSucceeds(deleteDoc(doc(bob,'reposts','bob__repost-test')));
+});
+test('community creation protects built-ins and editing is owner-only',async()=>{
+ const value={name:'Drawing Club',description:'Our drawings',ownerId:'alice',createdAt:serverTimestamp()};
+ await assertFails(setDoc(doc(alice,'boards','general'),value));
+ await assertSucceeds(setDoc(doc(alice,'boards','drawing-club'),value));
+ await assertFails(updateDoc(doc(bob,'boards','drawing-club'),{description:'Hijacked'}));
+ await assertSucceeds(setDoc(doc(bob,'posts','custom-board'),{...post('bob'),board:'drawing-club',inGame:false}));
+ await assertFails(setDoc(doc(bob,'posts','unknown-board'),{...post('bob'),board:'unknown-board',inGame:false}));
+});

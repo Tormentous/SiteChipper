@@ -14,3 +14,8 @@ test('game feed preserves curated posts and sensitivity defaults without duplica
 test('non-web media URLs never reach game clients',()=>{
  assert.deepEqual(toGamePost({id:'x',media:{url:'javascript:alert(1)'}},null,[]).media,[]);
 });
+
+test('game projection preserves sensitive and mature content flags',()=>{
+ const p=toGamePost({id:'flagged',contentWarnings:['nsfw','sensitive']},null,[]);
+ assert.equal(p.sensitive,true); assert.equal(p.nsfw,true); assert.deepEqual(p.contentWarnings,['nsfw','sensitive']);
+});

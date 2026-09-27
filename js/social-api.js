@@ -6,7 +6,8 @@ import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc,
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
 export { auth };
-export const BOARDS = ['General', 'BeeSid', 'Starry', 'ChipperCorner', 'Labradoria', 'MutinyDesk', 'GiftDrive', 'FarmReport'];
+export const BOARDS = ['General', 'BeeSid', 'Starry', 'ChipperCorner', 'Labradoria', 'MutinyDesk', 'GiftDrive', 'FarmReport', 'FarmDESTROYERSCLUB', 'Invasions', 'Mutinies4Lyfe', 'testboard'];
+export const boardInfo = new Map();
 export const state = { user: null, profile: null, ready: false };
 const listeners = new Set();
 const profiles = new Map();
@@ -64,12 +65,16 @@ onAuthStateChanged(auth, async user => {
       if (auth.currentUser?.uid !== user.uid) return;
       state.profile = profile;
       cacheProfile(profile);
-      localStorage.setItem('loggedIn', 'true');
-      localStorage.setItem('currentUserId', profile.id);
-      localStorage.setItem('firebaseUid', user.uid);
+      try {
+        localStorage.setItem('loggedIn', 'true');
+        localStorage.setItem('currentUserId', profile.id);
+        localStorage.setItem('firebaseUid', user.uid);
+      } catch (_) { /* A cache failure cannot invalidate an authenticated account. */ }
     } else {
-      for (const key of ['loggedIn', 'currentUserId', 'firebaseUid']) localStorage.removeItem(key);
-      sessionStorage.removeItem('cb_auth_chrome_v2');
+      try {
+        for (const key of ['loggedIn', 'currentUserId', 'firebaseUid']) localStorage.removeItem(key);
+        sessionStorage.removeItem('cb_auth_chrome_v2');
+      } catch (_) {}
     }
   } catch (error) { state.error = error; }
   state.ready = true;
@@ -110,13 +115,16 @@ export async function upload(file) {
   await uploadBytes(target, file, { contentType: file.type });
   return { url: await getDownloadURL(target), type: file.type.startsWith('video/') ? 'video' : 'image', path };
 }
-export async function createPost({ body, board = 'General', media = null }) {
+export async function createPost({ body, board = 'General', media = null, contentWarnings = [] }) {
   const uid = signedIn();
   body = String(body || '').trim();
   if ((!body && !media) || body.length > 2000) throw new Error('Write a post or attach media (up to 2,000 characters).');
   if (!BOARDS.includes(board)) throw new Error('Choose a community from the list.');
+  if (window.CoolbradorMediaSafety?.scanText(body)?.blocked) throw new Error('This content cannot be posted.');
+  const classified = window.CoolbradorSensitiveFilter?.classifyPost({ text: body, contentWarnings });
+  contentWarnings = classified?.contentWarnings || contentWarnings;
   const ref = await addDoc(collection(db, 'posts'), { authorId: uid, profileId: state.profile.id, board, text: body,
-    media, inGame: board === 'BeeSid', createdAt: serverTimestamp(), editedAt: null });
+    media, contentWarnings, inGame: board === 'BeeSid', createdAt: serverTimestamp(), editedAt: null });
   return ref.id;
 }
 export function watchPosts({ board, authorId, after, count = 30 } = {}, success, error) {
@@ -231,3 +239,22 @@ export async function getPost(id) { const snap = await getDoc(doc(db, 'posts', i
 export async function isModerator() { return !!auth.currentUser && (await auth.currentUser.getIdTokenResult()).claims.moderator === true; }
 export function watchReports(success, error) { return onSnapshot(query(collection(db, 'reports'), orderBy('createdAt','desc'), limit(100)), snap => success(snap.docs.map(row)), error); }
 export async function dismissReport(id) { await deleteDoc(doc(db, 'reports', id)); }
+
+export async function loadBoards() {
+  const snapshot = await getDocs(query(collection(db, 'boards'), limit(100)));
+  snapshot.docs.forEach(s => { const b = row(s); boardInfo.set(b.id, b); if (!BOARDS.includes(b.id)) BOARDS.push(b.id); });
+}
+export async function createBoard(name, description) {
+  const uid = signedIn();
+  name = text(name, 48, 'Community name');
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,32);
+  if (id.length < 3 || BOARDS.some(b => b.toLowerCase() === id)) throw new Error('Choose a different name with at least three letters or numbers.');
+  const value = { name, description: String(description || '').trim().slice(0,280), ownerId: uid, createdAt: serverTimestamp() };
+  await runTransaction(db, async tx => {
+    const target = doc(db, 'boards', id);
+    if ((await tx.get(target)).exists()) throw new Error('That community name is already taken.');
+    tx.set(target, value);
+  });
+  return id;
+}
+export async function updateBoard(id, description) { signedIn(); await updateDoc(doc(db,'boards',id),{description:String(description).trim().slice(0,280)}); }

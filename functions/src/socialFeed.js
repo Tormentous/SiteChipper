@@ -11,7 +11,9 @@ function toGamePost(post, profile, reactions) {
     avatar_url: profile && profile.avatarUrl || '', body: post.text || '',
     yeahs, likes: yeahs, views: 0, media, timestamp,
     url: 'https://coolbrador.com/post/' + encodeURIComponent(post.id),
-    inGame: true, feeling: 'happy', sensitive: false
+    inGame: true, feeling: 'happy', contentWarnings: post.contentWarnings || [],
+    sensitive: !!post.sensitive || !!post.contentWarnings?.length,
+    nsfw: !!post.nsfw || (post.contentWarnings || []).includes('nsfw')
   };
 }
 function mergeFeed(base, livePosts) {

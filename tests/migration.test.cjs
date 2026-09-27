@@ -1,0 +1,23 @@
+const {test} = require('node:test');
+const assert = require('node:assert/strict');
+const {execFileSync} = require('node:child_process');
+const admin = require('../functions/node_modules/firebase-admin');
+test('profile migration is dry-run by default, private, and idempotent',async()=>{
+ const projectId='demo-social-migration';
+ const app=admin.initializeApp({projectId},'migration-test');
+ const db=app.firestore();
+ const profile=db.doc('profiles/legacy-profile');
+ const privateRef=db.doc('accountPrivate/legacy-owner');
+ await profile.set({uid:'legacy-owner',displayName:'Legacy member',email:'synthetic@example.test',refreshToken:'synthetic-old-token',bio:'Keep this public biography'});
+ await privateRef.delete();
+ const run=(args=[])=>execFileSync(process.execPath,['tools/migrate-social-profiles.cjs',...args],{env:{...process.env,GCLOUD_PROJECT:projectId,FIRESTORE_EMULATOR_HOST:process.env.FIRESTORE_EMULATOR_HOST||'127.0.0.1:8080'},encoding:'utf8'});
+ assert.match(run(),/Would sanitize 1/);
+ assert.equal((await profile.get()).data().email,'synthetic@example.test');
+ assert.equal((await privateRef.get()).exists,false);
+ assert.match(run(['--apply']),/Sanitized 1/);
+ const publicData=(await profile.get()).data(), privateData=(await privateRef.get()).data();
+ assert.equal(publicData.email,undefined); assert.equal(publicData.refreshToken,undefined);
+ assert.equal(publicData.bio,'Keep this public biography'); assert.equal(privateData.email,'synthetic@example.test');
+ assert.equal(privateData.refreshToken,undefined); assert.match(run(['--apply']),/Sanitized 0/);
+ await profile.delete(); await privateRef.delete(); await app.delete();
+});
