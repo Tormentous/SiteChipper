@@ -8,6 +8,7 @@
  */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const { Timestamp } = require("firebase-admin/firestore");
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -37,9 +38,6 @@ function bucket() {
 
 async function writeJson(path, obj) {
   const file = bucket().file(path);
-  try {
-    await file.delete();
-  } catch (_) {}
   const body = Buffer.from(JSON.stringify(obj), "utf8");
   await file.save(body, {
     resumable: false,
@@ -141,7 +139,7 @@ async function curatedBoard() {
 
 async function liveBoard() {
   const [base, posts] = await Promise.all([curatedBoard(), sharedGamePosts()]);
-  return { ...base, posts: [...posts.map(p => ({ ...p, text:p.body, userId:p.author })), ...(base.posts || [])] };
+  return { ...base, posts: [...posts.map(p => ({ ...p, text:p.body, userId:p.userId })), ...(base.posts || [])] };
 }
 
 exports.publishChipperFeed = functions.https.onRequest(async (req, res) => {
@@ -198,7 +196,7 @@ exports.publishChipperFeed = functions.https.onRequest(async (req, res) => {
       {
         payload: JSON.stringify(feed),
         board: JSON.stringify(board),
-        updatedAt: admin.firestore.Timestamp.fromDate(new Date(nowIso)),
+        updatedAt: Timestamp.fromDate(new Date(nowIso)),
         postCount: (feed.posts || []).length,
         boardName: "BeeSid",
       },

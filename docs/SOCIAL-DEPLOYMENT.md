@@ -38,12 +38,17 @@ For the Functions routes too, use Node 20 (the functions package engine):
 
 ```sh
 mise exec node@20 -- npm run dev:full
+# In another terminal, with the full stack running:
+mise exec node@20 -- npm run test:functions
 ```
 
 The full stack uses functions on 5001 behind the same HTTP entry point on 8000.
 Normal dev serves bundled game JSON; full dev routes game JSON and `/api/*` to
 Functions. Resetting `.emulator-data/` resets local fixtures. Static archive pages
 read `data/community-archive.json`, so live-feed updates cannot renumber old links.
+The full-stack launcher repairs the historical Functions SDK shim's missing
+execute permission locally. Dependency installation can change the repository's
+tracked `functions/node_modules`; keep generated dependency churn out of app commits.
 
 ## Production rollout order
 

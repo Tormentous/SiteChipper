@@ -65,3 +65,19 @@ the turn. No alternative API is used to bypass that restriction.
 - CodeRabbit CLI review was attempted but is disabled for this task. This is a
   review blocker, not a clean-review result. Final emulator suite and full Functions
   smoke checks remain in progress.
+
+## Final verification checkpoint
+- Full emulator suite: 19 tests passed (12 security, four game projection, two
+  chart history, one profile migration). After the final projection adjustment,
+  all six unit tests passed again; rules and migration inputs were unchanged.
+- Live Functions smoke passed shared/curated feed merging, legacy URL parity,
+  board mirroring, anonymous/non-moderator rejection, and moderator publishing.
+  The publishing check exposed a broken Admin Timestamp call, now corrected.
+- Mobile profile navigation and saved biography were verified through the menu.
+  A backdrop stacking bug that intercepted menu taps was found and corrected.
+  The actual Friends feed showed a friend's General post without game keywords.
+- Poll content accessibility audit: zero violations, one contrast check requiring
+  manual review for the SVG chart. Keyboard chart and mobile controls were exercised.
+- These checks use synthetic local accounts and emulators. Production migration,
+  deployment and the launch hardening in SOCIAL-DEPLOYMENT.md remain outstanding.
+  CodeRabbit review remains unavailable because it is disabled in task settings.

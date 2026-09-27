@@ -12,6 +12,15 @@ const PROJECT = process.env.CB_PROJECT || "demo-coolbrador";
 const PORT = process.env.PORT || "8000";
 const extra = process.argv.slice(2);
 const withFunctions = extra.includes("--functions");
+if (withFunctions) {
+  const sdkBin = path.join(ROOT, 'functions', 'node_modules', '.bin', 'firebase-functions');
+  if (!fs.existsSync(sdkBin)) {
+    console.error('Install Functions dependencies first: npm --prefix functions ci');
+    process.exit(1);
+  }
+  // Some historical checkouts track the SDK shim without its executable bit.
+  if (process.platform !== 'win32') fs.chmodSync(sdkBin, fs.statSync(sdkBin).mode | 0o111);
+}
 
 const serverCmd = ["node", "tools/dev-server.mjs", "--emulators", "--port", PORT, "--project", PROJECT, ...extra].join(" ");
 const hasData = fs.existsSync(path.join(DATA, "firebase-export-metadata.json"));

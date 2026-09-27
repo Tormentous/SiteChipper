@@ -127,7 +127,7 @@ function postCard(post, detailed = false) {
 function disposeCards() { cardDisposers.splice(0).forEach(fn => fn()); }
 async function confirmDialog(title, label, value, multiline = false) {
   const dialog = document.createElement('dialog'); dialog.className = 'social-dialog';
-  dialog.innerHTML = `<form method="dialog"><h2>${escape(title)}</h2>${label ? `<label>${escape(label)}${multiline ? `<textarea name="value" rows="5" maxlength="2000" required>${escape(value || '')}</textarea>` : `<p>${escape(value || '')}</p>`}</label>` : ''}<div class="social-actions"><button value="cancel">Cancel</button><button class="social-primary" value="confirm">Confirm</button></div></form>`;
+  dialog.innerHTML = `<form method="dialog"><h2>${escape(title)}</h2>${label ? `<label>${escape(label)}${multiline ? `<textarea name="value" rows="5" maxlength="2000" required>${escape(value || '')}</textarea>` : `<p>${escape(value || '')}</p>`}</label>` : ''}<div class="social-actions"><button value="cancel" formnovalidate>Cancel</button><button class="social-primary" value="confirm">Confirm</button></div></form>`;
   document.body.append(dialog); dialog.showModal();
   return new Promise(resolve => dialog.addEventListener('close', () => { const result = dialog.returnValue === 'confirm' ? multiline ? dialog.querySelector('textarea').value : true : null; dialog.remove(); resolve(result); }, { once: true }));
 }
@@ -350,10 +350,10 @@ async function pollsPage() {
     await api.createPoll(data.get('title'), String(data.get('choices')).split('\n').map(v => v.trim()).filter(Boolean), data.get('board'));
     form.reset(); root.querySelector('details').open = false; toast('Poll created.');
   });
-  let pollStops = [], charts = [];
+  let pollStops = [], charts = new Map();
   disposers.push(() => { pollStops.forEach(fn => fn()); charts.forEach(c => c?.destroy()); });
   disposers.push(api.watchPolls(polls => {
-    pollStops.forEach(fn => fn()); charts.forEach(c => c?.destroy()); pollStops = []; charts = [];
+    pollStops.forEach(fn => fn()); charts.forEach(c => c?.destroy()); pollStops = []; charts = new Map();
     const host = root.querySelector('#pollList'); host.replaceChildren();
     if (!polls.length) host.innerHTML = empty('A question starts a conversation', 'Create the first community poll.');
     polls.forEach(poll => {
@@ -375,7 +375,7 @@ async function pollsPage() {
         const running = poll.options.map(() => 0);
         const series = poll.options.map((name,i) => ({ id: String(i), name, points: [] }));
         sorted.forEach((vote,n) => { running[vote.choice]++; series.forEach((s,i) => s.points.push({ t: api.timestamp(vote.createdAt), v: running[i]/(n+1)*100 })); });
-        chart?.destroy(); chart = window.CoolbradorScrubChart.mount(card.querySelector('.social-chart'), { series, title: poll.title, interpolation: 'step' }); charts.push(chart);
+        chart?.destroy(); chart = window.CoolbradorScrubChart.mount(card.querySelector('.social-chart'), { series, title: poll.title, interpolation: 'step' }); charts.set(poll.id, chart);
       }, failure));
     });
   }, failure));

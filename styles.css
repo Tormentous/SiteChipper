@@ -2286,6 +2286,7 @@ body.has-cb-sidebar .main-header {
   .mobile-top-bar .header-search { flex: 1; }
   .cb-sidebar {
     transform: translateX(-105%);
+    z-index: 1100;
     width: min(280px, 86vw);
     top: 0;
     bottom: 72px;
@@ -7106,3 +7107,6 @@ body.messages-page .cb-msg-shell {
   .cb-sidebar:not(.is-open) { visibility: hidden; }
   .cb-sidebar.is-open { visibility: visible; }
 }
+.cb-sidebar-account-toggle { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; padding: 8px 0; }
+.cb-sidebar-account-toggle:focus-visible { outline: 2px solid var(--cb-accent); outline-offset: 3px; }
+.cb-live-count { margin-left: auto; background: var(--cb-accent); color: var(--cb-accent-text, #08101f); border-radius: 20px; min-width: 22px; padding: 2px 6px; font-size: 11px; font-weight: 700; text-align: center; }

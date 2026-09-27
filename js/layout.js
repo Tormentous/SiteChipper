@@ -738,7 +738,7 @@
 
   function closeSidebarUserMenu() {
     document.querySelectorAll(".cb-side-user-menu").forEach(function (p) { p.hidden = true; });
-    document.querySelectorAll("#cbSidebarUser, .cb-sidebar-user-collapsed").forEach(function (b) {
+    document.querySelectorAll(".cb-sidebar-account-toggle, .cb-sidebar-user-collapsed").forEach(function (b) {
       b.setAttribute("aria-expanded", "false");
     });
   }
@@ -773,17 +773,24 @@
         signOutFully();
       };
     }
-    userEl.setAttribute("aria-haspopup", "true");
-    userEl.setAttribute("aria-expanded", "false");
+    const trigger = userEl.querySelector(".cb-sidebar-account-toggle");
+    if (!trigger) return;
+    trigger.setAttribute("aria-haspopup", "true");
+    trigger.setAttribute("aria-expanded", "false");
+    trigger.onkeydown = function (e) {
+      if (e.key === 'Escape') { closeSidebarUserMenu(); menu.hidden = true; trigger.setAttribute('aria-expanded','false'); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); menu.hidden = false; trigger.setAttribute('aria-expanded','true'); menu.querySelector('a,button')?.focus(); }
+    };
+    menu.onkeydown = function (e) { if (e.key === 'Escape') { e.preventDefault(); closeSidebarUserMenu(); trigger.setAttribute('aria-expanded','false'); trigger.focus(); } };
     userEl.style.cursor = "pointer";
     userEl.title = "Account menu";
-    userEl.onclick = function (e) {
+    trigger.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();
       var open = menu.hidden;
       closeSidebarUserMenu();
       menu.hidden = !open;
-      userEl.setAttribute("aria-expanded", open ? "true" : "false");
+      trigger.setAttribute("aria-expanded", open ? "true" : "false");
     };
   }
 
@@ -824,9 +831,9 @@
           else if (cache && cache.pfp) sidePfp = cache.pfp;
         } catch (_) {}
         userEl.innerHTML =
-          '<span class="cb-sidebar-user-name">' + escapeHtml(name) + "</span>" +
+          '<button type="button" class="cb-sidebar-account-toggle"><span class="cb-sidebar-user-name">' + escapeHtml(name) + "</span>" +
           '<img class="cb-sidebar-user-pfp" src="' + String(sidePfp).replace(/"/g, "") + '" alt="">' +
-          '<span class="cb-sidebar-user-initials" aria-hidden="true">' + escapeHtml(initialsFromName(name)) + "</span>";
+          '<span class="cb-sidebar-user-initials" aria-hidden="true">' + escapeHtml(initialsFromName(name)) + "</span></button>";
         wireSidebarUserMenu(userEl, url, name);
       } else if (signedHint) {
         // Known signed-in but name still resolving: reserve slot, optional shimmer over text area.
@@ -1440,6 +1447,15 @@ function wireRightRail() {
   }
 
   var socialAuthWired = false;
+  var socialBadgeUid = null, socialBadgeStops = [];
+  function liveBadge(nav, count, description) {
+    const link = document.querySelector('.cb-side-link[data-nav="' + nav + '"]');
+    if (!link) return;
+    link.querySelector('.cb-live-count')?.remove();
+    if (count) {
+      const badge = document.createElement('span'); badge.className = 'cb-live-count'; badge.textContent = count > 99 ? '99+' : String(count); badge.setAttribute('aria-label', count + ' ' + description); link.append(badge);
+    }
+  }
   async function updateUserProfile() {
     if (socialAuthWired) return;
     socialAuthWired = true;
@@ -1452,6 +1468,15 @@ function wireRightRail() {
           renderSignedInChrome({ id: state.profile.id, username: state.profile.displayName,
             pfp: state.profile.avatarUrl || '/users/default/pfp.jpg', profileUrl: '/users/' + encodeURIComponent(state.profile.id) });
         } else { clearLocalSession(); renderLoginLinks(); }
+        if (socialBadgeUid !== state.user?.uid) {
+          socialBadgeStops.forEach(stop => stop()); socialBadgeStops = [];
+          socialBadgeUid = state.user?.uid;
+          liveBadge('notifications', 0); liveBadge('friends', 0);
+          if (state.profile && state.user) {
+            socialBadgeStops.push(api.watchNotifications(rows => liveBadge('notifications', rows.filter(n => !n.read).length, 'Unread notifications'), () => {}));
+            socialBadgeStops.push(api.watchFriends(rows => liveBadge('friends', rows.filter(f => f.status === 'pending' && f.requester !== state.user.uid).length, 'Pending friend requests'), () => {}));
+          }
+        }
         markAuthReady();
         window.dispatchEvent(new CustomEvent('cb-auth-changed', { detail: { signedIn: !!state.profile, userId: state.profile?.id || '' } }));
       });
@@ -1832,7 +1857,7 @@ function sectionIcon(section) {
           if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
           e.preventDefault();
           e.stopPropagation();
-          try { side.click(); } catch (_) {}
+          try { (side.querySelector(".cb-sidebar-account-toggle") || side).click(); } catch (_) {}
         });
       });
     } catch (_) {}
